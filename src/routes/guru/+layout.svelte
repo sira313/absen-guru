@@ -46,7 +46,10 @@
 					<ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
 						<li>
 							<a href="/profile" class="justify-between">
-								Profile
+								<div class="flex items-center gap-2">
+									<User class="w-4 h-4" />
+									Profile
+								</div>
 								<span class="badge badge-sm">Guru</span>
 							</a>
 						</li>
