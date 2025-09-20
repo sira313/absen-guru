@@ -1,0 +1,9 @@
+node_modules/
+.svelte-kit/
+build/
+.env
+data/
+dist/
+*.log
+.DS_Store
+pnpm-lock.yaml
