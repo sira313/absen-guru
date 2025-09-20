@@ -1,15 +1,80 @@
 {
+  // Performance optimizations
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/dist/**": true,
+    "**/.svelte-kit/**": true,
+    "**/build/**": true,
+    "**/.pnpm-store/**": true,
+    "**/pnpm-lock.yaml": true,
+    "**/absen.db": true
+  },
+  
+  // Search optimizations
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.svelte-kit": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.pnpm-store": true,
+    "**/pnpm-lock.yaml": true,
+    "**/absen.db": true
+  },
+  
+  // File Explorer optimizations
+  "files.exclude": {
+    "**/.svelte-kit": true,
+    "**/node_modules": true,
+    "**/.pnpm-store": true
+  },
+  
+  // Editor optimizations
+  "editor.semanticHighlighting.enabled": false,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "none",
+  "editor.occurrencesHighlight": "off",
+  "editor.selectionHighlight": false,
+  "editor.wordBasedSuggestions": "off",
+  
+  // TypeScript/JavaScript optimizations
+  "typescript.surveys.enabled": false,
+  "typescript.suggest.autoImports": false,
+  "javascript.suggest.autoImports": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  
+  // Svelte optimizations - keep enabled but optimized
+  "svelte.enable-ts-plugin": false,
+  "svelte.plugin.css.diagnostics.enable": false,
+  "svelte.plugin.svelte.diagnostics.enable": true,
+  
+  // TailwindCSS optimizations
   "tailwindCSS.includeLanguages": {
     "svelte": "html"
   },
   "tailwindCSS.experimental.classRegex": [
     ["class:([^=]+)=", "\"([^\"]*)\""]
   ],
-  "svelte.enable-ts-plugin": true,
+  
+  // Formatting
   "[svelte]": {
     "editor.defaultFormatter": "svelte.svelte-vscode"
   },
   "[css]": {
     "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  
+  // Git optimizations
+  "git.autofetch": false,
+  "git.autoStash": false,
+  
+  // Disable heavy features
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "extensions.autoUpdate": false,
+  
+  // Memory optimizations
+  "files.associations": {
+    "*.db": "plaintext"
   }
 }

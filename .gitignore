@@ -7,3 +7,24 @@ dist/
 *.log
 .DS_Store
 pnpm-lock.yaml
+
+# VS Code optimizations
+.vscode/settings.json
+.vscode/.ropeproject
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Build artifacts
+*.tsbuildinfo
