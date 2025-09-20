@@ -267,7 +267,8 @@ export const dbHelpers = {
 			terlambat: 0,
 			tidak_hadir: 0,
 			izin: 0,
-			sakit: 0
+			sakit: 0,
+			dinas_luar: 0
 		};
 
 		records.forEach(record => {
@@ -275,6 +276,9 @@ export const dbHelpers = {
 				stats[record.status]++;
 			}
 		});
+
+		// Untuk kompatibilitas dengan logika "dinas_luar = hadir"
+		stats.hadir_total = stats.hadir + stats.dinas_luar;
 
 		return stats;
 	},

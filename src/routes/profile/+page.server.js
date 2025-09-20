@@ -37,6 +37,7 @@ export async function load({ locals }) {
 			name: users.name,
 			nip: users.nip,
 			subject: users.subject,
+			employeeType: users.employeeType,
 			phone: users.phone
 		})
 		.from(users)

@@ -114,6 +114,17 @@
 						/>
 						<p class="label">Mata pelajaran yang diampu</p>
 					</fieldset>
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Status Kepegawaian</legend>
+						<input 
+							type="text" 
+							class="input w-full" 
+							value={data.user.employeeType || 'Tidak ditetapkan'}
+							disabled
+						/>
+						<p class="label">Status kepegawaian (hanya admin yang dapat mengubah)</p>
+					</fieldset>
 					{/if}
 
 					<fieldset class="fieldset">

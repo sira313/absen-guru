@@ -33,6 +33,7 @@ export async function load({ locals }) {
 				role: users.role,
 				nip: users.nip,
 				subject: users.subject,
+				employeeType: users.employeeType,
 				phone: users.phone,
 				isActive: users.isActive,
 				createdAt: users.createdAt
@@ -67,6 +68,7 @@ export const actions = {
 		const role = data.get('role');
 		const nip = data.get('nip');
 		const subject = data.get('subject');
+		const employeeType = data.get('employeeType');
 		const phone = data.get('phone');
 
 		console.log('Form data received:', {
@@ -77,6 +79,7 @@ export const actions = {
 			role,
 			nip,
 			subject,
+			employeeType,
 			phone
 		});
 
@@ -84,6 +87,11 @@ export const actions = {
 		if (!username || !name || !email || !password || !role) {
 			console.log('Validation failed - missing required fields');
 			return fail(400, { message: 'Username, nama, email, password, dan role harus diisi' });
+		}
+
+		if (role === 'guru' && !employeeType) {
+			console.log('Validation failed - missing employeeType for guru');
+			return fail(400, { message: 'Status kepegawaian harus diisi untuk guru' });
 		}
 
 		if (password.length < 6) {
@@ -155,6 +163,7 @@ export const actions = {
 				role: role,
 				nip: nip || null,
 				subject: subject || null,
+				employeeType: role === 'guru' ? employeeType : null,
 				phone: phone || null,
 				email: email,
 				isActive: true
@@ -168,6 +177,73 @@ export const actions = {
 			console.error('Error message:', err.message);
 			console.error('Error stack:', err.stack);
 			console.error('Full error object:', err);
+			return fail(500, { message: 'Terjadi kesalahan server: ' + err.message });
+		}
+	},
+
+	updateUser: async ({ request, locals }) => {
+		if (!locals.user || locals.user.role !== 'admin') {
+			throw error(403, 'Access forbidden');
+		}
+
+		const data = await request.formData();
+		const id = data.get('id');
+		const name = data.get('name');
+		const email = data.get('email');
+		const role = data.get('role');
+		const employeeType = data.get('employee_type');
+		const newPassword = data.get('newPassword');
+
+		// Validation
+		if (!id || !name || !email || !role) {
+			return fail(400, { message: 'ID, nama, email, dan role wajib diisi' });
+		}
+
+		// Validate employee type for guru
+		if (role === 'guru' && !employeeType) {
+			return fail(400, { message: 'Status kepegawaian wajib diisi untuk guru' });
+		}
+
+		// Prevent changing own role
+		if (id === locals.user.id && role !== locals.user.role) {
+			return fail(400, { message: 'Tidak dapat mengubah role sendiri' });
+		}
+
+		try {
+			// Check if email is already used by another user
+			const existingEmail = await db
+				.select({ id: users.id })
+				.from(users)
+				.where(eq(users.email, email));
+
+			if (existingEmail.length > 0 && existingEmail[0].id !== id) {
+				return fail(400, { message: 'Email sudah digunakan oleh user lain' });
+			}
+
+			// Prepare update data
+			const updateData = {
+				name,
+				email,
+				role,
+				employeeType: role === 'guru' ? employeeType : null
+			};
+
+			// If password is provided, hash it and include in update
+			if (newPassword && newPassword.trim() !== '') {
+				if (newPassword.length < 6) {
+					return fail(400, { message: 'Password minimal 6 karakter' });
+				}
+				updateData.password = await simpleHash(newPassword);
+			}
+
+			// Update user
+			await db.update(users)
+				.set(updateData)
+				.where(eq(users.id, id));
+
+			return { success: true, message: 'User berhasil diperbarui' };
+		} catch (err) {
+			console.error('Database error:', err);
 			return fail(500, { message: 'Terjadi kesalahan server: ' + err.message });
 		}
 	},

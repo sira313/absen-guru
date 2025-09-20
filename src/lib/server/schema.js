@@ -10,6 +10,7 @@ export const users = sqliteTable('users', {
 	role: text('role').notNull().default('guru'), // 'admin' atau 'guru'
 	nip: text('nip'), // Nomor Induk Pegawai
 	subject: text('subject'), // Mata pelajaran yang diajar
+	employeeType: text('employee_type').default('Honorer'), // 'PNS', 'PPPK', 'Honorer'
 	phone: text('phone'),
 	email: text('email'),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),

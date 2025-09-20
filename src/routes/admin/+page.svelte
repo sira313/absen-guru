@@ -11,6 +11,23 @@
 	// Ignore unused SvelteKit props
 	$$restProps;
 
+	// Helper functions for status display
+	function getStatusClass(status) {
+		// dinas_luar dihitung sebagai hadir untuk tampilan
+		if (status === 'hadir' || status === 'dinas_luar') return 'badge-success';
+		if (status === 'terlambat') return 'badge-warning';
+		return 'badge-error';
+	}
+
+	function getStatusText(status) {
+		if (status === 'hadir') return 'Hadir';
+		if (status === 'dinas_luar') return 'Dinas Luar';
+		if (status === 'terlambat') return 'Terlambat';
+		if (status === 'izin') return 'Izin';
+		if (status === 'sakit') return 'Sakit';
+		return 'Tidak Hadir';
+	}
+
 	// Function to handle backup download
 	let isBackingUp = false;
 	
@@ -154,8 +171,8 @@
 							<td>{format(new Date(attendance.date), 'dd MMM yyyy', { locale: localeId })}</td>
 							<td>{attendance.check_in_time || '-'}</td>
 							<td>
-								<div class="badge {attendance.status === 'hadir' ? 'badge-success' : attendance.status === 'terlambat' ? 'badge-warning' : 'badge-error'}">
-									{attendance.status === 'hadir' ? 'Hadir' : attendance.status === 'terlambat' ? 'Terlambat' : 'Tidak Hadir'}
+								<div class="badge {getStatusClass(attendance.status)}">
+									{getStatusText(attendance.status)}
 								</div>
 							</td>
 							<td class="text-sm opacity-70">{attendance.notes || '-'}</td>

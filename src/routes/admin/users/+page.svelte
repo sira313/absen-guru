@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus } from 'lucide-svelte';
+	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3 } from 'lucide-svelte';
 	
 	export let data;
 	export let form;
@@ -14,13 +14,27 @@
 	$$restProps;
 	
 	let showCreateForm = false;
+	let editingUser = null;
 	let deleteUserId = null;
+	let selectedRole = '';
+	let editSelectedRole = '';
 	
 	function showDeleteConfirm(userId, userName) {
 		if (confirm(`Yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
 			deleteUserId = userId;
 			document.getElementById('deleteForm').requestSubmit();
 		}
+	}
+
+	function showEditForm(user) {
+		editingUser = { ...user };
+		editSelectedRole = user.role;
+		showCreateForm = false; // Close create form if open
+	}
+
+	function cancelEdit() {
+		editingUser = null;
+		editSelectedRole = '';
 	}
 </script>
 
@@ -185,6 +199,26 @@
 						</div>
 
 						<div class="form-control">
+							<label class="label" for="role">
+								<span class="label-text">Role <span class="text-error">*</span></span>
+							</label>
+							<div class="relative">
+								<Shield class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<select 
+									id="role"
+									name="role" 
+									required
+									class="select select-bordered w-full pl-10"
+									bind:value={selectedRole}
+								>
+									<option value="">Pilih Role</option>
+									<option value="guru">Guru</option>
+									<option value="admin">Admin</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-control">
 							<label class="label" for="password">
 								<span class="label-text">Password <span class="text-error">*</span></span>
 							</label>
@@ -202,24 +236,27 @@
 							</div>
 						</div>
 
+						{#if selectedRole === 'guru'}
 						<div class="form-control">
-							<label class="label" for="role">
-								<span class="label-text">Role <span class="text-error">*</span></span>
+							<label class="label" for="employeeType">
+								<span class="label-text">Status Kepegawaian <span class="text-error">*</span></span>
 							</label>
 							<div class="relative">
-								<Shield class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
 								<select 
-									id="role"
-									name="role" 
+									id="employeeType"
+									name="employeeType" 
 									required
 									class="select select-bordered w-full pl-10"
 								>
-									<option value="">Pilih Role</option>
-									<option value="guru">Guru</option>
-									<option value="admin">Admin</option>
+									<option value="">Pilih Status</option>
+									<option value="PNS">PNS (Pegawai Negeri Sipil)</option>
+									<option value="PPPK">PPPK (Pegawai Pemerintah dengan Perjanjian Kerja)</option>
+									<option value="Honorer">Honorer</option>
 								</select>
 							</div>
 						</div>
+						{/if}
 					</div>
 
 					<div class="flex gap-4 mt-6">
@@ -264,6 +301,7 @@
 								<th>Username</th>
 								<th>Email</th>
 								<th>Role</th>
+								<th>Status Kepegawaian</th>
 								<th>Dibuat</th>
 								<th>Aksi</th>
 							</tr>
@@ -280,6 +318,17 @@
 									</div>
 								</td>
 								<td>
+									{#if user.role === 'guru' && user.employeeType}
+										<div class="badge badge-outline 
+											{user.employeeType === 'PNS' ? 'badge-success' : 
+											 user.employeeType === 'PPPK' ? 'badge-info' : 'badge-warning'}">
+											{user.employeeType}
+										</div>
+									{:else}
+										<span class="text-sm opacity-50">-</span>
+									{/if}
+								</td>
+								<td>
 									{#if user.createdAt}
 										{@const dateValue = new Date(user.createdAt)}
 										{#if !isNaN(dateValue.getTime())}
@@ -292,13 +341,22 @@
 									{/if}
 								</td>
 								<td>
-									<button 
-										on:click={() => showDeleteConfirm(user.id, user.name)}
-										class="btn btn-sm btn-error btn-outline"
-									>
-										<Trash2 class="w-4 h-4" />
-										Hapus
-									</button>
+									<div class="flex gap-2">
+										<button 
+											on:click={() => showEditForm(user)}
+											class="btn btn-sm btn-warning btn-outline"
+										>
+											<Edit3 class="w-4 h-4" />
+											Edit
+										</button>
+										<button 
+											on:click={() => showDeleteConfirm(user.id, user.name)}
+											class="btn btn-sm btn-error btn-outline"
+										>
+											<Trash2 class="w-4 h-4" />
+											Hapus
+										</button>
+									</div>
 								</td>
 							</tr>
 							{/each}
@@ -318,6 +376,101 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal Edit User -->
+	{#if editingUser}
+	<div class="modal modal-open">
+		<div class="modal-box max-w-2xl">
+			<h3 class="font-bold text-lg mb-4">Edit User</h3>
+			
+			<form method="POST" action="?/updateUser" on:submit={() => editingUser = null}>
+				<input type="hidden" name="id" value={editingUser.id}>
+				
+				<!-- Name -->
+				<div class="form-control mb-4">
+					<label class="label" for="edit-name">
+						<span class="label-text">Nama <span class="text-red-500">*</span></span>
+					</label>
+					<input 
+						type="text" 
+						id="edit-name"
+						name="name" 
+						value={editingUser.name}
+						class="input input-bordered w-full" 
+						required 
+					/>
+				</div>
+
+				<!-- Email -->
+				<div class="form-control mb-4">
+					<label class="label" for="edit-email">
+						<span class="label-text">Email <span class="text-red-500">*</span></span>
+					</label>
+					<input 
+						type="email" 
+						id="edit-email"
+						name="email" 
+						value={editingUser.email}
+						class="input input-bordered w-full" 
+						required 
+					/>
+				</div>
+
+				<!-- Role -->
+				<div class="form-control mb-4">
+					<label class="label" for="edit-role">
+						<span class="label-text">Role <span class="text-red-500">*</span></span>
+					</label>
+					<select id="edit-role" name="role" class="select select-bordered w-full" bind:value={editSelectedRole} required>
+						<option value="">Pilih Role</option>
+						<option value="admin">Admin</option>
+						<option value="guru">Guru</option>
+					</select>
+				</div>
+
+				<!-- Employee Type (only for guru) -->
+				{#if editSelectedRole === 'guru'}
+				<div class="form-control mb-4">
+					<label class="label" for="edit-employee-type">
+						<span class="label-text">Status Kepegawaian <span class="text-red-500">*</span></span>
+					</label>
+					<select id="edit-employee-type" name="employee_type" class="select select-bordered w-full">
+						<option value="">Pilih Status</option>
+						<option value="PNS" selected={editingUser.employee_type === 'PNS'}>PNS</option>
+						<option value="PPPK" selected={editingUser.employee_type === 'PPPK'}>PPPK</option>
+						<option value="Honorer" selected={editingUser.employee_type === 'Honorer'}>Honorer</option>
+					</select>
+				</div>
+				{/if}
+
+				<!-- Password Change -->
+				<div class="form-control mb-4">
+					<label class="label" for="edit-password">
+						<span class="label-text">Password Baru</span>
+						<span class="label-text-alt text-gray-500">Kosongkan jika tidak ingin mengubah</span>
+					</label>
+					<input 
+						type="password" 
+						id="edit-password"
+						name="newPassword" 
+						class="input input-bordered w-full" 
+						placeholder="Masukkan password baru (opsional)"
+						minlength="6"
+					/>
+				</div>
+
+				<div class="modal-action">
+					<button type="button" class="btn btn-ghost" on:click={cancelEdit}>
+						Batal
+					</button>
+					<button type="submit" class="btn btn-primary">
+						Simpan Perubahan
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	{/if}
 
 	<!-- Hidden Delete Form -->
 	<form id="deleteForm" method="POST" action="?/delete" use:enhance style="display: none;">

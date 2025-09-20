@@ -13,7 +13,7 @@
 </script>
 
 <div class="navbar bg-base-100 shadow-sm sticky top-0 z-30">
-	<div class="flex-1">
+	<div class="flex-1 min-w-0 flex items-center">
 		{#if showDrawerToggle}
 			<div class="flex-none lg:hidden">
 				<label for="my-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost drawer-button mr-2">
@@ -22,13 +22,15 @@
 			</div>
 		{/if}
 		
-		<a class="btn btn-ghost text-xl" href={defaultHomeUrl}>
+		<a class="btn btn-ghost normal-case min-w-0 flex-1 justify-start" href={defaultHomeUrl}>
 			{#if isAdmin}
-				<BarChart3 class="w-6 h-6 mr-2" />
+				<BarChart3 class="w-5 h-5 flex-shrink-0" />
 			{:else}
-				<Clock class="w-6 h-6 mr-2" />
+				<Clock class="w-5 h-5 flex-shrink-0" />
 			{/if}
-			{displayTitle}
+			<span class="ml-2 truncate text-base font-semibold">
+				{isAdmin ? 'Admin Panel' : 'Absen Guru'}
+			</span>
 		</a>
 	</div>
 	

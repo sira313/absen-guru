@@ -18,11 +18,11 @@
 
 	function getStatusBadgeClass(status) {
 		switch(status) {
-			case 'hadir': return 'badge-success';
+			case 'hadir':
+			case 'dinas_luar': return 'badge-success'; // dinas_luar dihitung sebagai hadir
 			case 'terlambat': return 'badge-warning';
 			case 'sakit': return 'badge-error';
 			case 'izin': return 'badge-warning';
-			case 'dinas_luar': return 'badge-info';
 			case 'tidak_hadir': return 'badge-error';
 			default: return 'badge';
 		}
