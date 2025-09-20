@@ -10,7 +10,7 @@ const config = {
 			envPrefix: ''
 		}),
 		csrf: {
-			checkOrigin: false
+			trustedOrigins: ['http://localhost:5173', 'http://localhost:5174']
 		}
 	}
 };

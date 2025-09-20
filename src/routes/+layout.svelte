@@ -10,12 +10,6 @@
 	<meta name="description" content="Aplikasi absensi untuk guru" />
 </svelte:head>
 
-<div class="min-h-screen">
+<div class="min-h-screen bg-base-200">
 	<slot />
 </div>
-
-<style>
-	:global(html) {
-		font-family: system-ui, -apple-system, sans-serif;
-	}
-</style>
