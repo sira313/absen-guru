@@ -227,7 +227,8 @@
 			</div>
 			<div class="stat-value text-success">{stats.presentDays}</div>
 			<div class="stat-title">Hadir</div>
-			<div class="stat-desc text-xs opacity-60">Termasuk dinas luar</div>
+			<div class="stat-desc text-xs opacity-60 sm:hidden">Termasuk DL</div>
+			<div class="stat-desc text-xs opacity-60 hidden sm:block">Termasuk Dinas Luar</div>
 		</div>
 		
 		<!-- Terlambat -->
@@ -263,7 +264,8 @@
 				<AlertTriangle class="w-8 h-8" />
 			</div>
 			<div class="stat-value text-error">{stats.absentDays}</div>
-			<div class="stat-title">Tanpa Keterangan</div>
+			<div class="stat-title sm:hidden">TK</div>
+			<div class="stat-title hidden sm:block">Tanpa Keterangan</div>
 		</div>
 		
 		<!-- Total Hari -->
