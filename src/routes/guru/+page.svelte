@@ -125,7 +125,7 @@
 	</div>
 
 	<!-- Statistik Bulan Ini -->
-	<div class="stats stats-vertical lg:stats-horizontal shadow">
+	<div class="stats stats-vertical lg:stats-horizontal shadow-xl w-full">
 		<div class="stat bg-base-100">
 			<div class="stat-figure text-success">
 				<CheckCircle class="w-8 h-8" />

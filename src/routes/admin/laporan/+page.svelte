@@ -101,41 +101,39 @@
 				<Filter class="w-5 h-5" />
 				Filter Laporan
 			</h2>
-			<form id="filterForm" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-				<div class="form-control">
-					<label for="start_date" class="label">
-						<span class="label-text">Tanggal Mulai</span>
-					</label>
+			<form id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Tanggal Mulai</legend>
 					<input 
 						id="start_date"
 						type="date" 
 						name="start_date" 
 						value={filters.startDate}
-						class="input input-bordered"
+						class="input input-bordered w-full"
+						placeholder="Tanggal mulai"
 					/>
-				</div>
-				
-				<div class="form-control">
-					<label for="end_date" class="label">
-						<span class="label-text">Tanggal Akhir</span>
-					</label>
+					<p class="label text-xs text-base-content/60">Periode awal laporan</p>
+				</fieldset>
+
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Tanggal Akhir</legend>
 					<input 
 						id="end_date"
 						type="date" 
 						name="end_date" 
 						value={filters.endDate}
-						class="input input-bordered"
+						class="input input-bordered w-full"
+						placeholder="Tanggal akhir"
 					/>
-				</div>
+					<p class="label text-xs text-base-content/60">Periode akhir laporan</p>
+				</fieldset>
 
-				<div class="form-control">
-					<label for="user_id" class="label">
-						<span class="label-text">Guru</span>
-					</label>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Pilih Guru</legend>
 					<select 
 						id="user_id"
 						name="user_id" 
-						class="select select-bordered"
+						class="select select-bordered w-full"
 					>
 						<option value="">Semua Guru</option>
 						{#each allUsers as user}
@@ -144,44 +142,42 @@
 							</option>
 						{/each}
 					</select>
-				</div>
+					<p class="label text-xs text-base-content/60">Filter berdasarkan guru</p>
+				</fieldset>
 
-				<div class="form-control">
-					<label for="status" class="label">
-						<span class="label-text">Status</span>
-					</label>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Status Kehadiran</legend>
 					<select 
 						id="status"
 						name="status" 
-						class="select select-bordered"
+						class="select select-bordered w-full"
 					>
 						<option value="">Semua Status</option>
 						<option value="hadir" selected={filters.status === 'hadir'}>Hadir</option>
 						<option value="terlambat" selected={filters.status === 'terlambat'}>Terlambat</option>
 						<option value="tidak_hadir" selected={filters.status === 'tidak_hadir'}>Tidak Hadir</option>
 					</select>
-				</div>
-
-				<div class="form-control">
-					<label for="filter-button" class="label">
-						<span class="label-text">Terapkan Filter</span>
-					</label>
-					<button 
-						id="filter-button"
-						type="button" 
-						on:click={handleFilterChange}
-						class="btn btn-primary"
-					>
-						<Filter class="w-4 h-4" />
-						Filter
-					</button>
-				</div>
+					<p class="label text-xs text-base-content/60">Filter berdasarkan status</p>
+				</fieldset>
 			</form>
+
+			<!-- Action Button -->
+			<div class="mt-4">
+				<button 
+					id="filter-button"
+					type="button" 
+					on:click={handleFilterChange}
+					class="btn btn-primary"
+				>
+					<Filter class="w-4 h-4" />
+					Terapkan Filter
+				</button>
+			</div>
 		</div>
 	</div>
 
 	<!-- Statistics Summary -->
-	<div class="stats shadow w-full">
+	<div class="stats shadow-xl w-full bg-base-100">
 		<div class="stat">
 			<div class="stat-figure text-primary">
 				<FileText class="w-8 h-8" />

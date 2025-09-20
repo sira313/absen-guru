@@ -1,7 +1,7 @@
 <script>
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { Users, FileText, Settings, TrendingUp, TrendingDown, Clock, UserCheck } from 'lucide-svelte';
+	import { Users, FileText, TrendingUp, TrendingDown, Clock, UserCheck, Database } from 'lucide-svelte';
 	
 	export let data;
 	$: stats = data.stats;
@@ -10,6 +10,56 @@
 	
 	// Ignore unused SvelteKit props
 	$$restProps;
+
+	// Function to handle backup download
+	let isBackingUp = false;
+	
+	async function handleBackupDownload() {
+		isBackingUp = true;
+		
+		try {
+			const response = await fetch('/admin/backup-download', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			});
+
+			if (response.ok) {
+				// Get filename from response headers or create default
+				const contentDisposition = response.headers.get('content-disposition');
+				let filename = 'backup_absen_guru.db';
+				
+				if (contentDisposition) {
+					const matches = /filename="([^"]*)"/.exec(contentDisposition);
+					if (matches) filename = matches[1];
+				}
+
+				// Download the file
+				const blob = await response.blob();
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.style.display = 'none';
+				a.href = url;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+				
+				// Show success message
+				alert('Backup database berhasil didownload!');
+			} else {
+				const errorData = await response.json();
+				alert('Error: ' + errorData.message);
+			}
+		} catch (error) {
+			console.error('Backup error:', error);
+			alert('Terjadi kesalahan saat backup: ' + error.message);
+		} finally {
+			isBackingUp = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -24,7 +74,7 @@
 	</div>
 
 	<!-- Statistik Overview -->
-	<div class="stats shadow w-full">
+	<div class="stats shadow-xl w-full bg-base-100">
 		<div class="stat">
 			<div class="stat-figure text-primary">
 				<FileText class="w-8 h-8" />
@@ -68,10 +118,15 @@
 					<FileText class="w-5 h-5 mr-2" />
 					Laporan Detail
 				</a>
-				<a href="/admin/settings" class="btn btn-outline btn-lg">
-					<Settings class="w-5 h-5 mr-2" />
-					Pengaturan
-				</a>
+				<button 
+					type="button" 
+					class="btn btn-success btn-outline btn-lg w-full"
+					disabled={isBackingUp}
+					on:click={handleBackupDownload}
+				>
+					<Database class="w-5 h-5 mr-2" />
+					{isBackingUp ? 'Mendownload...' : 'Download Backup'}
+				</button>
 			</div>
 		</div>
 	</div>

@@ -2,6 +2,8 @@ import { redirect, error } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 import { attendance, users } from '$lib/server/schema.js';
 import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
+import fs from 'fs';
+import path from 'path';
 
 export async function load({ locals, url }) {
 	if (!locals.user) {
@@ -85,3 +87,50 @@ export async function load({ locals, url }) {
 		throw error(500, 'Internal server error');
 	}
 }
+
+export const actions = {
+	backup: async ({ locals }) => {
+		if (!locals.user || locals.user.role !== 'admin') {
+			throw redirect(302, '/login');
+		}
+
+		try {
+			// Buat nama file backup dengan timestamp
+			const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+			const backupFileName = `backup_absen_guru_${timestamp.split('T')[0]}_${timestamp.split('T')[1].split('.')[0]}.db`;
+			const backupPath = path.join(process.cwd(), 'backups');
+			const fullBackupPath = path.join(backupPath, backupFileName);
+
+			// Buat folder backups jika belum ada
+			if (!fs.existsSync(backupPath)) {
+				fs.mkdirSync(backupPath, { recursive: true });
+			}
+
+			// Path database SQLite
+			const dbPath = path.join(process.cwd(), 'absen.db');
+
+			// Copy database file untuk backup
+			if (fs.existsSync(dbPath)) {
+				fs.copyFileSync(dbPath, fullBackupPath);
+				
+				console.log(`Database backup created: ${fullBackupPath}`);
+				
+				return {
+					success: true,
+					message: `Backup database berhasil dibuat: ${backupFileName}`
+				};
+			} else {
+				return {
+					error: true,
+					message: 'File database tidak ditemukan'
+				};
+			}
+		} catch (err) {
+			console.error('Error creating backup:', err);
+			return {
+				error: true,
+				message: 'Gagal membuat backup database: ' + err.message
+			};
+		}
+	}
+};
