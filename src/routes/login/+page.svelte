@@ -1,8 +1,11 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { User, Lock, School } from 'lucide-svelte';
+	import { User, Lock, School, Eye, EyeOff } from 'lucide-svelte';
+	import SimpleLayout from '$lib/components/SimpleLayout.svelte';
 	
 	export let form;
+	
+	let showPassword = false;
 	
 	// Ignore unused SvelteKit props
 	$$restProps;
@@ -12,59 +15,67 @@
 	<title>Login - Absen Guru</title>
 </svelte:head>
 
-<div class="hero min-h-screen bg-base-200">
-	<div class="hero-content flex-col lg:flex-row-reverse">
-		<div class="text-center lg:text-left">
-			<div class="flex items-center justify-center lg:justify-start mb-4">
-				<School class="w-12 h-12 mr-3 text-primary" />
-				<h1 class="text-5xl font-bold">Absen Guru</h1>
+<SimpleLayout showThemeToggle={false}>
+	<div class="hero min-h-[80vh]">
+		<div class="hero-content flex-col lg:flex-row-reverse">
+			<div class="text-center lg:text-left">
+				<div class="flex items-center justify-center lg:justify-start mb-4">
+					<School class="w-12 h-12 mr-3 text-primary" />
+					<h1 class="text-5xl font-bold">Absen Guru</h1>
+				</div>
+				<p class="py-6 text-base-content/70">
+					Sistem absensi untuk guru. Masuk untuk mulai absen atau kelola data absensi.
+				</p>
 			</div>
-			<p class="py-6 text-base-content/70">
-				Sistem absensi untuk guru. Masuk untuk mulai absen atau kelola data absensi.
-			</p>
-		</div>
-		
-		<div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+			
+			<div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
 			<form method="POST" use:enhance class="card-body">
 				<div class="form-control">
 					<label class="label" for="username">
 						<span class="label-text">Username</span>
 					</label>
-					<div class="relative">
-						<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-							<User class="h-4 w-4 text-base-content/50" />
-						</div>
+					<label class="input input-bordered w-full">
+						<User class="w-4 h-4" />
 						<input 
 							id="username"
 							name="username" 
 							type="text" 
 							placeholder="Masukkan username" 
-							class="input input-bordered w-full pl-10" 
+							class="grow"
 							class:input-error={form?.message}
 							value={form?.username ?? ''}
 							required 
 						/>
-					</div>
+					</label>
 				</div>
 				
 				<div class="form-control">
 					<label class="label" for="password">
 						<span class="label-text">Password</span>
 					</label>
-					<div class="relative">
-						<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-							<Lock class="h-4 w-4 text-base-content/50" />
-						</div>
+					<label class="input input-bordered w-full">
+						<Lock class="w-4 h-4" />
 						<input 
 							id="password"
 							name="password" 
-							type="password" 
+							type={showPassword ? 'text' : 'password'}
 							placeholder="Masukkan password" 
-							class="input input-bordered w-full pl-10"
+							class="grow"
 							class:input-error={form?.message}
 							required 
 						/>
-					</div>
+						<button 
+							type="button" 
+							class="btn btn-circle btn-ghost btn-sm"
+							on:click={() => showPassword = !showPassword}
+						>
+							{#if showPassword}
+								<EyeOff class="w-4 h-4" />
+							{:else}
+								<Eye class="w-4 h-4" />
+							{/if}
+						</button>
+					</label>
 				</div>
 				
 				{#if form?.message}
@@ -85,3 +96,4 @@
 		</div>
 	</div>
 </div>
+</SimpleLayout>

@@ -1,6 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { User, Mail, Lock, Save, Eye, EyeOff, Menu, LogOut, Calendar, Clock, BarChart3, FileText, Users, Sun, Moon } from 'lucide-svelte';
+	import { User, Lock, Save, Eye, EyeOff } from 'lucide-svelte';
+	import AppLayout from '$lib/components/AppLayout.svelte';
 	
 	export let data;
 	export let form;
@@ -10,69 +11,14 @@
 	let showConfirmPassword = false;
 
 	$: user = data.user;
-	$: isAdmin = user.role === 'admin';
 </script>
 
-<div class="drawer lg:drawer-open">
-	<input id="my-drawer" type="checkbox" class="drawer-toggle" />
-	
-	<div class="drawer-content">
-		<!-- Navbar -->
-		<div class="navbar bg-base-100 shadow-sm sticky top-0 z-30">
-			<div class="flex-1">
-				<div class="flex-none lg:hidden">
-					<label for="my-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost drawer-button mr-2">
-						<Menu class="w-6 h-6" />
-					</label>
-				</div>
-				<a class="btn btn-ghost text-xl" href={isAdmin ? '/admin' : '/guru'}>
-					{#if isAdmin}
-						<BarChart3 class="w-6 h-6 mr-2" />
-						Admin Panel - Absen Guru
-					{:else}
-						<Clock class="w-6 h-6 mr-2" />
-						Absen Guru
-					{/if}
-				</a>
-			</div>
-			<div class="flex gap-2">
-				<!-- Theme Controller -->
-				<label class="swap swap-rotate">
-					<input type="checkbox" class="theme-controller" value="dark" />
-					<Sun class="swap-off h-6 w-6 fill-current" />
-					<Moon class="swap-on h-6 w-6 fill-current" />
-				</label>
-				
-				<!-- User Profile Dropdown -->
-				<div class="dropdown dropdown-end">
-					<div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-						<div class="w-10 rounded-full">
-							<div class="avatar placeholder">
-								<div class="bg-neutral text-neutral-content rounded-full w-10 h-10">
-									<span class="text-sm font-medium">{user.name.charAt(0).toUpperCase()}</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
-						<li>
-							<a href="/profile" class="justify-between">
-								<div class="flex items-center gap-2">
-									<User class="w-4 h-4" />
-									Profile
-								</div>
-								<span class="badge badge-sm">{isAdmin ? 'Admin' : 'Guru'}</span>
-							</a>
-						</li>
-						<li><a href="/logout" data-sveltekit-preload-data="false">Logout</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>
+<svelte:head>
+	<title>Profile Settings - {user.name}</title>
+</svelte:head>
 
-		<!-- Page content -->
-		<main class="flex-1 p-4 lg:p-6">
-			<div class="container mx-auto max-w-4xl">
+<AppLayout {user}>
+	<div class="container mx-auto max-w-4xl">
 	<div class="flex items-center gap-3 mb-8">
 		<User class="w-8 h-8 text-primary" />
 		<h1 class="text-3xl font-bold">Profile Settings</h1>
@@ -105,30 +51,81 @@
 				</h2>
 
 				<form method="POST" action="?/updateProfile" use:enhance>
-					<fieldset class="fieldset mb-4">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Nama Lengkap</legend>
+						<input 
+							type="text" 
+							name="name" 
+							class="input w-full" 
+							placeholder="Masukkan nama lengkap"
+							value={data.user.name || ''}
+							required 
+						/>
+						<p class="label">Nama lengkap yang akan ditampilkan</p>
+					</fieldset>
+
+					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Username</legend>
 						<input 
 							type="text" 
 							name="username" 
 							class="input w-full" 
 							placeholder="Masukkan username"
-							value={data.user.username}
+							value={data.user.username || ''}
 							required 
 						/>
 						<p class="label">Minimal 3 karakter, harus unik</p>
 					</fieldset>
 
-					<fieldset class="fieldset mb-4">
+					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Email</legend>
 						<input 
 							type="email" 
 							name="email" 
 							class="input w-full" 
 							placeholder="Masukkan email"
-							value={data.user.email}
+							value={data.user.email || ''}
 							required 
 						/>
 						<p class="label">Email harus valid dan unik</p>
+					</fieldset>
+
+					{#if user.role === 'guru'}
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">NIP</legend>
+						<input 
+							type="text" 
+							name="nip" 
+							class="input w-full" 
+							placeholder="Masukkan NIP"
+							value={data.user.nip || ''}
+						/>
+						<p class="label">Nomor Induk Pegawai</p>
+					</fieldset>
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Mata Pelajaran</legend>
+						<input 
+							type="text" 
+							name="subject" 
+							class="input w-full" 
+							placeholder="Masukkan mata pelajaran"
+							value={data.user.subject || ''}
+						/>
+						<p class="label">Mata pelajaran yang diampu</p>
+					</fieldset>
+					{/if}
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">No. Telepon</legend>
+						<input 
+							type="tel" 
+							name="phone" 
+							class="input w-full" 
+							placeholder="Masukkan nomor telepon"
+							value={data.user.phone || ''}
+						/>
+						<p class="label">Nomor telepon aktif</p>
 					</fieldset>
 
 					<fieldset class="fieldset mb-6">
@@ -161,7 +158,7 @@
 				</h2>
 
 				<form method="POST" action="?/changePassword" use:enhance>
-					<fieldset class="fieldset mb-4">
+					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Password Lama</legend>
 						<label class="input w-full">
 							<Lock class="w-4 h-4" />
@@ -187,7 +184,7 @@
 						<p class="label">Masukkan password saat ini untuk verifikasi</p>
 					</fieldset>
 
-					<fieldset class="fieldset mb-4">
+					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Password Baru</legend>
 						<label class="input w-full">
 							<Lock class="w-4 h-4" />
@@ -247,58 +244,6 @@
 					</div>
 				</form>
 			</div>
-			</div>
-		</main>
+		</div>
 	</div>
-	
-	<div class="drawer-side">
-		<label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-		<ul class="menu text-base-content min-h-full w-80 p-4 bg-base-300">
-			<!-- Header -->
-			<div class="mb-6">
-				<div class="text-xl font-bold text-center">
-					{#if isAdmin}
-						Menu Admin
-					{:else}
-						Menu Guru
-					{/if}
-				</div>
-			</div>
-			
-			<!-- Menu items -->
-			{#if isAdmin}
-				<li>
-					<a href="/admin" class="active:bg-primary active:text-primary-content">
-						<BarChart3 class="w-5 h-5" />
-						Dashboard
-					</a>
-				</li>
-				<li>
-					<a href="/admin/laporan">
-						<FileText class="w-5 h-5" />
-						Laporan
-					</a>
-				</li>
-				<li>
-					<a href="/admin/users">
-						<Users class="w-5 h-5" />
-						Kelola User
-					</a>
-				</li>
-			{:else}
-				<li>
-					<a href="/guru" class="active:bg-primary active:text-primary-content">
-						<Clock class="w-5 h-5" />
-						Dashboard
-					</a>
-				</li>
-				<li>
-					<a href="/guru/riwayat">
-						<Calendar class="w-5 h-5" />
-						Riwayat Absensi
-					</a>
-				</li>
-			{/if}
-		</ul>
-	</div>
-</div>
+</AppLayout>

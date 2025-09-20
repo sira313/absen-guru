@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { lucia } from '$lib/server/auth.js';
+import { invalidateSession, deleteSessionCookie } from '$lib/server/auth.js';
 
 export async function GET({ locals, cookies }) {
 	if (!locals.session) {
@@ -7,14 +7,10 @@ export async function GET({ locals, cookies }) {
 	}
 	
 	// Invalidate the session
-	await lucia.invalidateSession(locals.session.id);
+	await invalidateSession(locals.session.id);
 	
 	// Remove the session cookie
-	const sessionCookie = lucia.createBlankSessionCookie();
-	cookies.set(sessionCookie.name, sessionCookie.value, {
-		path: ".",
-		...sessionCookie.attributes
-	});
+	deleteSessionCookie(cookies);
 	
 	// Redirect to login page
 	throw redirect(302, '/login');

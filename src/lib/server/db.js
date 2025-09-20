@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { users, sessions, attendance, schedules, settings, holidays } from './schema.js';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
-import { generateId } from 'lucia';
+import { nanoid } from 'nanoid';
 
 // Create database client
 const client = createClient({
@@ -15,7 +15,7 @@ export const db = drizzle(client);
 export const dbHelpers = {
 	// User operations
 	async createUser(userData) {
-		const userId = generateId(15);
+		const userId = nanoid(15);
 		const user = {
 			id: userId,
 			...userData,
@@ -73,9 +73,20 @@ export const dbHelpers = {
 		await db.delete(sessions).where(lte(sessions.expiresAt, now));
 	},
 
+	async updateSessionExpiration(sessionId, expiresAt) {
+		const expiresAtTimestamp = expiresAt instanceof Date ? expiresAt.getTime() : expiresAt;
+		await db.update(sessions).set({ 
+			expiresAt: expiresAtTimestamp 
+		}).where(eq(sessions.id, sessionId));
+	},
+
+	async deleteUserSessions(userId) {
+		await db.delete(sessions).where(eq(sessions.userId, userId));
+	},
+
 	// Attendance operations
 	async createAttendance(attendanceData) {
-		const attendanceId = generateId(15);
+		const attendanceId = nanoid(15);
 		const record = {
 			id: attendanceId,
 			...attendanceData,
@@ -142,7 +153,7 @@ export const dbHelpers = {
 
 	// Schedule operations
 	async createSchedule(scheduleData) {
-		const scheduleId = generateId(15);
+		const scheduleId = nanoid(15);
 		const schedule = {
 			id: scheduleId,
 			...scheduleData,
@@ -190,7 +201,7 @@ export const dbHelpers = {
 	// Settings operations
 	async setSetting(key, value, description = null) {
 		const setting = {
-			id: generateId(15),
+			id: nanoid(15),
 			key,
 			value,
 			description,
@@ -220,7 +231,7 @@ export const dbHelpers = {
 
 	// Holiday operations
 	async createHoliday(holidayData) {
-		const holidayId = generateId(15);
+		const holidayId = nanoid(15);
 		const holiday = {
 			id: holidayId,
 			...holidayData,

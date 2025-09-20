@@ -37,11 +37,15 @@
 		</div>
 		<div class="flex gap-2">
 			<button 
-				on:click={() => showCreateForm = !showCreateForm}
+				on:click={() => {
+					console.log('Toggle button clicked, current state:', showCreateForm);
+					showCreateForm = !showCreateForm;
+					console.log('New state:', showCreateForm);
+				}}
 				class="btn btn-primary"
 			>
 				<Plus class="w-5 h-5" />
-				Tambah User
+				{showCreateForm ? 'Tutup Form' : 'Tambah User'}
 			</button>
 			<a href="/admin" class="btn btn-outline">
 				<ArrowLeft class="w-5 h-5" />
@@ -71,18 +75,44 @@
 					<UserPlus class="w-5 h-5" />
 					Tambah User Baru
 				</h2>
-				<form method="POST" action="?/create" use:enhance class="space-y-4">
+				<form 
+					method="POST" 
+					action="?/create" 
+					class="space-y-4"
+					on:submit={(e) => {
+						console.log('Form submit event triggered');
+						console.log('Form data:', new FormData(e.target));
+					}}
+				>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div class="form-control">
-							<label class="label" for="fullName">
+							<label class="label" for="username">
+								<span class="label-text">Username <span class="text-error">*</span></span>
+							</label>
+							<div class="relative">
+								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<input 
+									type="text" 
+									id="username"
+									name="username" 
+									required
+									minlength="3"
+									class="input input-bordered w-full pl-10"
+									placeholder="Masukkan username"
+								/>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="name">
 								<span class="label-text">Nama Lengkap <span class="text-error">*</span></span>
 							</label>
 							<div class="relative">
 								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
 								<input 
 									type="text" 
-									id="fullName"
-									name="fullName" 
+									id="name"
+									name="name" 
 									required
 									class="input input-bordered w-full pl-10"
 									placeholder="Masukkan nama lengkap"
@@ -92,7 +122,7 @@
 
 						<div class="form-control">
 							<label class="label" for="email">
-								<span class="label-text">Email <span class="text-error">*</span></span>
+								<span class="label-text">Email</span>
 							</label>
 							<div class="relative">
 								<Mail class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
@@ -100,9 +130,56 @@
 									type="email" 
 									id="email"
 									name="email" 
-									required
 									class="input input-bordered w-full pl-10"
 									placeholder="user@example.com"
+								/>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="nip">
+								<span class="label-text">NIP</span>
+							</label>
+							<div class="relative">
+								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<input 
+									type="text" 
+									id="nip"
+									name="nip" 
+									class="input input-bordered w-full pl-10"
+									placeholder="Nomor Induk Pegawai"
+								/>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="subject">
+								<span class="label-text">Mata Pelajaran</span>
+							</label>
+							<div class="relative">
+								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<input 
+									type="text" 
+									id="subject"
+									name="subject" 
+									class="input input-bordered w-full pl-10"
+									placeholder="Mata pelajaran yang diajar"
+								/>
+							</div>
+						</div>
+
+						<div class="form-control">
+							<label class="label" for="phone">
+								<span class="label-text">Telefon</span>
+							</label>
+							<div class="relative">
+								<User class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+								<input 
+									type="tel" 
+									id="phone"
+									name="phone" 
+									class="input input-bordered w-full pl-10"
+									placeholder="Nomor telefon"
 								/>
 							</div>
 						</div>
@@ -146,7 +223,11 @@
 					</div>
 
 					<div class="flex gap-4 mt-6">
-						<button type="submit" class="btn btn-primary">
+						<button 
+							type="submit" 
+							class="btn btn-primary"
+							on:click={() => console.log('Submit button clicked')}
+						>
 							<Check class="w-5 h-5" />
 							Simpan User
 						</button>
@@ -180,6 +261,7 @@
 						<thead>
 							<tr>
 								<th>Nama</th>
+								<th>Username</th>
 								<th>Email</th>
 								<th>Role</th>
 								<th>Dibuat</th>
@@ -189,17 +271,29 @@
 						<tbody>
 							{#each users as user}
 							<tr>
-								<td class="font-medium">{user.fullName}</td>
+								<td class="font-medium">{user.name}</td>
+								<td class="text-sm opacity-70">{user.username}</td>
 								<td>{user.email}</td>
 								<td>
 									<div class="badge {user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
 										{user.role === 'admin' ? 'Admin' : 'Guru'}
 									</div>
 								</td>
-								<td>{format(new Date(user.created_at), 'dd MMM yyyy', { locale: localeId })}</td>
+								<td>
+									{#if user.createdAt}
+										{@const dateValue = new Date(user.createdAt)}
+										{#if !isNaN(dateValue.getTime())}
+											{format(dateValue, 'dd MMM yyyy', { locale: localeId })}
+										{:else}
+											-
+										{/if}
+									{:else}
+										-
+									{/if}
+								</td>
 								<td>
 									<button 
-										on:click={() => showDeleteConfirm(user.id, user.fullName)}
+										on:click={() => showDeleteConfirm(user.id, user.name)}
 										class="btn btn-sm btn-error btn-outline"
 									>
 										<Trash2 class="w-4 h-4" />

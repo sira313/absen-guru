@@ -36,6 +36,7 @@ export async function load({ locals }) {
 			role: users.role,
 			name: users.name,
 			nip: users.nip,
+			subject: users.subject,
 			phone: users.phone
 		})
 		.from(users)
@@ -59,10 +60,21 @@ export const actions = {
 		}
 
 		const data = await request.formData();
+		const name = data.get('name');
 		const username = data.get('username');
 		const email = data.get('email');
+		const nip = data.get('nip') || null;
+		const subject = data.get('subject') || null;
+		const phone = data.get('phone') || null;
 
 		// Validasi input
+		if (!name || name.length < 2) {
+			return fail(400, {
+				error: true,
+				message: 'Nama lengkap minimal 2 karakter'
+			});
+		}
+
 		if (!username || username.length < 3) {
 			return fail(400, {
 				error: true,
@@ -106,12 +118,16 @@ export const actions = {
 				});
 			}
 
-			// Update profile
+			// Update profile dengan semua field
 			await db
 				.update(users)
 				.set({
+					name: name,
 					username: username,
 					email: email,
+					nip: nip,
+					subject: subject,
+					phone: phone,
 					updatedAt: new Date().toISOString()
 				})
 				.where(eq(users.id, locals.user.id));

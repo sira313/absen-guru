@@ -20,6 +20,9 @@
 		switch(status) {
 			case 'hadir': return 'badge-success';
 			case 'terlambat': return 'badge-warning';
+			case 'sakit': return 'badge-error';
+			case 'izin': return 'badge-warning';
+			case 'dinas_luar': return 'badge-info';
 			case 'tidak_hadir': return 'badge-error';
 			default: return 'badge';
 		}
@@ -29,6 +32,9 @@
 		switch(status) {
 			case 'hadir': return 'Hadir';
 			case 'terlambat': return 'Terlambat';
+			case 'sakit': return 'Sakit';
+			case 'izin': return 'Izin';
+			case 'dinas_luar': return 'Dinas Luar';
 			case 'tidak_hadir': return 'Tidak Hadir';
 			default: return status;
 		}

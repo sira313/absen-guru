@@ -65,10 +65,11 @@ export async function load({ locals, url }) {
 			.from(users)
 			.orderBy(users.name);
 
-		// Process summary stats
+		// Process summary stats - dinas_luar dihitung sebagai hadir
 		const stats = {
 			total_records: summaryStats.reduce((sum, s) => sum + s.count, 0),
-			hadir: summaryStats.find(s => s.status === 'hadir')?.count || 0,
+			hadir: (summaryStats.find(s => s.status === 'hadir')?.count || 0) + 
+			       (summaryStats.find(s => s.status === 'dinas_luar')?.count || 0),
 			terlambat: summaryStats.find(s => s.status === 'terlambat')?.count || 0,
 			tidak_hadir: summaryStats.find(s => s.status === 'tidak_hadir')?.count || 0
 		};

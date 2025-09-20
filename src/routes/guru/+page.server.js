@@ -79,12 +79,16 @@ export async function load({ locals }) {
 			todayString
 		);
 		
-		// Hitung statistik
+		// Hitung statistik dengan kategori baru - dinas_luar dihitung sebagai hadir
 		const stats = {
 			totalDays: monthlyAttendance.length,
-			presentDays: monthlyAttendance.filter(a => a.status === 'hadir').length,
+			presentDays: monthlyAttendance.filter(a => a.status === 'hadir' || a.status === 'dinas_luar').length,
 			lateDays: monthlyAttendance.filter(a => a.status === 'terlambat').length,
-			absentDays: monthlyAttendance.filter(a => a.status === 'tidak_hadir').length
+			absentDays: monthlyAttendance.filter(a => a.status === 'tidak_hadir').length,
+			sickDays: monthlyAttendance.filter(a => a.status === 'sakit').length,
+			leaveDays: monthlyAttendance.filter(a => a.status === 'izin').length,
+			// Detail breakdown untuk referensi admin jika diperlukan
+			officialDutyDays: monthlyAttendance.filter(a => a.status === 'dinas_luar').length
 		};
 		
 		return {
@@ -99,7 +103,7 @@ export async function load({ locals }) {
 		return {
 			user,
 			todayAttendance: null,
-			stats: { totalDays: 0, presentDays: 0, lateDays: 0, absentDays: 0 },
+			stats: { totalDays: 0, presentDays: 0, lateDays: 0, absentDays: 0, sickDays: 0, leaveDays: 0, officialDutyDays: 0 },
 			monthlyAttendance: [],
 			today: today.toISOString().split('T')[0]
 		};
@@ -110,14 +114,23 @@ export const actions = {
 	absen: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const notes = formData.get('notes')?.toString() || '';
+		const selectedStatus = formData.get('status')?.toString() || 'hadir';
 		
 		const now = new Date();
 		const checkInTime = now.toTimeString().slice(0, 5); // Format HH:MM
 		
-		// Tentukan status berdasarkan waktu
-		const status = determineAttendanceStatus(checkInTime, '08:00');
+		let finalStatus;
 		
-		const result = await createTodayAttendance(locals.user.id, checkInTime, status, notes);
+		// Logic penentuan status akhir
+		if (selectedStatus === 'hadir') {
+			// Jika pilih hadir, tentukan berdasarkan waktu
+			finalStatus = determineAttendanceStatus(checkInTime, '08:00');
+		} else {
+			// Jika pilih status lain (sakit, izin, dinas_luar), gunakan pilihan user
+			finalStatus = selectedStatus;
+		}
+		
+		const result = await createTodayAttendance(locals.user.id, checkInTime, finalStatus, notes);
 		
 		if (!result.success) {
 			return fail(400, {

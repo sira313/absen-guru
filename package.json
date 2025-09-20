@@ -38,8 +38,8 @@
     "bcrypt": "^6.0.0",
     "date-fns": "^3.0.0",
     "drizzle-orm": "^0.44.2",
-    "lucia": "^3.2.1",
     "lucide-svelte": "^0.544.0",
+    "nanoid": "^5.1.5",
     "tailwindcss": "^4.1.13",
     "zod": "^3.22.4"
   },
