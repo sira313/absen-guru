@@ -8,6 +8,41 @@
 	// Ignore unused SvelteKit props
 	$$restProps;
 	
+	// Pagination state
+	let currentPage = 1;
+	const itemsPerPage = 10;
+	
+	// Computed pagination values
+	$: totalItems = attendanceRecords.length;
+	$: totalPages = Math.ceil(totalItems / itemsPerPage);
+	$: startIndex = (currentPage - 1) * itemsPerPage;
+	$: endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+	$: paginatedRecords = attendanceRecords.slice(startIndex, endIndex);
+	
+	// Pagination functions
+	function goToPage(page) {
+		if (page >= 1 && page <= totalPages) {
+			currentPage = page;
+		}
+	}
+	
+	function nextPage() {
+		if (currentPage < totalPages) {
+			currentPage++;
+		}
+	}
+	
+	function prevPage() {
+		if (currentPage > 1) {
+			currentPage--;
+		}
+	}
+	
+	// Reset pagination when data changes
+	$: if (attendanceRecords) {
+		currentPage = 1;
+	}
+	
 	// Helper function to format date
 	function formatDate(dateString) {
 		return new Date(dateString).toLocaleDateString('id-ID', {
@@ -160,7 +195,7 @@
 				<h2>Detail Absensi</h2>
 				<div class="text-sm opacity-70 font-normal">
 					{#if attendanceRecords.length > 0}
-						Menampilkan {attendanceRecords.length} record
+						Menampilkan {startIndex + 1}-{endIndex} dari {totalItems} record
 					{:else}
 						Tidak ada data absensi
 					{/if}
@@ -174,17 +209,15 @@
 							<tr>
 								<th>Tanggal</th>
 								<th>Jam Masuk</th>
-								<th>Jam Keluar</th>
 								<th>Status</th>
 								<th>Catatan</th>
 							</tr>
 						</thead>
 						<tbody>
-							{#each attendanceRecords as record}
+							{#each paginatedRecords as record}
 								<tr class="hover">
 									<td class="font-medium">{formatDate(record.date)}</td>
 									<td>{formatTime(record.checkIn)}</td>
-									<td>{formatTime(record.checkOut)}</td>
 									<td>
 										<span class="badge {getStatusClass(record.status)}">
 											{getStatusText(record.status)}
@@ -198,6 +231,49 @@
 						</tbody>
 					</table>
 				</div>
+				
+				<!-- Pagination -->
+				{#if totalPages > 1}
+					<div class="flex justify-center items-center gap-2 mt-6">
+						<div class="join">
+							<!-- Previous button -->
+							<button 
+								class="join-item btn btn-sm" 
+								class:btn-disabled={currentPage === 1}
+								on:click={prevPage}
+							>
+								«
+							</button>
+							
+							<!-- Page numbers -->
+							{#each Array(totalPages) as _, i}
+								{@const pageNum = i + 1}
+								{#if totalPages <= 7 || (pageNum <= 3 || pageNum > totalPages - 3 || Math.abs(pageNum - currentPage) <= 1)}
+									<button 
+										class="join-item btn btn-sm" 
+										class:btn-active={currentPage === pageNum}
+										on:click={() => goToPage(pageNum)}
+									>
+										{pageNum}
+									</button>
+								{:else if pageNum === 4 && currentPage > 5}
+									<button class="join-item btn btn-sm btn-disabled">...</button>
+								{:else if pageNum === totalPages - 3 && currentPage < totalPages - 4}
+									<button class="join-item btn btn-sm btn-disabled">...</button>
+								{/if}
+							{/each}
+							
+							<!-- Next button -->
+							<button 
+								class="join-item btn btn-sm" 
+								class:btn-disabled={currentPage === totalPages}
+								on:click={nextPage}
+							>
+								»
+							</button>
+						</div>
+					</div>
+				{/if}
 			{:else}
 				<div class="text-center py-12">
 					<AlertCircle class="w-16 h-16 mx-auto text-base-content/40 mb-4" />

@@ -1,21 +1,25 @@
 {
   "name": "absen-guru",
   "version": "1.0.0",
-  "description": "Aplikasi web absensi guru dengan SvelteKit",
-  "private": true,
+  "description": "Sistem manajemen absensi guru untuk institusi pendidikan - SvelteKit + DaisyUI + TailwindCSS",
+  "keywords": ["attendance", "teacher", "education", "svelte", "sveltekit", "daisyui", "tailwindcss"],
+  "author": "Developer",
+  "license": "MIT",
+  "private": false,
   "packageManager": "pnpm@8.15.0",
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
     "preview": "vite preview",
+    "start": "node build/index.js",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "start": "node build/index.js",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "node scripts/seed.js",
+    "setup": "pnpm install && pnpm db:push && pnpm db:seed"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

@@ -11,6 +11,7 @@ export const users = sqliteTable('users', {
 	nip: text('nip'), // Nomor Induk Pegawai
 	subject: text('subject'), // Mata pelajaran yang diajar
 	employeeType: text('employee_type').default('Honorer'), // 'PNS', 'PPPK', 'Honorer'
+	position: text('position').default('Guru Kelas'), // Jabatan: 'Kepala Sekolah', 'Guru Kelas', 'Guru Penjaskes', 'Guru Agama'
 	phone: text('phone'),
 	email: text('email'),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),

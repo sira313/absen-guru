@@ -94,12 +94,11 @@
 
 	function exportToCSV() {
 		const csvContent = [
-			['Nama', 'Tanggal', 'Waktu Masuk', 'Waktu Keluar', 'Status', 'Catatan'],
+			['Nama', 'Tanggal', 'Waktu Masuk', 'Status', 'Catatan'],
 			...attendanceRecords.map(record => [
 				record.user?.fullName || '',
 				record.date,
 				record.check_in_time || '',
-				record.check_out_time || '',
 				getStatusText(record.status),
 				record.notes || ''
 			])
@@ -314,7 +313,6 @@
 								<th>Nama Guru</th>
 								<th>Tanggal</th>
 								<th>Waktu Masuk</th>
-								<th>Waktu Keluar</th>
 								<th>Status</th>
 								<th>Catatan</th>
 							</tr>
@@ -325,7 +323,6 @@
 								<td class="font-medium">{record.user?.fullName || 'N/A'}</td>
 								<td>{format(new Date(record.date), 'dd MMM yyyy', { locale: localeId })}</td>
 								<td class="font-mono">{record.check_in_time || '-'}</td>
-								<td class="font-mono">{record.check_out_time || '-'}</td>
 								<td>
 									<div class="badge {getStatusBadgeClass(record.status)}">
 										{getStatusText(record.status)}

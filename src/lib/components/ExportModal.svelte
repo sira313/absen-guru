@@ -31,8 +31,7 @@
 	
 	const exportTypes = [
 		{ value: 'tpp', label: 'Laporan TPP', description: 'Format rekapitulasi kehadiran PNS/CPNS' },
-		{ value: 'bulanan', label: 'Laporan Bulanan', description: 'Laporan absensi bulanan sederhana' },
-		{ value: 'custom', label: 'Custom', description: 'Format laporan khusus' }
+		{ value: 'bulanan', label: 'Laporan Bulanan', description: 'Daftar hadir harian dalam satu bulan' }
 	];
 	
 	const employeeTypeOptions = [

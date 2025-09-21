@@ -11,10 +11,16 @@ async function simpleHash(password) {
 }
 
 console.log('🌱 Seeding database...');
+console.log('');
+console.log('📋 Default credentials yang akan dibuat:');
+console.log('   👤 Admin: admin / admin123');
+console.log('   👨‍🏫 Guru: guru1, guru2, guru3 / guru123');
+console.log('');
 
 try {
-	// Create admin user
-	const hashedPassword = await simpleHash('admin123');
+	// Create admin user dengan password default
+	const defaultAdminPassword = 'admin123';
+	const hashedPassword = await simpleHash(defaultAdminPassword);
 	
 	await dbHelpers.createUser({
 		username: 'admin',
@@ -23,6 +29,8 @@ try {
 		role: 'admin',
 		nip: 'ADM001',
 		subject: null,
+		employeeType: 'PNS',
+		position: 'Administrator',
 		phone: '08123456789',
 		email: 'admin@sekolah.edu',
 		isActive: true
@@ -35,6 +43,8 @@ try {
 			name: 'Budi Santoso',
 			nip: 'GR001',
 			subject: 'Matematika',
+			employeeType: 'PNS',
+			position: 'Guru Kelas',
 			phone: '08111111111',
 			email: 'budi@sekolah.edu'
 		},
@@ -43,6 +53,8 @@ try {
 			name: 'Siti Aminah',
 			nip: 'GR002',
 			subject: 'Bahasa Indonesia',
+			employeeType: 'PPPK',
+			position: 'Guru Kelas',
 			phone: '08222222222',
 			email: 'siti@sekolah.edu'
 		},
@@ -51,6 +63,8 @@ try {
 			name: 'Ahmad Rahman',
 			nip: 'GR003',
 			subject: 'IPA',
+			employeeType: 'Honorer',
+			position: 'Guru Penjaskes',
 			phone: '08333333333',
 			email: 'ahmad@sekolah.edu'
 		}
@@ -66,6 +80,8 @@ try {
 			role: 'guru',
 			nip: teacher.nip,
 			subject: teacher.subject,
+			employeeType: teacher.employeeType,
+			position: teacher.position,
 			phone: teacher.phone,
 			email: teacher.email,
 			isActive: true

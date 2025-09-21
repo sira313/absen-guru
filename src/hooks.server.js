@@ -58,5 +58,17 @@ export async function handle({ event, resolve }) {
 		}
 	}
 
-	return resolve(event);
+	const response = await resolve(event);
+	
+	// Add headers to allow cross-origin requests and fix permissions policy issues
+	response.headers.set('Access-Control-Allow-Origin', '*');
+	response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+	response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+	response.headers.set('Access-Control-Allow-Credentials', 'true');
+	
+	// Remove problematic Permissions-Policy headers and set proper ones
+	response.headers.delete('Permissions-Policy');
+	response.headers.set('Permissions-Policy', 'run-ad-auction=(), join-ad-interest-group=()');
+	
+	return response;
 }

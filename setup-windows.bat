@@ -1,53 +1,73 @@
 @echo off
+chcp 65001 >nul
 echo ==========================================
-echo    Absen Guru - Teacher Attendance System
-echo    Setup Script for Windows
+echo    🏫 Absen Guru v1.0.0
+echo    Sistem Manajemen Absensi Guru
+echo    Setup Script untuk Windows
 echo ==========================================
 echo.
 
+echo 🚀 Memulai proses instalasi...
+echo.
+
 REM Check if Node.js is installed
-echo 📋 Checking Node.js installation...
+echo 📋 Mengecek instalasi Node.js...
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Node.js is not installed. 
-    echo 📦 Please install Node.js 18+ from https://nodejs.org
-    echo    Recommended: Node.js 20.x LTS
+    echo ❌ Node.js tidak terinstall. 
+    echo 📦 Silakan install Node.js 18+ dari https://nodejs.org
+    echo    Rekomendasi: Node.js 20.x LTS
     pause
     exit /b 1
 ) else (
-    echo ✅ Node.js is installed
-    node --version
+    echo ✅ Node.js terinstall
+    for /f "tokens=*" %%i in ('node --version') do echo    Versi: %%i
 )
 
 REM Check if pnpm is installed
-echo 📋 Checking pnpm installation...
+echo 📋 Mengecek instalasi pnpm...
 pnpm --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo 📦 pnpm is not installed. Installing pnpm globally...
+    echo 📦 pnpm tidak terinstall. Installing pnpm globally...
     npm install -g pnpm
     if %errorlevel% neq 0 (
-        echo ❌ Failed to install pnpm. Please run as Administrator or install manually.
+        echo ❌ Gagal install pnpm. Jalankan sebagai Administrator atau install manual.
         pause
         exit /b 1
     )
 ) else (
-    echo ✅ pnpm is installed
-    pnpm --version
+    echo ✅ pnpm terinstall
+    for /f "tokens=*" %%i in ('pnpm --version') do echo    Versi: %%i
 )
 
 REM Copy environment file
-echo 📄 Setting up environment configuration...
+echo.
+echo 📄 Menyiapkan konfigurasi environment...
 if not exist .env (
-    echo Creating environment file...
-    copy .env.example .env >nul
-    echo ✅ Environment file created (.env)
-    echo ⚠️  Please edit .env file with your settings
+    if exist .env.example (
+        echo Membuat file environment...
+        copy .env.example .env >nul
+        echo ✅ File environment dibuat (.env)
+        echo ⚠️  Silakan edit file .env sesuai kebutuhan
+    ) else (
+        echo Membuat file .env default...
+        echo # Absen Guru Configuration > .env
+        echo. >> .env
+        echo # Database >> .env
+        echo DATABASE_URL="file:./absen.db" >> .env
+        echo. >> .env
+        echo # Session Secret (change in production) >> .env
+        echo SESSION_SECRET="your-super-secret-key-change-this" >> .env
+        echo. >> .env
+        echo ✅ File .env default dibuat
+        echo ⚠️  Silakan edit file .env untuk production
+    )
 ) else (
-    echo ✅ Environment file already exists
+    echo ✅ File environment sudah ada
 )
 
 echo.
-echo 🔽 Installing dependencies with pnpm...
+echo 🔽 Installing dependencies dengan pnpm...
 echo    This includes:
 echo    - SvelteKit framework
 echo    - TailwindCSS v4 with DaisyUI 5.1.13
@@ -59,47 +79,79 @@ echo.
 REM Install dependencies
 pnpm install
 if %errorlevel% neq 0 (
-    echo ❌ Failed to install dependencies
-    echo    Try running: npm install -g node-gyp
-    echo    Or install Visual Studio Build Tools
+    echo ❌ Gagal install dependencies
+    echo    Coba jalankan: npm install -g node-gyp
+    echo    Atau install Visual Studio Build Tools
     pause
     exit /b 1
+) else (
+    echo ✅ Dependencies berhasil diinstall
 )
 
-REM Create data directory
-echo 📁 Creating data directory...
-if not exist data mkdir data
-
-REM Initialize database if not exists
-if not exist absen.db (
-    echo 🗄️ SQLite database will be created on first run...
+echo.
+echo �️ Menyiapkan database...
+pnpm run db:push
+if %errorlevel% neq 0 (
+    echo ❌ Gagal setup database
+    pause
+    exit /b 1
+) else (
+    echo ✅ Database schema berhasil dibuat
 )
 
-REM Build application
-echo 🔨 Building application...
+echo.
+echo 🌱 Menambahkan data awal...
+pnpm run db:seed
+if %errorlevel% neq 0 (
+    echo ❌ Gagal menambahkan data awal
+    pause
+    exit /b 1
+) else (
+    echo ✅ Data awal berhasil ditambahkan
+)
+
+echo.
+echo 🔨 Building aplikasi...
 pnpm run build
 if %errorlevel% neq 0 (
-    echo ❌ Build failed. Please check the error messages above.
+    echo ❌ Build gagal. Silakan cek error di atas.
     pause
     exit /b 1
+) else (
+    echo ✅ Build berhasil
 )
 
 echo.
-echo 🎉 Setup completed successfully!
+echo 🎉 Setup berhasil diselesaikan!
 echo.
-echo 🚀 To start the application:
+echo 🚀 Untuk menjalankan aplikasi:
 echo.
-echo    Development mode (with hot reload):
+echo    Mode Development (dengan hot reload):
 echo      pnpm dev
 echo.
-echo    Production mode:
+echo    Mode Production:
 echo      pnpm start
 echo.
-echo    Preview built application:
+echo    Preview aplikasi yang sudah di-build:
 echo      pnpm preview
 echo.
-echo 🌐 Application will be available at:
+echo 🌐 Aplikasi akan tersedia di:
 echo      http://localhost:5173 (development)
+echo      http://localhost:4173 (preview)
+echo      http://localhost:3000 (production)
+echo.
+echo 👤 Login default:
+echo      Username: admin
+echo      Password: admin123
+echo.
+echo � PWA Support:
+echo      - Install sebagai app di mobile/desktop
+echo      - Bekerja offline (terbatas)
+echo      - Auto-update otomatis
+echo.
+echo �📖 Baca FIRST_INSTALL.md untuk panduan lengkap
+echo.
+pause
 echo      http://localhost:3000 (production)
 echo      http://localhost:4173 (preview)
 echo.

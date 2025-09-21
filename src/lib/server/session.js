@@ -133,7 +133,7 @@ export function setSessionCookie(cookies, sessionId, expiresAt) {
 		sameSite: 'lax',
 		expires: expiresAt,
 		path: '/',
-		secure: !dev
+		secure: false // Allow HTTP for local network access
 	};
 	
 	cookies.set('session', sessionId, cookieOptions);
@@ -145,7 +145,7 @@ export function deleteSessionCookie(cookies) {
 		sameSite: 'lax',
 		maxAge: 0,
 		path: '/',
-		secure: !dev
+		secure: false // Allow HTTP for local network access
 	};
 	
 	cookies.set('session', '', cookieOptions);

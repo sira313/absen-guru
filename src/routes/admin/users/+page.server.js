@@ -34,6 +34,7 @@ export async function load({ locals }) {
 				nip: users.nip,
 				subject: users.subject,
 				employeeType: users.employeeType,
+				position: users.position,
 				phone: users.phone,
 				isActive: users.isActive,
 				createdAt: users.createdAt
@@ -69,6 +70,7 @@ export const actions = {
 		const nip = data.get('nip');
 		const subject = data.get('subject');
 		const employeeType = data.get('employeeType');
+		const position = data.get('position');
 		const phone = data.get('phone');
 
 		console.log('Form data received:', {
@@ -80,6 +82,7 @@ export const actions = {
 			nip,
 			subject,
 			employeeType,
+			position,
 			phone
 		});
 
@@ -92,6 +95,11 @@ export const actions = {
 		if (role === 'guru' && !employeeType) {
 			console.log('Validation failed - missing employeeType for guru');
 			return fail(400, { message: 'Status kepegawaian harus diisi untuk guru' });
+		}
+
+		if (role === 'guru' && !position) {
+			console.log('Validation failed - missing position for guru');
+			return fail(400, { message: 'Jabatan harus diisi untuk guru' });
 		}
 
 		if (password.length < 6) {
@@ -164,6 +172,7 @@ export const actions = {
 				nip: nip || null,
 				subject: subject || null,
 				employeeType: role === 'guru' ? employeeType : null,
+				position: position || (role === 'admin' ? 'Administrator' : 'Guru Kelas'),
 				phone: phone || null,
 				email: email,
 				isActive: true
@@ -192,11 +201,20 @@ export const actions = {
 		const email = data.get('email');
 		const role = data.get('role');
 		const employeeType = data.get('employee_type');
+		const position = data.get('position');
 		const newPassword = data.get('newPassword');
 
 		// Validation
 		if (!id || !name || !email || !role) {
 			return fail(400, { message: 'ID, nama, email, dan role wajib diisi' });
+		}
+
+		if (role === 'guru' && !employeeType) {
+			return fail(400, { message: 'Status kepegawaian harus diisi untuk guru' });
+		}
+
+		if (role === 'guru' && !position) {
+			return fail(400, { message: 'Jabatan harus diisi untuk guru' });
 		}
 
 		// Validate employee type for guru
@@ -225,7 +243,8 @@ export const actions = {
 				name,
 				email,
 				role,
-				employeeType: role === 'guru' ? employeeType : null
+				employeeType: role === 'guru' ? employeeType : null,
+				position: position || (role === 'admin' ? 'Administrator' : 'Guru Kelas')
 			};
 
 			// If password is provided, hash it and include in update

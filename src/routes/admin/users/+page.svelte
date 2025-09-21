@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3, Eye, EyeOff, Hash, BookOpen, Phone, Briefcase } from 'lucide-svelte';
+	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3, Eye, EyeOff, Hash, BookOpen, Phone, Briefcase, Badge } from 'lucide-svelte';
 	
 	export let data;
 	export let form;
@@ -258,25 +258,50 @@
 						</div>
 
 						{#if selectedRole === 'guru'}
-						<div class="form-control">
-							<label class="label" for="employeeType">
-								<span class="label-text">Status Kepegawaian <span class="text-error">*</span></span>
-							</label>
-							<div class="relative">
-								<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
-								<select 
-									id="employeeType"
-									name="employeeType" 
-									required
-									class="select select-bordered w-full pl-10"
-								>
-									<option value="">Pilih Status</option>
-									<option value="PNS">PNS (Pegawai Negeri Sipil)</option>
-									<option value="PPPK">PPPK (Pegawai Pemerintah dengan Perjanjian Kerja)</option>
-									<option value="Honorer">Honorer</option>
-								</select>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="form-control">
+								<label class="label" for="employeeType">
+									<span class="label-text">Status Kepegawaian <span class="text-error">*</span></span>
+								</label>
+								<div class="relative">
+									<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
+									<select 
+										id="employeeType"
+										name="employeeType" 
+										required
+										class="select select-bordered w-full pl-10"
+									>
+										<option value="">Pilih Status</option>
+										<option value="PNS">PNS (Pegawai Negeri Sipil)</option>
+										<option value="PPPK">PPPK (Pegawai Pemerintah dengan Perjanjian Kerja)</option>
+										<option value="Honorer">Honorer</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-control">
+								<label class="label" for="position">
+									<span class="label-text">Jabatan <span class="text-error">*</span></span>
+								</label>
+								<div class="relative">
+									<Badge class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
+									<select 
+										id="position"
+										name="position" 
+										required
+										class="select select-bordered w-full pl-10"
+									>
+										<option value="">Pilih Jabatan</option>
+										<option value="Kepala Sekolah">Kepala Sekolah</option>
+										<option value="Guru Kelas">Guru Kelas</option>
+										<option value="Guru Penjaskes">Guru Penjaskes</option>
+										<option value="Guru Agama">Guru Agama</option>
+									</select>
+								</div>
 							</div>
 						</div>
+						{:else if selectedRole === 'admin'}
+						<input type="hidden" name="position" value="Administrator" />
 						{/if}
 					</div>
 
@@ -323,6 +348,7 @@
 								<th>Email</th>
 								<th>Role</th>
 								<th>Status Kepegawaian</th>
+								<th>Jabatan</th>
 								<th>Dibuat</th>
 								<th>Aksi</th>
 							</tr>
@@ -344,6 +370,17 @@
 											{user.employeeType === 'PNS' ? 'badge-success' : 
 											 user.employeeType === 'PPPK' ? 'badge-info' : 'badge-warning'}">
 											{user.employeeType}
+										</div>
+									{:else}
+										<span class="text-sm opacity-50">-</span>
+									{/if}
+								</td>
+								<td>
+									{#if user.position}
+										<div class="badge badge-outline
+											{user.position === 'Kepala Sekolah' ? 'badge-primary' :
+											 user.position === 'Administrator' ? 'badge-accent' : 'badge-neutral'}">
+											{user.position}
 										</div>
 									{:else}
 										<span class="text-sm opacity-50">-</span>
@@ -460,20 +497,40 @@
 
 				<!-- Employee Type (only for guru) -->
 				{#if editSelectedRole === 'guru'}
-				<div class="form-control mb-4">
-					<label class="label" for="edit-employee-type">
-						<span class="label-text">Status Kepegawaian <span class="text-red-500">*</span></span>
-					</label>
-					<div class="relative">
-						<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
-						<select id="edit-employee-type" name="employee_type" class="select select-bordered w-full pl-10">
-							<option value="">Pilih Status</option>
-							<option value="PNS" selected={editingUser.employee_type === 'PNS'}>PNS</option>
-							<option value="PPPK" selected={editingUser.employee_type === 'PPPK'}>PPPK</option>
-							<option value="Honorer" selected={editingUser.employee_type === 'Honorer'}>Honorer</option>
-						</select>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+					<div class="form-control">
+						<label class="label" for="edit-employee-type">
+							<span class="label-text">Status Kepegawaian <span class="text-red-500">*</span></span>
+						</label>
+						<div class="relative">
+							<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
+							<select id="edit-employee-type" name="employee_type" class="select select-bordered w-full pl-10">
+								<option value="">Pilih Status</option>
+								<option value="PNS" selected={editingUser.employee_type === 'PNS'}>PNS</option>
+								<option value="PPPK" selected={editingUser.employee_type === 'PPPK'}>PPPK</option>
+								<option value="Honorer" selected={editingUser.employee_type === 'Honorer'}>Honorer</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-control">
+						<label class="label" for="edit-position">
+							<span class="label-text">Jabatan <span class="text-red-500">*</span></span>
+						</label>
+						<div class="relative">
+							<Badge class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
+							<select id="edit-position" name="position" class="select select-bordered w-full pl-10">
+								<option value="">Pilih Jabatan</option>
+								<option value="Kepala Sekolah" selected={editingUser.position === 'Kepala Sekolah'}>Kepala Sekolah</option>
+								<option value="Guru Kelas" selected={editingUser.position === 'Guru Kelas'}>Guru Kelas</option>
+								<option value="Guru Penjaskes" selected={editingUser.position === 'Guru Penjaskes'}>Guru Penjaskes</option>
+								<option value="Guru Agama" selected={editingUser.position === 'Guru Agama'}>Guru Agama</option>
+							</select>
+						</div>
 					</div>
 				</div>
+				{:else if editSelectedRole === 'admin'}
+				<input type="hidden" name="position" value="Administrator" />
 				{/if}
 
 				<!-- Password Change -->

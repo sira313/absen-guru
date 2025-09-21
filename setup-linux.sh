@@ -1,86 +1,140 @@
 #!/bin/bash
 
-# Script untuk setup dan menjalankan aplikasi absen-guru di Linux/RasPi
+# Script untuk setup dan menjalankan aplikasi Absen Guru di Linux/RasPi
 
 echo "=========================================="
-echo "   Absen Guru - Teacher Attendance System"
-echo "   Setup Script for Linux/Raspberry Pi"
+echo "   🏫 Absen Guru v1.0.0"
+echo "   Sistem Manajemen Absensi Guru"
+echo "   Setup Script untuk Linux/Raspberry Pi"
 echo "=========================================="
 echo ""
 
+echo "🚀 Memulai proses instalasi..."
+echo ""
+
 # Update sistem
-echo "🔄 Updating system packages..."
+echo "🔄 Memperbarui paket sistem..."
 sudo apt update && sudo apt upgrade -y
 
 # Install Node.js jika belum ada
 if ! command -v node &> /dev/null; then
-    echo "📦 Installing Node.js 20.x..."
+    echo "📦 Menginstall Node.js 20.x..."
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
 else
-    echo "✅ Node.js already installed: $(node --version)"
+    echo "✅ Node.js sudah terinstall: $(node --version)"
 fi
 
 # Install build tools untuk native dependencies (untuk SQLite dan lainnya)
-echo "🔧 Installing build tools..."
-sudo apt-get install -y build-essential python3-dev sqlite3
+echo "🔧 Menginstall build tools..."
+sudo apt-get install -y build-essential python3-dev sqlite3 curl wget git
 
 # Install pnpm jika belum ada
 if ! command -v pnpm &> /dev/null; then
-    echo "📦 Installing pnpm..."
+    echo "📦 Menginstall pnpm..."
     curl -fsSL https://get.pnpm.io/install.sh | sh -
     export PATH="$HOME/.local/share/pnpm:$PATH"
+    
+    # Add to shell profile
+    echo 'export PATH="$HOME/.local/share/pnpm:$PATH"' >> ~/.bashrc
     source ~/.bashrc
 else
-    echo "✅ pnpm already installed: $(pnpm --version)"
+    echo "✅ pnpm sudah terinstall: $(pnpm --version)"
 fi
 
 # Copy environment file
 if [ ! -f .env ]; then
-    echo "📄 Creating environment file..."
-    cp .env.example .env
-    echo "⚠️  Please edit .env file with your settings"
+    echo ""
+    echo "📄 Membuat file environment..."
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo "✅ File environment dibuat dari template"
+        echo "⚠️  Silakan edit file .env sesuai kebutuhan"
+    else
+        echo "Membuat file .env default..."
+        cat > .env << EOF
+# Absen Guru Configuration
+
+# Database
+DATABASE_URL="file:./absen.db"
+
+# Session Secret (change in production)
+SESSION_SECRET="your-super-secret-key-change-this-$(date +%s)"
+
+# Server Configuration
+PORT=3000
+HOST=0.0.0.0
+EOF
+        echo "✅ File .env default dibuat"
+        echo "⚠️  Silakan edit file .env untuk production"
+    fi
 else
-    echo "✅ Environment file already exists"
+    echo "✅ File environment sudah ada"
 fi
 
 echo ""
-echo "🔽 Installing dependencies with pnpm..."
+echo "🔽 Menginstall dependencies dengan pnpm...""
 echo "   This includes:"
 echo "   - SvelteKit framework"
 echo "   - TailwindCSS v4 with DaisyUI 5.1.13"
-echo "   - Lucide Svelte (Feather icons)"
-echo "   - SQLite database with better-sqlite3"
-echo "   - Authentication and session management"
+echo "   - SvelteKit framework"
+echo "   - TailwindCSS v4 dengan DaisyUI 5.1.13"
+echo "   - Lucide Svelte (ikon Feather)"
+echo "   - Database SQLite"
+echo "   - Sistem autentikasi dan session"
 echo ""
 
 # Install dependencies
 pnpm install
-
-# Create data directory
-echo "📁 Creating data directory..."
-mkdir -p data
-
-# Initialize database if not exists
-if [ ! -f "absen.db" ]; then
-    echo "🗄️ Initializing SQLite database..."
-    echo "Database will be created on first run"
+if [ $? -ne 0 ]; then
+    echo "❌ Gagal install dependencies"
+    echo "   Coba jalankan: sudo apt-get install build-essential"
+    exit 1
+else
+    echo "✅ Dependencies berhasil diinstall"
 fi
 
-# Build aplikasi
-echo "🔨 Building application..."
+echo ""
+echo "🗄️ Menyiapkan database..."
+pnpm run db:push
+if [ $? -ne 0 ]; then
+    echo "❌ Gagal setup database"
+    exit 1
+else
+    echo "✅ Database schema berhasil dibuat"
+fi
+
+echo ""
+echo "🌱 Menambahkan data awal..."
+pnpm run db:seed
+if [ $? -ne 0 ]; then
+    echo "❌ Gagal menambahkan data awal"
+    exit 1
+else
+    echo "✅ Data awal berhasil ditambahkan"
+fi
+
+echo ""
+echo "🔨 Building aplikasi..."
 pnpm run build
+if [ $? -ne 0 ]; then
+    echo "❌ Build gagal. Silakan cek error di atas."
+    exit 1
+else
+    echo "✅ Build berhasil"
+fi
 
 # Create systemd service file
-echo "⚙️  Creating systemd service..."
+echo ""
+echo "⚙️  Membuat systemd service..."
 sudo tee /etc/systemd/system/absen-guru.service > /dev/null <<EOF
 [Unit]
-Description=Absen Guru - Teacher Attendance System
+Description=Absen Guru - Sistem Manajemen Absensi Guru
 After=network.target
 
 [Service]
 Type=simple
-User=pi
+User=$USER
 WorkingDirectory=$(pwd)
 Environment=NODE_ENV=production
 Environment=PORT=3000
@@ -97,6 +151,46 @@ sudo systemctl daemon-reload
 sudo systemctl enable absen-guru
 
 echo ""
+echo "🎉 Setup berhasil diselesaikan!"
+echo ""
+echo "🚀 Untuk menjalankan aplikasi:"
+echo ""
+echo "   Mode Development (dengan hot reload):"
+echo "     pnpm dev"
+echo ""
+echo "   Mode Production:"
+echo "     pnpm start"
+echo "   Atau menggunakan systemd service:"
+echo "     sudo systemctl start absen-guru"
+echo "     sudo systemctl status absen-guru"
+echo ""
+echo "   Preview aplikasi yang sudah di-build:"
+echo "     pnpm preview"
+echo ""
+echo "🌐 Aplikasi akan tersedia di:"
+echo "     http://localhost:5173 (development)"
+echo "     http://localhost:4173 (preview)"
+echo "     http://localhost:3000 (production)"
+echo "     http://$(hostname -I | awk '{print $1}'):3000 (akses dari jaringan)"
+echo ""
+echo "👤 Login default:"
+echo "     Username: admin"
+echo "     Password: admin123"
+echo ""
+echo "� PWA Support:"
+echo "     - Install sebagai app di mobile/desktop"
+echo "     - Bekerja offline (terbatas)"
+echo "     - Auto-update otomatis"
+echo ""
+echo "�🔧 Manage service:"
+echo "     sudo systemctl start absen-guru    # Start service"
+echo "     sudo systemctl stop absen-guru     # Stop service"
+echo "     sudo systemctl restart absen-guru  # Restart service"
+echo "     sudo systemctl status absen-guru   # Check status"
+echo ""
+echo "📖 Baca FIRST_INSTALL.md untuk panduan lengkap"
+echo ""
+echo "✨ Selamat menggunakan Absen Guru!"
 echo "🎉 Setup completed successfully!"
 echo ""
 echo "🚀 To start the application:"

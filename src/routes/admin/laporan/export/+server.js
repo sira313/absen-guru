@@ -1,4 +1,4 @@
-import { generateTPPReport } from '$lib/server/excel-generator.js';
+import { generateTPPReport, generateMonthlyReport } from '$lib/server/excel-generator.js';
 import { error } from '@sveltejs/kit';
 
 export async function POST({ request, url }) {
@@ -46,9 +46,8 @@ export async function POST({ request, url }) {
 				filename = `Laporan_TPP${filterSuffix}_${getMonthName(month)}_${year}.xlsx`;
 				break;
 			case 'bulanan':
-				// TODO: Implement bulanan report
-				workbook = await generateTPPReport(month, year, workDays, employeeTypeFilter);
-				filename = `Laporan_Bulanan_${getMonthName(month)}_${year}.xlsx`;
+				workbook = await generateMonthlyReport(month, year);
+				filename = `Daftar_Hadir_${getMonthName(month)}_${year}.xlsx`;
 				break;
 			default:
 				workbook = await generateTPPReport(month, year, workDays, employeeTypeFilter);

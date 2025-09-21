@@ -1,4 +1,4 @@
-import { validateSession } from '$lib/server/db.js';
+import { validateSession } from '$lib/server/auth.js';
 import { error } from '@sveltejs/kit';
 import fs from 'fs/promises';
 import path from 'path';

@@ -1,41 +1,26 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { sql } from 'drizzle-orm';
+import { determineAttendanceStatus, getDayTypeInfo } from './attendance-logic.js';
 
 const client = createClient({ url: 'file:./absen.db' });
 const db = drizzle(client);
 
 /**
- * Calculate ceremony status based on attendance time and date
+ * Calculate ceremony status based on attendance time and date (using new smart logic)
  */
 export async function calculateCeremonyStatus(userId, checkInTime) {
 	try {
+		if (!checkInTime) return null;
+		
 		const attendanceDate = new Date(checkInTime);
-		const dayOfWeek = attendanceDate.getDay(); // 0 = Sunday, 1 = Monday
+		const timeString = checkInTime.substring(11, 16); // Extract HH:MM from datetime
 		
-		// Only calculate for Mondays
-		if (dayOfWeek !== 1) {
-			return null; // Not Monday
-		}
+		// Use new smart attendance logic
+		const { ceremonyStatus } = determineAttendanceStatus(timeString, attendanceDate);
 		
-		// Skip holiday checking for now - just focus on Monday ceremony logic
-		// TODO: Add holiday checking when holidays table is populated
-		
-		// Check ceremony time (07:00 WIB)
-		const hours = attendanceDate.getHours();
-		const minutes = attendanceDate.getMinutes();
-		const totalMinutes = hours * 60 + minutes;
-		
-		const ceremonyStartTime = 7 * 60; // 07:00 in minutes
-		const lateThreshold = ceremonyStartTime + 15; // 07:15 in minutes
-		
-		if (totalMinutes <= ceremonyStartTime) {
-			return 'hadir'; // Attended ceremony
-		} else if (totalMinutes <= lateThreshold) {
-			return 'hadir'; // Late but still considered present
-		} else {
-			return 'tidak_hadir'; // Too late, considered absent
-		}
+		// Return ceremony status (can be 'ikut_upacara', 'tidak_ikut_upacara', or null)
+		return ceremonyStatus;
 		
 	} catch (error) {
 		console.error('Error calculating ceremony status:', error);

@@ -13,9 +13,30 @@
 	
 	$: user = data.user;
 	$: schoolSettings = data.schoolSettings;
+	$: kepalaSekolahUsers = data.kepalaSekolahUsers || [];
 	
 	// Mark unused props to avoid warnings
 	params, url, route;
+
+	// Selected kepala sekolah
+	let selectedKepalaSekolahId = '';
+	
+	// Initialize selected kepala sekolah from settings
+	$: {
+		if (schoolSettings && schoolSettings.school_principal_name && kepalaSekolahUsers.length > 0) {
+			// Try to find matching kepala sekolah by name and NIP
+			const matchingUser = kepalaSekolahUsers.find(u => 
+				u.name === schoolSettings.school_principal_name && 
+				u.nip === schoolSettings.school_principal_nip
+			);
+			if (matchingUser) {
+				selectedKepalaSekolahId = matchingUser.id;
+			}
+		}
+	}
+	
+	// Get selected kepala sekolah data
+	$: selectedKepalaSekolah = kepalaSekolahUsers.find(u => u.id === selectedKepalaSekolahId);
 
 	// Enhanced form handler untuk update data setelah submit
 	function handleSchoolFormEnhance() {
@@ -155,38 +176,89 @@
 							<p class="label">Alamat email sekolah</p>
 						</fieldset>
 
-						<!-- Nama Kepala Sekolah -->
+						<!-- Kepala Sekolah -->
 						<fieldset class="fieldset">
-							<legend class="fieldset-legend">Nama Kepala Sekolah</legend>
-							<label class="input input-bordered w-full">
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-								</svg>
+							<legend class="fieldset-legend">Kepala Sekolah</legend>
+							{#if kepalaSekolahUsers.length > 0}
+								<div class="form-control w-full">
+									<div class="relative">
+										<svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50 z-10 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+										</svg>
+										<select 
+											name="school_principal_id" 
+											class="select select-bordered w-full pl-10"
+											bind:value={selectedKepalaSekolahId}
+										>
+											<option value="">Pilih Kepala Sekolah</option>
+											{#each kepalaSekolahUsers as kepala}
+												<option value={kepala.id}>{kepala.name} {kepala.nip ? `(${kepala.nip})` : ''}</option>
+											{/each}
+										</select>
+									</div>
+									{#if selectedKepalaSekolah}
+										<div class="mt-2 text-sm text-base-content/70">
+											<p><strong>Nama:</strong> {selectedKepalaSekolah.name}</p>
+											{#if selectedKepalaSekolah.nip}
+												<p><strong>NIP:</strong> {selectedKepalaSekolah.nip}</p>
+											{/if}
+										</div>
+									{/if}
+								</div>
+								<!-- Hidden inputs for backward compatibility -->
 								<input 
-									type="text" 
+									type="hidden" 
 									name="school_principal_name" 
-									placeholder="Nama lengkap kepala sekolah"
-									value={schoolSettings.school_principal_name || ''}
-									class="grow" 
+									value={selectedKepalaSekolah?.name || ''}
 								/>
-							</label>
-							<p class="label">Nama lengkap kepala sekolah</p>
-						</fieldset>
-
-						<!-- NIP Kepala Sekolah -->
-						<fieldset class="fieldset">
-							<legend class="fieldset-legend">NIP Kepala Sekolah</legend>
-							<label class="input input-bordered w-full">
-								<Hash class="w-4 h-4" />
 								<input 
-									type="text" 
+									type="hidden" 
 									name="school_principal_nip" 
-									placeholder="NIP kepala sekolah"
-									value={schoolSettings.school_principal_nip || ''}
-									class="grow" 
+									value={selectedKepalaSekolah?.nip || ''}
 								/>
-							</label>
-							<p class="label">Nomor Induk Pegawai kepala sekolah</p>
+							{:else}
+								<div class="alert alert-warning">
+									<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+										<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+									</svg>
+									<div>
+										<h3 class="font-bold">Tidak ada Kepala Sekolah</h3>
+										<div class="text-xs">Silakan tambahkan user dengan jabatan "Kepala Sekolah" terlebih dahulu di menu <a href="/admin/users" class="link">Kelola User</a></div>
+									</div>
+								</div>
+								<!-- Fallback manual inputs -->
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">Nama Kepala Sekolah (Manual)</legend>
+										<label class="input input-bordered w-full">
+											<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+											</svg>
+											<input 
+												type="text" 
+												name="school_principal_name" 
+												placeholder="Nama lengkap kepala sekolah"
+												value={schoolSettings.school_principal_name || ''}
+												class="grow" 
+											/>
+										</label>
+									</fieldset>
+									<fieldset class="fieldset">
+										<legend class="fieldset-legend">NIP Kepala Sekolah (Manual)</legend>
+										<label class="input input-bordered w-full">
+											<Hash class="w-4 h-4" />
+											<input 
+												type="text" 
+												name="school_principal_nip" 
+												placeholder="NIP kepala sekolah"
+												value={schoolSettings.school_principal_nip || ''}
+												class="grow" 
+											/>
+										</label>
+									</fieldset>
+								</div>
+							{/if}
+							<p class="label text-xs text-base-content/70">Data kepala sekolah akan otomatis diambil dari user dengan jabatan "Kepala Sekolah"</p>
 						</fieldset>
 					</div>
 

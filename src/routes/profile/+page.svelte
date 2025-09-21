@@ -133,6 +133,17 @@
 						/>
 						<p class="label">Status kepegawaian (hanya admin yang dapat mengubah)</p>
 					</fieldset>
+
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Jabatan</legend>
+						<input 
+							type="text" 
+							class="input w-full" 
+							value={data.user.position || 'Tidak ditetapkan'}
+							disabled
+						/>
+						<p class="label">Jabatan/posisi (hanya admin yang dapat mengubah)</p>
+					</fieldset>
 					{/if}
 
 					<fieldset class="fieldset">
@@ -147,7 +158,7 @@
 						<p class="label">Nomor telepon aktif</p>
 					</fieldset>
 
-					<fieldset class="fieldset mb-6">
+					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Role</legend>
 						<input 
 							type="text" 
@@ -156,6 +167,17 @@
 							disabled
 						/>
 						<p class="label">Role tidak dapat diubah</p>
+					</fieldset>
+
+					<fieldset class="fieldset mb-6">
+						<legend class="fieldset-legend">Jabatan</legend>
+						<input 
+							type="text" 
+							class="input w-full" 
+							value={data.user.position || 'Administrator'}
+							disabled
+						/>
+						<p class="label">Jabatan/posisi dalam institusi</p>
 					</fieldset>
 
 					<div class="card-actions justify-end">

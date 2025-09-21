@@ -8,7 +8,7 @@
 
 <div class="drawer-side">
 	<label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-	<ul class="menu text-base-content min-h-full w-80 p-4 bg-base-300">
+	<ul class="menu text-base-content min-h-full w-80 pt-[5.5rem] lg:pt-4 px-4 pb-4 bg-base-300">
 		<!-- Header -->
 		<div class="mb-6 pl-4">
 			<div class="text-xl font-bold">

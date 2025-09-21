@@ -1,5 +1,8 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { dbHelpers } from '$lib/server/db.js';
+import { db } from '$lib/server/db.js';
+import { users } from '$lib/server/schema.js';
+import { eq } from 'drizzle-orm';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -18,15 +21,27 @@ export async function load({ locals }) {
 		// Get school settings
 		const schoolSettings = await dbHelpers.getSchoolSettings();
 		
+		// Get users with Kepala Sekolah position
+		const kepalaSekolahUsers = await db
+			.select({
+				id: users.id,
+				name: users.name,
+				nip: users.nip
+			})
+			.from(users)
+			.where(eq(users.position, 'Kepala Sekolah'));
+		
 		return {
 			user,
-			schoolSettings
+			schoolSettings,
+			kepalaSekolahUsers
 		};
 	} catch (error) {
 		console.error('Error loading settings:', error);
 		return {
 			user,
-			schoolSettings: {}
+			schoolSettings: {},
+			kepalaSekolahUsers: []
 		};
 	}
 }
