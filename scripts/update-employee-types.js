@@ -31,7 +31,7 @@ async function updateExistingUsers() {
 			} else if (i % 3 === 1) {
 				employeeType = 'PPPK';
 			} else {
-				employeeType = 'Honorer';
+				employeeType = 'CPNS';
 			}
 
 			await db

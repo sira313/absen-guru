@@ -38,6 +38,8 @@
     "bcrypt": "^6.0.0",
     "date-fns": "^3.0.0",
     "drizzle-orm": "^0.44.2",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "lucide-svelte": "^0.544.0",
     "nanoid": "^5.1.5",
     "tailwindcss": "^4.1.13",

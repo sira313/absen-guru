@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { users, sessions, attendance, schedules, settings, holidays } from './schema.js';
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
 // Create database client
@@ -317,8 +317,7 @@ export const dbHelpers = {
 	async getSchoolSettings() {
 		const schoolKeys = ['school_name', 'school_npsn', 'school_address', 'school_phone', 'school_email', 'school_principal_name', 'school_principal_nip'];
 		const result = await db.select().from(settings).where(
-			sql`${settings.key} IN (${schoolKeys.map(() => '?').join(', ')})`,
-			...schoolKeys
+			inArray(settings.key, schoolKeys)
 		);
 		
 		// Convert to object for easier access

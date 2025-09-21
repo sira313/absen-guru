@@ -1,5 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { School, Database, Download, Upload, Save, Building, MapPin, Phone, Mail, Hash } from 'lucide-svelte';
 	
 	export let data;
@@ -15,6 +16,26 @@
 	
 	// Mark unused props to avoid warnings
 	params, url, route;
+
+	// Enhanced form handler untuk update data setelah submit
+	function handleSchoolFormEnhance() {
+		return enhance(async ({ result }) => {
+			if (result.type === 'success' && result.data?.success) {
+				// Invalidate dan reload data setelah sukses
+				await invalidateAll();
+			}
+		});
+	}
+
+	// Enhanced form handler untuk export/import
+	function handleDatabaseFormEnhance() {
+		return enhance(async ({ result }) => {
+			if (result.type === 'success') {
+				// Refresh page untuk memperbarui status
+				await invalidateAll();
+			}
+		});
+	}
 </script>
 
 <svelte:head>
@@ -66,7 +87,7 @@
 					Data Sekolah
 				</h2>
 				
-				<form method="POST" action="?/updateSchool" use:enhance class="space-y-4">
+				<form method="POST" action="?/updateSchool" use:handleSchoolFormEnhance class="space-y-4">
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<!-- Nama Sekolah -->
 						<fieldset class="fieldset">
@@ -210,7 +231,7 @@
 							Buat backup database untuk keamanan data. File backup akan disimpan di folder backups.
 						</p>
 						
-						<form method="POST" action="?/exportDatabase" use:enhance>
+						<form method="POST" action="?/exportDatabase" use:handleDatabaseFormEnhance>
 							<button type="submit" class="btn btn-success btn-block">
 								<Download class="w-5 h-5 mr-2" />
 								Export Database
@@ -239,7 +260,7 @@
 							Restore database dari file backup. <strong class="text-warning">Hati-hati:</strong> Ini akan mengganti semua data yang ada.
 						</p>
 						
-						<form method="POST" action="?/importDatabase" use:enhance enctype="multipart/form-data" class="space-y-4">
+						<form method="POST" action="?/importDatabase" use:handleDatabaseFormEnhance enctype="multipart/form-data" class="space-y-4">
 							<div class="form-control">
 								<label class="label" for="database_file">
 									<span class="label-text">Pilih File Database</span>
@@ -256,8 +277,8 @@
 							
 							<div class="form-control">
 								<label class="label cursor-pointer">
+                  <input type="checkbox" class="checkbox checkbox-warning" required />
 									<span class="label-text">Saya memahami risiko import database</span>
-									<input type="checkbox" class="checkbox checkbox-warning" required />
 								</label>
 							</div>
 							

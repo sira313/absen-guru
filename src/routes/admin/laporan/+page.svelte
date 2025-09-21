@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { Download, ArrowLeft, Filter, FileText, TrendingUp, Clock, UserCheck, TrendingDown } from 'lucide-svelte';
 	import CalendarPicker from '$lib/components/CalendarPicker.svelte';
+	import ExportModal from '$lib/components/ExportModal.svelte';
 	
 	export let data;
 	
@@ -16,6 +17,9 @@
 	$: stats = data.stats;
 	$: allUsers = data.allUsers;
 	$: filters = data.filters;
+	
+	// Export modal state
+	let showExportModal = false;
 
 	function getStatusBadgeClass(status) {
 		switch(status) {
@@ -64,17 +68,57 @@
 				getStatusText(record.status),
 				record.notes || ''
 			])
-		].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+		].map(row => row.join(',')).join('\n');
 
-		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-		const link = document.createElement('a');
-		const url = URL.createObjectURL(blob);
-		link.setAttribute('href', url);
-		link.setAttribute('download', `laporan_absensi_${filters.startDate}_${filters.endDate}.csv`);
-		link.style.visibility = 'hidden';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+		const blob = new Blob([csvContent], { type: 'text/csv' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `laporan-absensi-${new Date().toISOString().split('T')[0]}.csv`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		window.URL.revokeObjectURL(url);
+	}
+	
+	// Handle export Excel
+	async function handleExport(event) {
+		const { month, year, workDays, exportType, employeeTypeFilter } = event.detail;
+		
+		try {
+			const response = await fetch('/admin/laporan/export', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					month,
+					year,
+					workDays,
+					exportType,
+					employeeTypeFilter
+				})
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to export');
+			}
+			
+			// Download file
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'laporan.xlsx';
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+			
+		} catch (error) {
+			console.error('Export error:', error);
+			alert('Gagal mengexport laporan. Silakan coba lagi.');
+		}
 	}
 </script>
 
@@ -89,7 +133,14 @@
 			<h1 class="text-3xl font-bold text-base-content">Laporan Absensi</h1>
 			<p class="text-lg text-base-content/70">Detail laporan absensi guru</p>
 		</div>
-		<div class="flex gap-2">
+		<div class="flex flex-col sm:flex-row gap-2">
+			<button 
+				on:click={() => showExportModal = true} 
+				class="btn btn-primary"
+			>
+				<Download class="w-5 h-5" />
+				Export Excel
+			</button>
 			<button on:click={exportToCSV} class="btn btn-outline">
 				<Download class="w-5 h-5" />
 				Export CSV
@@ -263,3 +314,9 @@
 		</div>
 	</div>
 </div>
+
+<!-- Export Modal -->
+<ExportModal 
+	bind:showModal={showExportModal} 
+	on:export={handleExport}
+/>
