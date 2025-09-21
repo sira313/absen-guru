@@ -306,5 +306,55 @@ export const dbHelpers = {
 		))
 		.where(eq(users.role, 'guru'))
 		.orderBy(users.name, attendance.date);
+	},
+
+	// Settings operations
+	async getSetting(key) {
+		const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+		return result[0] || null;
+	},
+
+	async getSchoolSettings() {
+		const schoolKeys = ['school_name', 'school_npsn', 'school_address', 'school_phone', 'school_email', 'school_principal_name', 'school_principal_nip'];
+		const result = await db.select().from(settings).where(
+			sql`${settings.key} IN (${schoolKeys.map(() => '?').join(', ')})`,
+			...schoolKeys
+		);
+		
+		// Convert to object for easier access
+		const schoolData = {};
+		result.forEach(item => {
+			schoolData[item.key] = item.value;
+		});
+		
+		return schoolData;
+	},
+
+	async updateSetting(key, value) {
+		const existing = await this.getSetting(key);
+		
+		if (existing) {
+			await db.update(settings)
+				.set({ 
+					value, 
+					updatedAt: new Date().toISOString() 
+				})
+				.where(eq(settings.key, key));
+		} else {
+			await db.insert(settings).values({
+				id: nanoid(),
+				key,
+				value,
+				updatedAt: new Date().toISOString(),
+				createdAt: new Date().toISOString()
+			});
+		}
+	},
+
+	async updateSchoolSettings(schoolData) {
+		const promises = Object.entries(schoolData).map(([key, value]) => 
+			this.updateSetting(key, value)
+		);
+		await Promise.all(promises);
 	}
 };

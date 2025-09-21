@@ -10,15 +10,15 @@
 	<label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 	<ul class="menu text-base-content min-h-full w-80 p-4 bg-base-300">
 		<!-- Header -->
-		<div class="mb-6">
-			<div class="text-xl font-bold text-center">
+		<div class="mb-6 pl-4">
+			<div class="text-xl font-bold">
 				{#if isAdmin}
 					Menu Admin
 				{:else}
 					Menu Guru
 				{/if}
 			</div>
-			<div class="text-center text-sm opacity-70 mt-2">
+			<div class="text-sm opacity-70 mt-2">
 				{user?.name || 'User'}
 			</div>
 		</div>

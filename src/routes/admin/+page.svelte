@@ -85,7 +85,7 @@
 
 <div class="container mx-auto p-4 space-y-6">
 	<!-- Header -->
-	<div class="text-center">
+	<div class="text-left">
 		<h1 class="text-3xl font-bold text-base-content">Dashboard Admin</h1>
 		<p class="text-lg text-base-content/70 mt-2">Kelola dan pantau absensi guru</p>
 	</div>

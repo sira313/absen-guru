@@ -7,6 +7,9 @@ export default defineConfig({
 		tailwindcss(),
 		sveltekit()
 	],
+	optimizeDeps: {
+		exclude: ['cally']
+	},
 	server: {
 		host: '0.0.0.0', // Untuk akses dari network lain (RasPi)
 		port: 5173

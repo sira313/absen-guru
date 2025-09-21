@@ -1,6 +1,20 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { dbHelpers } from '$lib/server/db.js';
 
+// Helper function to check if date is weekend
+function isWeekend(date) {
+	const day = date.getDay();
+	return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
+}
+
+// Helper function to get weekend day name
+function getWeekendDayName(date) {
+	const day = date.getDay();
+	if (day === 0) return 'Minggu';
+	if (day === 6) return 'Sabtu';
+	return '';
+}
+
 // Helper function to determine attendance status
 function determineAttendanceStatus(checkInTime, expectedTime = '08:00') {
 	const [checkHour, checkMin] = checkInTime.split(':').map(Number);
@@ -65,6 +79,10 @@ export async function load({ locals }) {
 	const today = new Date();
 	const todayString = today.toISOString().split('T')[0];
 	
+	// Check if today is weekend
+	const isWeekendToday = isWeekend(today);
+	const weekendDayName = isWeekendToday ? getWeekendDayName(today) : '';
+	
 	try {
 		// Ambil absensi hari ini menggunakan fungsi yang ada
 		const todayAttendance = await dbHelpers.getAttendanceByUserAndDate(user.id, todayString);
@@ -96,7 +114,9 @@ export async function load({ locals }) {
 			todayAttendance,
 			stats,
 			monthlyAttendance,
-			today: today.toISOString().split('T')[0]
+			today: today.toISOString().split('T')[0],
+			isWeekend: isWeekendToday,
+			weekendDayName
 		};
 	} catch (error) {
 		console.error('Error loading guru data:', error);
@@ -105,7 +125,9 @@ export async function load({ locals }) {
 			todayAttendance: null,
 			stats: { totalDays: 0, presentDays: 0, lateDays: 0, absentDays: 0, sickDays: 0, leaveDays: 0, officialDutyDays: 0 },
 			monthlyAttendance: [],
-			today: today.toISOString().split('T')[0]
+			today: today.toISOString().split('T')[0],
+			isWeekend: isWeekendToday,
+			weekendDayName
 		};
 	}
 }
@@ -117,6 +139,15 @@ export const actions = {
 		const selectedStatus = formData.get('status')?.toString() || 'hadir';
 		
 		const now = new Date();
+		
+		// Check if today is weekend
+		if (isWeekend(now)) {
+			const dayName = getWeekendDayName(now);
+			return fail(400, {
+				message: `Tidak bisa melakukan absensi pada hari ${dayName}. Sistem absensi hanya tersedia pada hari kerja (Senin-Jumat).`
+			});
+		}
+		
 		const checkInTime = now.toTimeString().slice(0, 5); // Format HH:MM
 		
 		let finalStatus;

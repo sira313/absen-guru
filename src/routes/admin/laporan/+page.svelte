@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { Download, ArrowLeft, Filter, FileText, TrendingUp, Clock, UserCheck, TrendingDown } from 'lucide-svelte';
+	import CalendarPicker from '$lib/components/CalendarPicker.svelte';
 	
 	export let data;
 	
@@ -110,26 +111,20 @@
 			<form id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Tanggal Mulai</legend>
-					<input 
-						id="start_date"
-						type="date" 
-						name="start_date" 
+					<CalendarPicker
+						name="start_date"
 						value={filters.startDate}
-						class="input input-bordered w-full"
-						placeholder="Tanggal mulai"
+						placeholder="Pilih tanggal mulai"
 					/>
 					<p class="label text-xs text-base-content/60">Periode awal laporan</p>
 				</fieldset>
 
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Tanggal Akhir</legend>
-					<input 
-						id="end_date"
-						type="date" 
-						name="end_date" 
+					<CalendarPicker
+						name="end_date"
 						value={filters.endDate}
-						class="input input-bordered w-full"
-						placeholder="Tanggal akhir"
+						placeholder="Pilih tanggal akhir"
 					/>
 					<p class="label text-xs text-base-content/60">Periode akhir laporan</p>
 				</fieldset>

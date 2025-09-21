@@ -40,7 +40,7 @@ Menggunakan `@layer` untuk better organization:
 /* app.css - Dengan @layer */
 @layer components {
   .attendance-card {
-    @apply card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-200;
+    @apply card bg-base-100 shadow-xl hover:shadow-lg transition-shadow duration-200;
   }
   
   .status-hadir {

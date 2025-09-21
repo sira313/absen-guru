@@ -2,14 +2,25 @@
 	import { enhance } from '$app/forms';
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList } from 'lucide-svelte';
+	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList, Coffee } from 'lucide-svelte';
 	
 	export let data;
+	export let form;
+	
+	// Handle SvelteKit props that are automatically passed to page components
+	export let params = undefined;
+	export let url = undefined;
+	export let route = undefined;
 	
 	$: user = data.user;
 	$: todayAttendance = data.todayAttendance;
 	$: stats = data.stats;
 	$: today = data.today;
+	$: isWeekend = data.isWeekend;
+	$: weekendDayName = data.weekendDayName;
+	
+	// Mark unused props to avoid warnings
+	params, url, route;
 	
 	// Ignore unused SvelteKit props
 	$$restProps;
@@ -76,6 +87,20 @@
 		<div class="text-xl lg:text-2xl font-mono mt-2 text-base-content">{currentTimeString}</div>
 	</div>
 
+	<!-- Error/Success Messages -->
+	{#if form?.message}
+		<div class="alert {form.success ? 'alert-success' : 'alert-error'}">
+			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+				{#if form.success}
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+				{:else}
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+				{/if}
+			</svg>
+			<span>{form.message}</span>
+		</div>
+	{/if}
+
 	<!-- Status Absen Hari Ini -->
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
@@ -115,30 +140,56 @@
 				</div>
 			</div>
 		{:else}
-			<!-- Status Belum Absen -->
-			<div class="bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg p-6 border border-warning/20 mb-6">
-				<div class="flex items-center justify-center mb-4">
-					<div class="relative">
-						<div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center shadow-lg animate-pulse">
-							<AlertTriangle class="w-8 h-8 text-warning-content" />
+			<!-- Weekend Notice -->
+			{#if isWeekend}
+				<div class="bg-gradient-to-r from-info/10 to-info/5 rounded-lg p-6 border border-info/20 mb-6">
+					<div class="flex items-center justify-center mb-4">
+						<div class="relative">
+							<div class="w-16 h-16 bg-info rounded-full flex items-center justify-center shadow-lg">
+								<Coffee class="w-8 h-8 text-info-content" />
+							</div>
+							<div class="absolute -top-1 -right-1 w-6 h-6 bg-info-content rounded-full border-2 border-info flex items-center justify-center">
+								<span class="text-info text-xs font-bold">☕</span>
+							</div>
 						</div>
-						<div class="absolute -top-1 -right-1 w-6 h-6 bg-warning-content rounded-full border-2 border-warning flex items-center justify-center">
-							<span class="text-warning text-xs font-bold">!</span>
+					</div>
+					
+					<div class="text-center space-y-2">
+						<h3 class="text-xl font-bold text-info">Selamat Hari {weekendDayName}!</h3>
+						<p class="text-base-content/70">Nikmati hari libur Anda. Sistem absensi akan tersedia kembali pada hari Senin.</p>
+						<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+							<Calendar class="w-4 h-4" />
+							<span>Hari kerja: Senin - Jumat</span>
 						</div>
 					</div>
 				</div>
-				
-				<div class="text-center space-y-2">
-					<h3 class="text-xl font-bold text-warning">Belum Absen Hari Ini</h3>
-					<p class="text-base-content/70">Silakan lakukan absensi untuk memulai hari kerja Anda</p>
-					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
-						<Calendar class="w-4 h-4" />
-						<span>Batas waktu: 08:00 WIB</span>
+			{:else}
+				<!-- Status Belum Absen -->
+				<div class="bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg p-6 border border-warning/20 mb-6">
+					<div class="flex items-center justify-center mb-4">
+						<div class="relative">
+							<div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center shadow-lg animate-pulse">
+								<AlertTriangle class="w-8 h-8 text-warning-content" />
+							</div>
+							<div class="absolute -top-1 -right-1 w-6 h-6 bg-warning-content rounded-full border-2 border-warning flex items-center justify-center">
+								<span class="text-warning text-xs font-bold">!</span>
+							</div>
+						</div>
+					</div>
+					
+					<div class="text-center space-y-2">
+						<h3 class="text-xl font-bold text-warning">Belum Absen Hari Ini</h3>
+						<p class="text-base-content/70">Silakan lakukan absensi untuk memulai hari kerja Anda</p>
+						<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+							<Calendar class="w-4 h-4" />
+							<span>Batas waktu: 08:00 WIB</span>
+						</div>
 					</div>
 				</div>
-			</div>
+			{/if}
 			
-			<!-- Form Absen dengan Design Baru -->
+			<!-- Form Absen dengan Design Baru (hanya tampil jika bukan weekend) -->
+			{#if !isWeekend}
 			<div class="card bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
 				<div class="card-body">
 					<h4 class="card-title text-center text-primary mb-4">
@@ -214,6 +265,7 @@
 					</form>
 				</div>
 			</div>
+			{/if}
 		{/if}
 		</div>
 	</div>
