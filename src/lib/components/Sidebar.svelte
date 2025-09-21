@@ -1,5 +1,5 @@
 <script>
-	import { BarChart3, FileText, Users, Clock, Calendar, User } from 'lucide-svelte';
+	import { BarChart3, FileText, Users, Clock, Calendar, User, Settings } from 'lucide-svelte';
 	
 	export let user;
 	
@@ -41,6 +41,12 @@
 				<a href="/admin/users">
 					<Users class="w-5 h-5" />
 					Kelola User
+				</a>
+			</li>
+			<li>
+				<a href="/admin/pengaturan">
+					<Settings class="w-5 h-5" />
+					Pengaturan
 				</a>
 			</li>
 		{:else}

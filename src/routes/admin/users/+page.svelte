@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3 } from 'lucide-svelte';
+	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3, Eye, EyeOff } from 'lucide-svelte';
 	
 	export let data;
 	export let form;
@@ -18,6 +18,8 @@
 	let deleteUserId = null;
 	let selectedRole = '';
 	let editSelectedRole = '';
+	let showCreatePassword = false;
+	let showEditPassword = false;
 	
 	function showDeleteConfirm(userId, userName) {
 		if (confirm(`Yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
@@ -111,7 +113,7 @@
 									name="username" 
 									required
 									minlength="3"
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="Masukkan username"
 								/>
 							</div>
@@ -128,7 +130,7 @@
 									id="name"
 									name="name" 
 									required
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="Masukkan nama lengkap"
 								/>
 							</div>
@@ -144,7 +146,7 @@
 									type="email" 
 									id="email"
 									name="email" 
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="user@example.com"
 								/>
 							</div>
@@ -160,7 +162,7 @@
 									type="text" 
 									id="nip"
 									name="nip" 
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="Nomor Induk Pegawai"
 								/>
 							</div>
@@ -176,7 +178,7 @@
 									type="text" 
 									id="subject"
 									name="subject" 
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="Mata pelajaran yang diajar"
 								/>
 							</div>
@@ -192,7 +194,7 @@
 									type="tel" 
 									id="phone"
 									name="phone" 
-									class="input input-bordered w-full pl-10"
+									class="input input-bordered w-full"
 									placeholder="Nomor telefon"
 								/>
 							</div>
@@ -208,7 +210,7 @@
 									id="role"
 									name="role" 
 									required
-									class="select select-bordered w-full pl-10"
+									class="select select-bordered w-full"
 									bind:value={selectedRole}
 								>
 									<option value="">Pilih Role</option>
@@ -222,18 +224,29 @@
 							<label class="label" for="password">
 								<span class="label-text">Password <span class="text-error">*</span></span>
 							</label>
-							<div class="relative">
-								<Lock class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50" />
+							<label class="input input-bordered w-full">
+								<Lock class="w-4 h-4" />
 								<input 
-									type="password" 
+									type={showCreatePassword ? 'text' : 'password'}
 									id="password"
 									name="password" 
 									required
 									minlength="6"
-									class="input input-bordered w-full pl-10"
+									class="grow"
 									placeholder="Minimal 6 karakter"
 								/>
-							</div>
+								<button 
+									type="button" 
+									class="btn btn-circle btn-ghost btn-sm"
+									on:click={() => showCreatePassword = !showCreatePassword}
+								>
+									{#if showCreatePassword}
+										<EyeOff class="w-4 h-4" />
+									{:else}
+										<Eye class="w-4 h-4" />
+									{/if}
+								</button>
+							</label>
 						</div>
 
 						{#if selectedRole === 'guru'}
@@ -449,14 +462,28 @@
 						<span class="label-text">Password Baru</span>
 						<span class="label-text-alt text-gray-500">Kosongkan jika tidak ingin mengubah</span>
 					</label>
-					<input 
-						type="password" 
-						id="edit-password"
-						name="newPassword" 
-						class="input input-bordered w-full" 
-						placeholder="Masukkan password baru (opsional)"
-						minlength="6"
-					/>
+					<label class="input input-bordered w-full">
+						<Lock class="w-4 h-4" />
+						<input 
+							type={showEditPassword ? 'text' : 'password'}
+							id="edit-password"
+							name="newPassword" 
+							class="grow" 
+							placeholder="Masukkan password baru (opsional)"
+							minlength="6"
+						/>
+						<button 
+							type="button" 
+							class="btn btn-circle btn-ghost btn-sm"
+							on:click={() => showEditPassword = !showEditPassword}
+						>
+							{#if showEditPassword}
+								<EyeOff class="w-4 h-4" />
+							{:else}
+								<Eye class="w-4 h-4" />
+							{/if}
+						</button>
+					</label>
 				</div>
 
 				<div class="modal-action">
