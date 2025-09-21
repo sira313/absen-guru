@@ -1,52 +1,27 @@
 // src/hooks.server.js
-import { lucia } from '$lib/server/auth.js';
+import { validateSession, setSessionCookie, deleteSessionCookie, SESSION_COOKIE_NAME } from '$lib/server/auth.js';
 import { redirect } from '@sveltejs/kit';
-import { dbHelpers } from '$lib/server/db.js';
 
 export async function handle({ event, resolve }) {
-	const sessionId = event.cookies.get(lucia.sessionCookieName);
+	const sessionId = event.cookies.get(SESSION_COOKIE_NAME);
 	
 	if (!sessionId) {
 		event.locals.user = null;
 		event.locals.session = null;
 	} else {
 		try {
-			const result = await lucia.validateSession(sessionId);
-			// Lucia mengembalikan { session, user } dari validateSession
-			const { session, user } = result;
+			const { session, user } = await validateSession(sessionId);
 			
-			// WORKAROUND: Lucia tidak menggunakan getUserAttributes dengan benar
-			// Ambil user lengkap dari database secara manual
-			if (user && user.id) {
-				const fullUser = await dbHelpers.getUserById(user.id);
-				
-				if (fullUser) {
-					// Gabungkan dengan user dari Lucia
-					user.username = fullUser.username;
-					user.name = fullUser.name;
-					user.role = fullUser.role;
-					user.nip = fullUser.nip;
-					user.subject = fullUser.subject;
-					user.phone = fullUser.phone;
-					user.email = fullUser.email;
-					user.isActive = fullUser.isActive;
-				}
-			}
-		
+			// Set fresh session cookie if session was refreshed
 			if (session && session.fresh) {
-				const sessionCookie = lucia.createSessionCookie(session.id);
-				event.cookies.set(sessionCookie.name, sessionCookie.value, {
-					path: '.',
-					...sessionCookie.attributes
-				});
+				setSessionCookie(event.cookies, session.id, session.expiresAt);
 			}
+			
+			// Clear session cookie if session is invalid
 			if (!session) {
-				const sessionCookie = lucia.createBlankSessionCookie();
-				event.cookies.set(sessionCookie.name, sessionCookie.value, {
-					path: '.',
-					...sessionCookie.attributes
-				});
+				deleteSessionCookie(event.cookies);
 			}
+			
 			event.locals.user = user;
 			event.locals.session = session;
 		} catch (error) {
@@ -83,5 +58,17 @@ export async function handle({ event, resolve }) {
 		}
 	}
 
-	return resolve(event);
+	const response = await resolve(event);
+	
+	// Add headers to allow cross-origin requests and fix permissions policy issues
+	response.headers.set('Access-Control-Allow-Origin', '*');
+	response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+	response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+	response.headers.set('Access-Control-Allow-Credentials', 'true');
+	
+	// Remove problematic Permissions-Policy headers and set proper ones
+	response.headers.delete('Permissions-Policy');
+	response.headers.set('Permissions-Policy', 'run-ad-auction=(), join-ad-interest-group=()');
+	
+	return response;
 }

@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { users, sessions, attendance, schedules, settings, holidays } from './schema.js';
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
-import { generateId } from 'lucia';
+import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 
 // Create database client
 const client = createClient({
@@ -15,7 +15,7 @@ export const db = drizzle(client);
 export const dbHelpers = {
 	// User operations
 	async createUser(userData) {
-		const userId = generateId(15);
+		const userId = nanoid(15);
 		const user = {
 			id: userId,
 			...userData,
@@ -73,9 +73,20 @@ export const dbHelpers = {
 		await db.delete(sessions).where(lte(sessions.expiresAt, now));
 	},
 
+	async updateSessionExpiration(sessionId, expiresAt) {
+		const expiresAtTimestamp = expiresAt instanceof Date ? expiresAt.getTime() : expiresAt;
+		await db.update(sessions).set({ 
+			expiresAt: expiresAtTimestamp 
+		}).where(eq(sessions.id, sessionId));
+	},
+
+	async deleteUserSessions(userId) {
+		await db.delete(sessions).where(eq(sessions.userId, userId));
+	},
+
 	// Attendance operations
 	async createAttendance(attendanceData) {
-		const attendanceId = generateId(15);
+		const attendanceId = nanoid(15);
 		const record = {
 			id: attendanceId,
 			...attendanceData,
@@ -142,7 +153,7 @@ export const dbHelpers = {
 
 	// Schedule operations
 	async createSchedule(scheduleData) {
-		const scheduleId = generateId(15);
+		const scheduleId = nanoid(15);
 		const schedule = {
 			id: scheduleId,
 			...scheduleData,
@@ -190,7 +201,7 @@ export const dbHelpers = {
 	// Settings operations
 	async setSetting(key, value, description = null) {
 		const setting = {
-			id: generateId(15),
+			id: nanoid(15),
 			key,
 			value,
 			description,
@@ -220,7 +231,7 @@ export const dbHelpers = {
 
 	// Holiday operations
 	async createHoliday(holidayData) {
-		const holidayId = generateId(15);
+		const holidayId = nanoid(15);
 		const holiday = {
 			id: holidayId,
 			...holidayData,
@@ -256,7 +267,8 @@ export const dbHelpers = {
 			terlambat: 0,
 			tidak_hadir: 0,
 			izin: 0,
-			sakit: 0
+			sakit: 0,
+			dinas_luar: 0
 		};
 
 		records.forEach(record => {
@@ -264,6 +276,9 @@ export const dbHelpers = {
 				stats[record.status]++;
 			}
 		});
+
+		// Untuk kompatibilitas dengan logika "dinas_luar = hadir"
+		stats.hadir_total = stats.hadir + stats.dinas_luar;
 
 		return stats;
 	},
@@ -291,5 +306,54 @@ export const dbHelpers = {
 		))
 		.where(eq(users.role, 'guru'))
 		.orderBy(users.name, attendance.date);
+	},
+
+	// Settings operations
+	async getSetting(key) {
+		const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+		return result[0] || null;
+	},
+
+	async getSchoolSettings() {
+		const schoolKeys = ['school_name', 'school_npsn', 'school_address', 'school_phone', 'school_email', 'school_principal_name', 'school_principal_nip'];
+		const result = await db.select().from(settings).where(
+			inArray(settings.key, schoolKeys)
+		);
+		
+		// Convert to object for easier access
+		const schoolData = {};
+		result.forEach(item => {
+			schoolData[item.key] = item.value;
+		});
+		
+		return schoolData;
+	},
+
+	async updateSetting(key, value) {
+		const existing = await this.getSetting(key);
+		
+		if (existing) {
+			await db.update(settings)
+				.set({ 
+					value, 
+					updatedAt: new Date().toISOString() 
+				})
+				.where(eq(settings.key, key));
+		} else {
+			await db.insert(settings).values({
+				id: nanoid(),
+				key,
+				value,
+				updatedAt: new Date().toISOString(),
+				createdAt: new Date().toISOString()
+			});
+		}
+	},
+
+	async updateSchoolSettings(schoolData) {
+		const promises = Object.entries(schoolData).map(([key, value]) => 
+			this.updateSetting(key, value)
+		);
+		await Promise.all(promises);
 	}
 };

@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { lucia } from '$lib/server/auth.js';
+import { createSession, setSessionCookie } from '$lib/server/auth.js';
 import { dbHelpers } from '$lib/server/db.js';
 import { fail } from '@sveltejs/kit';
 
@@ -52,13 +52,8 @@ export const actions = {
 			});
 		}
 
-		const session = await lucia.createSession(user.id, {});
-		const sessionCookie = lucia.createSessionCookie(session.id);
-		
-		cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: '.',
-			...sessionCookie.attributes
-		});
+		const session = await createSession(user.id);
+		setSessionCookie(cookies, session.id, session.expiresAt);
 
 		// Redirect langsung berdasarkan role untuk menghindari loop
 		if (user.role === 'admin') {

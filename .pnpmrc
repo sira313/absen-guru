@@ -1,0 +1,13 @@
+# Performance optimizations
+auto-install-peers=true
+shamefully-hoist=true
+strict-peer-dependencies=false
+package-import-method=hardlink
+node-linker=isolated
+
+# Memory optimizations
+registry=https://registry.npmjs.org/
+store-dir=~/.pnpm-store
+
+# Reduce cache size
+verify-store-integrity=false

@@ -48,11 +48,14 @@ This project uses **Svelte** with **DaisyUI 5.1.13** and **TailwindCSS 4.0** for
 - Leverage SvelteKit for routing and server-side functionality
 - Use pnpm as package manager for better performance and disk efficiency
 
-### TailwindCSS v4 Specific Patterns
-- **No Config Files**: Use @import "tailwindcss" and @theme {} in CSS instead of tailwind.config.js
-- **Theme Definition**: Define custom colors and values using @theme {} block in app.css
-- **Vite Integration**: Use @tailwindcss/vite plugin in vite.config.js
-- **CSS-First Approach**: All customization happens in CSS files, not JavaScript config
+### TailwindCSS v4 + DaisyUI Implementation Patterns
+- **Package Installation**: Always use `pnpm install tailwindcss@latest @tailwindcss/vite@latest daisyui@latest`
+- **Vite Configuration**: Use `tailwindcss()` plugin BEFORE `sveltekit()` plugin
+- **CSS Import**: Use `@import "tailwindcss";` and `@plugin "daisyui";` (NOT @tailwind directives)
+- **No Config File**: TailwindCSS v4 doesn't need tailwind.config.js file
+- **CSRF Fix**: Use `csrf: { trustedOrigins: ['http://localhost:5173', 'http://localhost:5174'] }` instead of `checkOrigin: false`
+- **Cache Clear**: If build issues, clear `node_modules/.vite` and `.svelte-kit` folders
+- **Port Fix**: Use `--port` flag to avoid conflicts: `pnpm dev --port 5174`
 
 ## Development Conventions
 

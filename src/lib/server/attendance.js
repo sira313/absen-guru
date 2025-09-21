@@ -1,5 +1,6 @@
 import { dbHelpers } from './db.js';
 import { format, isToday, parseISO, isBefore, isAfter } from 'date-fns';
+import { determineAttendanceStatus, validateCheckInTime, getDayTypeInfo } from './attendance-logic.js';
 
 /**
  * Check in attendance for a user
@@ -10,8 +11,9 @@ import { format, isToday, parseISO, isBefore, isAfter } from 'date-fns';
  */
 export async function checkIn(userId, ipAddress, location = null) {
 	try {
-		const today = format(new Date(), 'yyyy-MM-dd');
-		const currentTime = format(new Date(), 'HH:mm:ss');
+		const now = new Date();
+		const today = format(now, 'yyyy-MM-dd');
+		const currentTime = format(now, 'HH:mm');
 		
 		// Check if user already checked in today
 		const existingRecord = await dbHelpers.getAttendanceByUserAndDate(userId, today);
@@ -23,21 +25,35 @@ export async function checkIn(userId, ipAddress, location = null) {
 			};
 		}
 		
-		// Determine status based on time
-		let status = 'hadir';
-		const checkInHour = parseInt(currentTime.split(':')[0]);
-		const checkInMinute = parseInt(currentTime.split(':')[1]);
-		
-		// Consider late if after 08:00 (can be configured via settings)
-		if (checkInHour > 8 || (checkInHour === 8 && checkInMinute > 0)) {
-			status = 'terlambat';
+		// Validate time format
+		const validatedTime = validateCheckInTime(currentTime);
+		if (!validatedTime) {
+			return {
+				success: false,
+				message: 'Format waktu tidak valid'
+			};
 		}
+		
+		// Get day type information
+		const dayInfo = getDayTypeInfo(now);
+		
+		// Check if it's a work day
+		if (!dayInfo.isWorkDay) {
+			return {
+				success: false,
+				message: `Hari ${dayInfo.dayName} adalah hari libur`
+			};
+		}
+		
+		// Determine attendance status using new smart logic
+		const { status, ceremonyStatus } = determineAttendanceStatus(validatedTime, now);
 		
 		const attendanceData = {
 			userId,
 			date: today,
-			checkIn: currentTime,
+			checkIn: validatedTime,
 			status,
+			ceremonyStatus,
 			location,
 			ipAddress
 		};
@@ -46,8 +62,9 @@ export async function checkIn(userId, ipAddress, location = null) {
 		if (existingRecord) {
 			// Update existing record
 			await dbHelpers.updateAttendance(existingRecord.id, {
-				checkIn: currentTime,
+				checkIn: validatedTime,
 				status,
+				ceremonyStatus,
 				location,
 				ipAddress
 			});
@@ -57,9 +74,32 @@ export async function checkIn(userId, ipAddress, location = null) {
 			record = await dbHelpers.createAttendance(attendanceData);
 		}
 		
+		// Generate success message based on status and ceremony participation
+		let message;
+		
+		if (dayInfo.dayType === 'ceremony_day') {
+			if (ceremonyStatus === 'ikut_upacara') {
+				message = 'Check-in berhasil! Anda ikut upacara hari ini.';
+			} else if (ceremonyStatus === 'tidak_ikut_upacara' && status === 'hadir') {
+				message = 'Check-in berhasil! Anda hadir tapi tidak ikut upacara.';
+			} else if (status === 'terlambat') {
+				message = 'Check-in berhasil! Anda terlambat dan tidak ikut upacara.';
+			} else {
+				message = 'Check-in berhasil!';
+			}
+		} else {
+			if (status === 'hadir') {
+				message = 'Check-in berhasil! Anda hadir tepat waktu.';
+			} else if (status === 'terlambat') {
+				message = 'Check-in berhasil! Anda terlambat hari ini.';
+			} else {
+				message = 'Check-in berhasil!';
+			}
+		}
+		
 		return {
 			success: true,
-			message: status === 'hadir' ? 'Check-in berhasil' : 'Check-in berhasil (terlambat)',
+			message,
 			data: record
 		};
 		
