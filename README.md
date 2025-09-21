@@ -405,6 +405,6 @@ Projekt ini menggunakan lisensi [MIT](LICENSE).
 
 **Dibuat dengan ❤️ untuk komunitas pendidikan Indonesia**
 
-[⭐ Star di GitHub](https://github.com/username/absen-guru) • [🐛 Laporkan Bug](https://github.com/username/absen-guru/issues) • [📖 Dokumentasi](https://github.com/username/absen-guru/wiki)
+[⭐ Star di GitHub](https://github.com/sira313/absen-guru) • [🐛 Laporkan Bug](https://github.com/sira313/absen-guru/issues) • [📖 Dokumentasi](https://github.com/sira313/absen-guru/wiki)
 
 </div>
