@@ -21,6 +21,41 @@
 	// Export modal state
 	let showExportModal = false;
 
+	// Pagination state
+	let currentPage = 1;
+	const itemsPerPage = 10;
+	
+	// Computed pagination values
+	$: totalItems = attendanceRecords.length;
+	$: totalPages = Math.ceil(totalItems / itemsPerPage);
+	$: startIndex = (currentPage - 1) * itemsPerPage;
+	$: endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+	$: paginatedRecords = attendanceRecords.slice(startIndex, endIndex);
+	
+	// Pagination functions
+	function goToPage(page) {
+		if (page >= 1 && page <= totalPages) {
+			currentPage = page;
+		}
+	}
+	
+	function nextPage() {
+		if (currentPage < totalPages) {
+			currentPage++;
+		}
+	}
+	
+	function prevPage() {
+		if (currentPage > 1) {
+			currentPage--;
+		}
+	}
+	
+	// Reset to first page when filters change
+	$: if (attendanceRecords) {
+		currentPage = 1;
+	}
+
 	function getStatusBadgeClass(status) {
 		switch(status) {
 			case 'hadir':
@@ -86,34 +121,36 @@
 		const { month, year, workDays, exportType, employeeTypeFilter } = event.detail;
 		
 		try {
-			const response = await fetch('/admin/laporan/export', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					month,
-					year,
-					workDays,
-					exportType,
-					employeeTypeFilter
-				})
+			// Create a form for secure download
+			const form = document.createElement('form');
+			form.method = 'POST';
+			form.action = '/admin/laporan/export';
+			form.style.display = 'none';
+			
+			// Add form data
+			const formData = {
+				month,
+				year,
+				workDays,
+				exportType,
+				employeeTypeFilter
+			};
+			
+			// Add hidden inputs
+			Object.entries(formData).forEach(([key, value]) => {
+				if (value !== null && value !== undefined) {
+					const input = document.createElement('input');
+					input.type = 'hidden';
+					input.name = key;
+					input.value = value;
+					form.appendChild(input);
+				}
 			});
 			
-			if (!response.ok) {
-				throw new Error('Failed to export');
-			}
-			
-			// Download file
-			const blob = await response.blob();
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'laporan.xlsx';
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);
+			// Submit form for download
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
 			
 		} catch (error) {
 			console.error('Export error:', error);
@@ -265,7 +302,9 @@
 		<div class="card-body">
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="card-title">Detail Absensi</h2>
-				<div class="text-sm opacity-70">Menampilkan {attendanceRecords.length} record</div>
+				<div class="text-sm opacity-70">
+					Menampilkan {startIndex + 1}-{endIndex} dari {totalItems} record
+				</div>
 			</div>
 			<div class="overflow-x-auto">
 				{#if attendanceRecords.length > 0}
@@ -281,7 +320,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each attendanceRecords as record}
+							{#each paginatedRecords as record}
 							<tr>
 								<td class="font-medium">{record.user?.fullName || 'N/A'}</td>
 								<td>{format(new Date(record.date), 'dd MMM yyyy', { locale: localeId })}</td>
@@ -299,6 +338,49 @@
 							{/each}
 						</tbody>
 					</table>
+					
+					<!-- Pagination -->
+					{#if totalPages > 1}
+						<div class="flex justify-center items-center gap-2 mt-6">
+							<div class="join">
+								<!-- Previous button -->
+								<button 
+									class="join-item btn btn-sm" 
+									class:btn-disabled={currentPage === 1}
+									on:click={prevPage}
+								>
+									«
+								</button>
+								
+								<!-- Page numbers -->
+								{#each Array(totalPages) as _, i}
+									{@const pageNum = i + 1}
+									{#if totalPages <= 7 || (pageNum <= 3 || pageNum > totalPages - 3 || Math.abs(pageNum - currentPage) <= 1)}
+										<button 
+											class="join-item btn btn-sm" 
+											class:btn-active={currentPage === pageNum}
+											on:click={() => goToPage(pageNum)}
+										>
+											{pageNum}
+										</button>
+									{:else if pageNum === 4 && currentPage > 5}
+										<button class="join-item btn btn-sm btn-disabled">...</button>
+									{:else if pageNum === totalPages - 3 && currentPage < totalPages - 4}
+										<button class="join-item btn btn-sm btn-disabled">...</button>
+									{/if}
+								{/each}
+								
+								<!-- Next button -->
+								<button 
+									class="join-item btn btn-sm" 
+									class:btn-disabled={currentPage === totalPages}
+									on:click={nextPage}
+								>
+									»
+								</button>
+							</div>
+						</div>
+					{/if}
 				{:else}
 					<div class="hero min-h-96 bg-base-200 rounded-lg">
 						<div class="hero-content text-center">

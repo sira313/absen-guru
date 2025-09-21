@@ -87,10 +87,22 @@ export async function generateTPPReport(month, year, workDays, employeeTypeFilte
 			}
 		};
 		
-		// Title (Row 1)
+		// Title (Row 1) - Dynamic based on employee type filter
 		worksheet.mergeCells('A1:P1');
 		const titleCell = worksheet.getCell('A1');
-		titleCell.value = 'REKAPITULASI KEHADIRAN PNSD DAN CPNS TAHUN ANGGARAN ' + year;
+		
+		// Generate dynamic title based on employee type filter
+		let titleText;
+		if (employeeTypeFilter === 'PPPK') {
+			titleText = `REKAPITULASI KEHADIRAN PPPK TAHUN ANGGARAN ${year}`;
+		} else if (employeeTypeFilter === 'PNS') {
+			titleText = `REKAPITULASI KEHADIRAN PNS DAN CPNS TAHUN ANGGARAN ${year}`;
+		} else {
+			// Default title when no filter or 'Semua Pegawai'
+			titleText = `REKAPITULASI KEHADIRAN PEGAWAI TAHUN ANGGARAN ${year}`;
+		}
+		
+		titleCell.value = titleText;
 		titleCell.font = { name: 'Arial', size: 14, bold: true };
 		titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 		worksheet.getRow(1).height = 20;
@@ -100,14 +112,14 @@ export async function generateTPPReport(month, year, workDays, employeeTypeFilte
 		
 		// Unit Kerja (Row 3) - menggunakan data sekolah
 		const unitKerjaCell = worksheet.getCell('A3');
-		unitKerjaCell.value = `UNIT KERJA        : ${schoolData.school_name || 'Nama Sekolah'}`;
+		unitKerjaCell.value = `UNIT KERJA\t: ${schoolData.school_name || 'Nama Sekolah'}`;
 		unitKerjaCell.font = { name: 'Arial', size: 11, bold: true };
 		
 		// Bulan (Row 4)
 		const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
 			'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 		const bulanCell = worksheet.getCell('A4');
-		bulanCell.value = `BULAN                  : ${monthNames[month]} ${year}`;
+		bulanCell.value = `BULAN\t\t: ${monthNames[month]} ${year}`;
 		bulanCell.font = { name: 'Arial', size: 11, bold: true };
 		
 		// Empty row
@@ -211,47 +223,6 @@ export async function generateTPPReport(month, year, workDays, employeeTypeFilte
 			row.height = 25;
 			rowIndex++;
 		});
-		
-		// Add total row
-		const totalRowIndex = rowIndex;
-		const totalRow = worksheet.getRow(totalRowIndex);
-		totalRow.values = [
-			'', // NO
-			'TOTAL', // NAMA
-			'', // NIP
-			'', // JABATAN
-			'', // JUMLAH HARI KERJA
-			{ formula: `SUM(F8:F${rowIndex-1})` }, // TOTAL HADIR
-			{ formula: `SUM(G8:G${rowIndex-1})` }, // TOTAL S
-			{ formula: `SUM(H8:H${rowIndex-1})` }, // TOTAL I
-			{ formula: `SUM(I8:I${rowIndex-1})` }, // TOTAL TK
-			{ formula: `SUM(J8:J${rowIndex-1})` }, // TOTAL DL
-			'', // CUTI
-			{ formula: `SUM(L8:L${rowIndex-1})` }, // TOTAL SENIN
-			'', // HARI BESAR
-			'', // UPACARA
-			{ formula: `ROUND(AVERAGE(IF(ISNUMBER(VALUE(LEFT(O8:O${rowIndex-1},LEN(O8:O${rowIndex-1})-1))),VALUE(LEFT(O8:O${rowIndex-1},LEN(O8:O${rowIndex-1})-1)))),1)&"%"` }, // RATA-RATA KETIDAKHADIRAN
-			'' // KETERANGAN
-		];
-		
-		// Style total row
-		for (let col = 1; col <= 16; col++) {
-			const cell = totalRow.getCell(col);
-			cell.font = { name: 'Arial', size: 10, bold: true };
-			cell.alignment = { horizontal: 'center', vertical: 'middle' };
-			cell.border = {
-				top: { style: 'thick' }, bottom: { style: 'thick' },
-				left: { style: 'thin' }, right: { style: 'thin' }
-			};
-			cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDDDDDD' } };
-			
-			// Left align for total label
-			if (col === 2) {
-				cell.alignment = { horizontal: 'left', vertical: 'middle' };
-			}
-		}
-		totalRow.height = 25;
-		rowIndex++;
 		
 		// Add signature area
 		const signatureRow = rowIndex + 2;

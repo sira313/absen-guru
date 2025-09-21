@@ -3,7 +3,24 @@ import { error } from '@sveltejs/kit';
 
 export async function POST({ request, url }) {
 	try {
-		const { month, year, workDays, exportType, employeeTypeFilter } = await request.json();
+		let month, year, workDays, exportType, employeeTypeFilter;
+		
+		// Handle both JSON and form data
+		const contentType = request.headers.get('content-type');
+		
+		if (contentType && contentType.includes('application/json')) {
+			// Handle JSON request
+			const data = await request.json();
+			({ month, year, workDays, exportType, employeeTypeFilter } = data);
+		} else {
+			// Handle form data request
+			const formData = await request.formData();
+			month = parseInt(formData.get('month'));
+			year = parseInt(formData.get('year'));
+			workDays = parseInt(formData.get('workDays'));
+			exportType = formData.get('exportType');
+			employeeTypeFilter = formData.get('employeeTypeFilter') || null;
+		}
 		
 		// Validate input
 		if (!month || !year || !workDays) {
@@ -47,7 +64,12 @@ export async function POST({ request, url }) {
 			headers: {
 				'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'Content-Disposition': `attachment; filename="${filename}"`,
-				'Content-Length': buffer.byteLength.toString()
+				'Content-Length': buffer.byteLength.toString(),
+				'Cache-Control': 'no-cache, no-store, must-revalidate',
+				'Pragma': 'no-cache',
+				'Expires': '0',
+				'Cross-Origin-Embedder-Policy': 'require-corp',
+				'Cross-Origin-Opener-Policy': 'same-origin'
 			}
 		});
 		
