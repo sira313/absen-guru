@@ -14,8 +14,6 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 [![Node.js Version](https://img.shields.io/badge/node.js-v22+-brightgreen.svg)](https://nodejs.org/)
 [![pnpm Version](https://img.shields.io/badge/pnpm-9.12+-blue.svg)](https://pnpm.io/)
 
-> > > > > > > origin/main
-
 </div>
 
 ## ✨ Fitur Utama
