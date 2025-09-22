@@ -35,6 +35,59 @@ Setelah instalasi pertama, gunakan kredensial default berikut:
 3. Tambah guru baru atau edit guru yang sudah ada
 4. Set role, jabatan, dan data guru dengan benar
 
+## 🌐 Universal Deployment
+
+### ✅ **Konfigurasi Universal (Recommended)**
+
+Aplikasi ini sudah dikonfigurasi untuk **deployment universal** tanpa perlu setting IP spesifik:
+
+- ✅ **Local development** (localhost)
+- ✅ **Local network** (192.168.x.x, 10.x.x.x)  
+- ✅ **VPS/Cloud** (any public IP)
+- ✅ **Domain name** (example.com)
+
+### 🛠️ **Quick Deployment**
+
+1. **Build aplikasi**: `pnpm build`
+2. **Run aplikasi**: `node build`
+3. **Done!** Akses via browser di port 3000
+
+### 📝 **Environment Configuration**
+
+```bash
+# Copy template ke .env
+cp .env.example .env
+
+# Edit .env dan ubah minimal ini:
+SESSION_SECRET="your-super-secure-secret-key-2024"
+```
+
+**Tidak perlu set ORIGIN** - otomatis terdeteksi! 🎉
+
+### 🚀 **PM2 Deployment** (Production)
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start aplikasi
+pm2 start ecosystem.config.js
+
+# Monitor
+pm2 monit
+```
+
+### 🔧 **Manual Environment Variables** (Optional)
+
+Jika ada masalah khusus, bisa set manual:
+```bash
+# Contoh untuk IP spesifik
+ORIGIN=http://202.10.48.25:3000 node build
+
+# Atau untuk domain
+ORIGIN=https://sekolah.example.com node build
+```
+
 ## 📱 Akses Mobile
 
 Aplikasi ini sudah mendukung **Progressive Web App (PWA)**:
@@ -44,4 +97,4 @@ Aplikasi ini sudah mendukung **Progressive Web App (PWA)**:
 
 ---
 
-**🏫 Sistem Absensi Guru - Ready for Production**
+**🏫 Sistem Absensi Guru - Ready for Universal Deployment**

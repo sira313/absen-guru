@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
 echo ==========================================
-echo    🏫 Absen Guru v1.0.0
-echo    Sistem Manajemen Absensi Guru
+echo    🏫 Absen Guru v2.0.0 - Production Ready
+echo    Sistem Manajemen Absensi Guru dengan PWA
 echo    Setup Script untuk Windows
 echo ==========================================
 echo.
@@ -15,8 +15,9 @@ echo 📋 Mengecek instalasi Node.js...
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ❌ Node.js tidak terinstall. 
-    echo 📦 Silakan install Node.js 18+ dari https://nodejs.org
-    echo    Rekomendasi: Node.js 20.x LTS
+    echo 📦 Silakan install Node.js v22.19.0 LTS dari https://nodejs.org
+    echo    📌 Rekomendasi: Node.js v22.x LTS (latest)
+    echo    🔗 Direct link: https://nodejs.org/en/blog/release/v22.19.0
     pause
     exit /b 1
 ) else (
@@ -28,12 +29,19 @@ REM Check if pnpm is installed
 echo 📋 Mengecek instalasi pnpm...
 pnpm --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo 📦 pnpm tidak terinstall. Installing pnpm globally...
-    npm install -g pnpm
+    echo 📦 pnpm tidak terinstall. Installing pnpm v9.12+ globally...
+    echo 🔧 Menggunakan npm untuk install pnpm terbaru...
+    npm install -g pnpm@latest
     if %errorlevel% neq 0 (
-        echo ❌ Gagal install pnpm. Jalankan sebagai Administrator atau install manual.
-        pause
-        exit /b 1
+        echo ❌ Gagal install pnpm via npm. Mencoba Corepack...
+        corepack enable pnpm
+        corepack use pnpm@latest
+        if %errorlevel% neq 0 (
+            echo ❌ Gagal install pnpm. Jalankan sebagai Administrator atau install manual.
+            echo 🔗 Guide: https://pnpm.io/installation
+            pause
+            exit /b 1
+        )
     )
 ) else (
     echo ✅ pnpm terinstall
@@ -48,15 +56,16 @@ if not exist .env (
         echo Membuat file environment...
         copy .env.example .env >nul
         echo ✅ File environment dibuat (.env)
-        echo ⚠️  Silakan edit file .env sesuai kebutuhan
+        echo ⚠️  Silakan edit file .env sesuai kebutuhan production
     ) else (
-        echo Membuat file .env default...
-        echo # Absen Guru Configuration > .env
+        echo Membuat file .env default universal...
+        echo # Absen Guru Universal Configuration > .env
+        echo # Works for localhost, LAN, VPS, and domain deployment >> .env
         echo. >> .env
         echo # Database >> .env
         echo DATABASE_URL="file:./absen.db" >> .env
         echo. >> .env
-        echo # Session Secret (change in production) >> .env
+        echo # Session Secret (MUST change in production) >> .env
         echo SESSION_SECRET="your-super-secret-key-change-this" >> .env
         echo. >> .env
         echo ✅ File .env default dibuat
