@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ==========================================
-echo    🏫 Absen Guru v1.0.0
+echo    🏫 Absen Guru v2.0.0
 echo    Sistem Manajemen Absensi Guru
 echo    Setup Script untuk Windows
 echo ==========================================
@@ -15,8 +15,8 @@ echo 📋 Mengecek instalasi Node.js...
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ❌ Node.js tidak terinstall. 
-    echo 📦 Silakan install Node.js 18+ dari https://nodejs.org
-    echo    Rekomendasi: Node.js 20.x LTS
+    echo 📦 Silakan install Node.js 22+ dari https://nodejs.org
+    echo    Rekomendasi: Node.js 22.x LTS
     pause
     exit /b 1
 ) else (

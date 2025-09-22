@@ -3,7 +3,7 @@
 # Script untuk setup dan menjalankan aplikasi Absen Guru di Linux/RasPi
 
 echo "=========================================="
-echo "   🏫 Absen Guru v1.0.0"
+echo "   🏫 Absen Guru v2.0.0"
 echo "   Sistem Manajemen Absensi Guru"
 echo "   Setup Script untuk Linux/Raspberry Pi"
 echo "=========================================="
@@ -18,8 +18,8 @@ sudo apt update && sudo apt upgrade -y
 
 # Install Node.js jika belum ada
 if ! command -v node &> /dev/null; then
-    echo "📦 Menginstall Node.js 20.x..."
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    echo "📦 Menginstall Node.js 22.x..."
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt-get install -y nodejs
 else
     echo "✅ Node.js sudah terinstall: $(node --version)"
