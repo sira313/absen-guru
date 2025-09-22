@@ -1,39 +1,48 @@
-# 🏫 Absen Guru v1.0.0
+# 🏫 Absen Guru v2.0.0 - Production Ready
 
-Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Dibangun dengan SvelteKit, TailwindCSS v4, dan DaisyUI untuk memberikan pengalaman pengguna yang optimal.
+Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Dibangun dengan SvelteKit, TailwindCSS v4, dan DaisyUI dengan dukungan PWA untuk pengalaman seperti aplikasi native.
 
 <div align="center">
 
 ![SvelteKit](https://img.shields.io/badge/SvelteKit-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![DaisyUI](https://img.shields.io/badge/DaisyUI-5A0EF8?style=for-the-badge&logo=daisyui&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node.js-v18+-brightgreen.svg)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/node.js-v22+-brightgreen.svg)](https://nodejs.org/)
+[![pnpm Version](https://img.shields.io/badge/pnpm-9.12+-blue.svg)](https://pnpm.io/)
 
 </div>
 
 ## ✨ Fitur Utama
 
+### 📱 **Progressive Web App (PWA)**
+- 🚀 Install langsung ke device sebagai aplikasi native
+- 💾 Offline-first capabilities dengan service worker
+- ⚡ Auto-update dan caching otomatis
+- 📲 Push notifications untuk reminder
+- 🎯 App shortcuts dan native-like experience
+
 ### 📊 **Manajemen Absensi Cerdas**
 - ✅ Absensi harian dengan berbagai status (Hadir, Sakit, Izin, Terlambat, Dinas Luar)
 - 🎭 **Sistem upacara otomatis** - Khusus untuk hari Senin dengan tracking terpisah
-- 📅 Kalender absensi interaktif
+- 📅 Kalender absensi interaktif dengan pagination
 - 🔄 Logika absensi cerdas dengan validasi otomatis
 
 ### 👥 **Manajemen User & Jabatan**
 - 🔐 Sistem autentikasi berbasis role (Admin, Guru)
-- �‍🏫 Manajemen profil guru lengkap dengan jabatan
+- 👨‍🏫 Manajemen profil guru lengkap dengan jabatan
 - 🏛️ Jabatan tersedia: Kepala Sekolah, Guru Kelas, Guru Penjaskes, Guru Agama, Administrator
 - 📋 Data personil terintegrasi dengan sistem absensi
 
-### � **Laporan Komprehensif**
+### 📈 **Laporan Komprehensif**
 - 📊 Laporan bulanan dengan analisis kehadiran
 - 🏆 **Laporan TPP (Tambahan Penghasilan Pegawai)** dengan filter PNS/PPPK
 - 📑 Export Excel dengan format yang rapi dan data lengkap
-- � Integrasi data kepala sekolah otomatis dari database
-- � Filter berdasarkan tipe pegawai dan periode
+- 👤 Integrasi data kepala sekolah otomatis dari database
+- 🔍 Filter berdasarkan tipe pegawai dan periode
 
 ### 🏢 **Pengaturan Sekolah**
 - 🏫 Manajemen data sekolah (NPSN, alamat, kontak)
@@ -64,7 +73,7 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 setup-windows.bat
 ```
 
-**Linux/macOS:**
+**Linux/macOS/VPS:**
 ```bash
 # Download dan jalankan setup otomatis  
 ./setup-linux.sh
@@ -72,72 +81,113 @@ setup-windows.bat
 
 ### 🔧 **Manual Installation**
 
+#### Prerequisites
+
+- **Node.js v22.19.0 LTS** atau lebih baru ([Download](https://nodejs.org/en/blog/release/v22.19.0))
+- **pnpm v9.12+** package manager ([Install Guide](https://pnpm.io/installation))
+
+```bash
+# Install Node.js (jika belum ada)
+# Download dari https://nodejs.org/
+
+# Install pnpm terbaru menggunakan npm
+npm install -g pnpm@latest
+
+# Atau menggunakan Corepack (built-in dengan Node.js v22+)
+corepack enable pnpm
+corepack use pnpm@latest
+
+# Atau install via curl (Linux/macOS)
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
+#### Installation Steps
+
 ### Windows
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/username/absen-guru.git
+   git clone https://github.com/sira313/absen-guru.git
    cd absen-guru
    ```
 
-2. **Jalankan setup otomatis:**
+2. **Setup aplikasi:**
    ```cmd
-   setup-windows.bat
+   # Install dependencies
+   pnpm install
+   
+   # Setup database (sudah ada absen.db default)
+   # Database sudah siap, tidak perlu db:push atau seed
+   
+   # Build untuk production
+   pnpm build
+   
+   # Run production server
+   pnpm start
    ```
 
 3. **Akses aplikasi:**
-   - Development: http://localhost:5173
    - Production: http://localhost:3000
 
-### Linux/Ubuntu/Raspberry Pi
+### Linux/Ubuntu/VPS
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/username/absen-guru.git
+   git clone https://github.com/sira313/absen-guru.git
    cd absen-guru
    ```
 
-2. **Jalankan setup otomatis:**
+2. **Setup aplikasi:**
    ```bash
-   chmod +x setup-linux.sh
-   ./setup-linux.sh
+   # Install dependencies
+   pnpm install
+   
+   # Setup database (sudah ada absen.db default)
+   # Database sudah siap, tidak perlu db:push atau seed
+   
+   # Build untuk production
+   pnpm build
+   
+   # Run production server
+   node build
+   # atau: pnpm start
    ```
 
 3. **Akses aplikasi:**
-   - Development: http://localhost:5173
    - Production: http://localhost:3000
+   - Mobile/Network: http://YOUR_IP:3000
 
-### Manual Installation
+### 🌐 **Universal Deployment**
 
-Jika Anda ingin install manual:
+**Konfigurasi ini bekerja universal untuk:**
+- ✅ **Local development** (localhost)
+- ✅ **Local network** (192.168.x.x, 10.x.x.x)
+- ✅ **VPS/Cloud** (any public IP)
+- ✅ **Domain name** (example.com)
 
-1. **Prerequisites:**
-   ```bash
-   # Install Node.js 18+ dan pnpm
-   npm install -g pnpm
-   ```
+**Quick Deploy:**
+```bash
+# Clone dan setup
+git clone https://github.com/sira313/absen-guru.git
+cd absen-guru
+pnpm install
 
-2. **Install dependencies:**
-   ```bash
-   pnpm install
-   ```
+# Build dan run (universal - no config needed!)
+pnpm build
+node build
+```
 
-3. **Setup database:**
-   ```bash
-   pnpm run db:push    # Membuat schema database
-   pnpm run db:seed    # Menambahkan data awal
-   ```
+**PM2 Production Deploy:**
+```bash
+# Install PM2
+npm install -g pm2
 
-4. **Build dan jalankan:**
-   ```bash
-   # Development
-   pnpm dev
+# Start dengan PM2
+pm2 start ecosystem.config.js
 
-   # Production
-   pnpm build
-   pnpm start
-   # atau manual: node build/index.js
-   ```
+# Monitor
+pm2 monit
+```
 
 ## � Default Credentials
 
@@ -148,30 +198,52 @@ Password: admin123
 Role: Full access
 ```
 
-### 👨‍🏫 **Sample Guru (Optional)**
+## 🔐 Default Login
+
+### � **Administrator**
+```
+Username: admin
+Password: admin123
+Role: Full admin access
+```
+
+### �👨‍🏫 **Sample Guru (Optional)**
 ```
 Username: guru1, guru2, guru3
 Password: guru123
 Role: Teacher access
 ```
 
-### ⚠️ **PENTING - Keamanan**
-1. **WAJIB ganti password** setelah login pertama
+### ⚠️ **PENTING - Keamanan Production**
+1. **WAJIB ganti password default** setelah login pertama
 2. **Hapus akun guru sample** jika tidak dibutuhkan
-3. **Backup database** secara berkala
-4. **Gunakan HTTPS** di production
+3. **Setup environment variables** untuk production
+4. **Backup database** secara berkala
+5. **Gunakan HTTPS** di production dengan reverse proxy
 
 📖 **Panduan lengkap:** [FIRST_INSTALL.md](FIRST_INSTALL.md)
 
 > ⚠️ **Penting:** Segera ubah password default setelah login pertama!
 
-> 📝 **Note:** Aplikasi menggunakan adapter-node, jadi untuk production gunakan `pnpm start` bukan `pnpm preview`
+## �️ Database Ready
+
+**Database `absen.db` sudah tersedia** dengan schema dan data sample:
+- ✅ Tables sudah dibuat dengan migrasi Drizzle
+- ✅ Default admin dan guru sample sudah ada
+- ✅ Tidak perlu jalankan `db:push` atau `seed`
+- ✅ Langsung `pnpm build` → `node build` → ready to use!
+
+**Database includes:**
+- 👤 Admin account: `admin/admin123`
+- 👨‍🏫 Sample teachers: `guru1,guru2,guru3/guru123`
+- 📋 Complete schema with positions, attendance, etc.
+
 ## 📖 Panduan Penggunaan
 
 ### Untuk Administrator
 
 1. **Setup Awal:**
-   - Login sebagai admin
+   - Login sebagai admin (`admin/admin123`)
    - Pergi ke menu "Pengaturan" → lengkapi data sekolah
    - Tambahkan user guru di menu "Kelola User"
    - Pastikan ada user dengan jabatan "Kepala Sekolah" untuk laporan

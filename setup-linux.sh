@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Script untuk setup dan menjalankan aplikasi Absen Guru di Linux/RasPi
+# Script untuk setup dan menjalankan aplikasi Absen Guru di Linux/VPS
 
 echo "=========================================="
-echo "   🏫 Absen Guru v1.0.0"
-echo "   Sistem Manajemen Absensi Guru"
-echo "   Setup Script untuk Linux/Raspberry Pi"
+echo "   🏫 Absen Guru v2.0.0 - Production Ready"
+echo "   Sistem Manajemen Absensi Guru dengan PWA"
+echo "   Setup Script untuk Linux/Ubuntu/VPS"
 echo "=========================================="
 echo ""
 
@@ -18,8 +18,8 @@ sudo apt update && sudo apt upgrade -y
 
 # Install Node.js jika belum ada
 if ! command -v node &> /dev/null; then
-    echo "📦 Menginstall Node.js 20.x..."
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    echo "📦 Menginstall Node.js v22.x LTS..."
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt-get install -y nodejs
 else
     echo "✅ Node.js sudah terinstall: $(node --version)"
@@ -31,13 +31,24 @@ sudo apt-get install -y build-essential python3-dev sqlite3 curl wget git
 
 # Install pnpm jika belum ada
 if ! command -v pnpm &> /dev/null; then
-    echo "📦 Menginstall pnpm..."
+    echo "📦 Menginstall pnpm v9.12+ terbaru..."
     curl -fsSL https://get.pnpm.io/install.sh | sh -
     export PATH="$HOME/.local/share/pnpm:$PATH"
     
     # Add to shell profile
     echo 'export PATH="$HOME/.local/share/pnpm:$PATH"' >> ~/.bashrc
     source ~/.bashrc
+    
+    # Verify pnpm installation
+    if ! command -v pnpm &> /dev/null; then
+        echo "🔧 Pnpm install via curl failed, trying npm..."
+        npm install -g pnpm@latest
+        if [ $? -ne 0 ]; then
+            echo "❌ Gagal install pnpm. Trying with corepack..."
+            corepack enable pnpm
+            corepack use pnpm@latest
+        fi
+    fi
 else
     echo "✅ pnpm sudah terinstall: $(pnpm --version)"
 fi
@@ -45,15 +56,16 @@ fi
 # Copy environment file
 if [ ! -f .env ]; then
     echo ""
-    echo "📄 Membuat file environment..."
+    echo "📄 Membuat file environment universal..."
     if [ -f .env.example ]; then
         cp .env.example .env
         echo "✅ File environment dibuat dari template"
-        echo "⚠️  Silakan edit file .env sesuai kebutuhan"
+        echo "⚠️  Silakan edit file .env untuk production deployment"
     else
-        echo "Membuat file .env default..."
+        echo "Membuat file .env default universal..."
         cat > .env << EOF
-# Absen Guru Configuration
+# Absen Guru Universal Configuration
+# Works for localhost, LAN, VPS, and domain deployment
 
 # Database
 DATABASE_URL="file:./absen.db"
