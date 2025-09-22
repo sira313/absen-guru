@@ -1,359 +1,416 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import { users, sessions, attendance, schedules, settings, holidays } from './schema.js';
-import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
+import {
+  users,
+  sessions,
+  attendance,
+  schedules,
+  settings,
+  holidays,
+} from "./schema.js";
+import { eq, and, gte, lte, desc, sql, inArray } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 // Create database client
 const client = createClient({
-	url: 'file:./absen.db'
+  url: "file:./absen.db",
 });
 
 export const db = drizzle(client);
 
 // Database helper functions
 export const dbHelpers = {
-	// User operations
-	async createUser(userData) {
-		const userId = nanoid(15);
-		const user = {
-			id: userId,
-			...userData,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
-		};
-		
-		await db.insert(users).values(user);
-		return user;
-	},
+  // User operations
+  async createUser(userData) {
+    const userId = nanoid(15);
+    const user = {
+      id: userId,
+      ...userData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-	async getUserById(id) {
-		const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-		return result[0] || null;
-	},
+    await db.insert(users).values(user);
+    return user;
+  },
 
-	async getUserByUsername(username) {
-		const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
-		return result[0] || null;
-	},
+  async getUserById(id) {
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+    return result[0] || null;
+  },
 
-	async getAllUsers() {
-		return await db.select().from(users).orderBy(users.name);
-	},
+  async getUserByUsername(username) {
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username))
+      .limit(1);
+    return result[0] || null;
+  },
 
-	async updateUser(id, userData) {
-		const updateData = {
-			...userData,
-			updatedAt: new Date().toISOString()
-		};
-		
-		await db.update(users).set(updateData).where(eq(users.id, id));
-	},
+  async getAllUsers() {
+    return await db.select().from(users).orderBy(users.name);
+  },
 
-	async deleteUser(id) {
-		await db.delete(users).where(eq(users.id, id));
-	},
+  async updateUser(id, userData) {
+    const updateData = {
+      ...userData,
+      updatedAt: new Date().toISOString(),
+    };
 
-	// Session operations
-	async createSession(sessionData) {
-		await db.insert(sessions).values(sessionData);
-	},
+    await db.update(users).set(updateData).where(eq(users.id, id));
+  },
 
-	async getSessionById(id) {
-		const result = await db.select().from(sessions).where(eq(sessions.id, id)).limit(1);
-		return result[0] || null;
-	},
+  async deleteUser(id) {
+    await db.delete(users).where(eq(users.id, id));
+  },
 
-	async deleteSession(id) {
-		await db.delete(sessions).where(eq(sessions.id, id));
-	},
+  // Session operations
+  async createSession(sessionData) {
+    await db.insert(sessions).values(sessionData);
+  },
 
-	async deleteExpiredSessions() {
-		const now = Date.now();
-		await db.delete(sessions).where(lte(sessions.expiresAt, now));
-	},
+  async getSessionById(id) {
+    const result = await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.id, id))
+      .limit(1);
+    return result[0] || null;
+  },
 
-	async updateSessionExpiration(sessionId, expiresAt) {
-		const expiresAtTimestamp = expiresAt instanceof Date ? expiresAt.getTime() : expiresAt;
-		await db.update(sessions).set({ 
-			expiresAt: expiresAtTimestamp 
-		}).where(eq(sessions.id, sessionId));
-	},
+  async deleteSession(id) {
+    await db.delete(sessions).where(eq(sessions.id, id));
+  },
 
-	async deleteUserSessions(userId) {
-		await db.delete(sessions).where(eq(sessions.userId, userId));
-	},
+  async deleteExpiredSessions() {
+    const now = Date.now();
+    await db.delete(sessions).where(lte(sessions.expiresAt, now));
+  },
 
-	// Attendance operations
-	async createAttendance(attendanceData) {
-		const attendanceId = nanoid(15);
-		const record = {
-			id: attendanceId,
-			...attendanceData,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
-		};
-		
-		await db.insert(attendance).values(record);
-		return record;
-	},
+  async updateSessionExpiration(sessionId, expiresAt) {
+    const expiresAtTimestamp =
+      expiresAt instanceof Date ? expiresAt.getTime() : expiresAt;
+    await db
+      .update(sessions)
+      .set({
+        expiresAt: expiresAtTimestamp,
+      })
+      .where(eq(sessions.id, sessionId));
+  },
 
-	async getAttendanceByUserAndDate(userId, date) {
-		const result = await db.select()
-			.from(attendance)
-			.where(and(eq(attendance.userId, userId), eq(attendance.date, date)))
-			.limit(1);
-		return result[0] || null;
-	},
+  async deleteUserSessions(userId) {
+    await db.delete(sessions).where(eq(sessions.userId, userId));
+  },
 
-	async getAttendanceByDateRange(userId, startDate, endDate) {
-		return await db.select()
-			.from(attendance)
-			.where(
-				and(
-					eq(attendance.userId, userId),
-					gte(attendance.date, startDate),
-					lte(attendance.date, endDate)
-				)
-			)
-			.orderBy(desc(attendance.date));
-	},
+  // Attendance operations
+  async createAttendance(attendanceData) {
+    const attendanceId = nanoid(15);
+    const record = {
+      id: attendanceId,
+      ...attendanceData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-	async getAllAttendanceByDate(date) {
-		return await db.select({
-			id: attendance.id,
-			userId: attendance.userId,
-			userName: users.name,
-			userNip: users.nip,
-			date: attendance.date,
-			checkIn: attendance.checkIn,
-			checkOut: attendance.checkOut,
-			status: attendance.status,
-			notes: attendance.notes,
-			createdAt: attendance.createdAt
-		})
-		.from(attendance)
-		.innerJoin(users, eq(attendance.userId, users.id))
-		.where(eq(attendance.date, date))
-		.orderBy(users.name);
-	},
+    await db.insert(attendance).values(record);
+    return record;
+  },
 
-	async updateAttendance(id, attendanceData) {
-		const updateData = {
-			...attendanceData,
-			updatedAt: new Date().toISOString()
-		};
-		
-		await db.update(attendance).set(updateData).where(eq(attendance.id, id));
-	},
+  async getAttendanceByUserAndDate(userId, date) {
+    const result = await db
+      .select()
+      .from(attendance)
+      .where(and(eq(attendance.userId, userId), eq(attendance.date, date)))
+      .limit(1);
+    return result[0] || null;
+  },
 
-	async deleteAttendance(id) {
-		await db.delete(attendance).where(eq(attendance.id, id));
-	},
+  async getAttendanceByDateRange(userId, startDate, endDate) {
+    return await db
+      .select()
+      .from(attendance)
+      .where(
+        and(
+          eq(attendance.userId, userId),
+          gte(attendance.date, startDate),
+          lte(attendance.date, endDate),
+        ),
+      )
+      .orderBy(desc(attendance.date));
+  },
 
-	// Schedule operations
-	async createSchedule(scheduleData) {
-		const scheduleId = nanoid(15);
-		const schedule = {
-			id: scheduleId,
-			...scheduleData,
-			createdAt: new Date().toISOString()
-		};
-		
-		await db.insert(schedules).values(schedule);
-		return schedule;
-	},
+  async getAllAttendanceByDate(date) {
+    return await db
+      .select({
+        id: attendance.id,
+        userId: attendance.userId,
+        userName: users.name,
+        userNip: users.nip,
+        date: attendance.date,
+        checkIn: attendance.checkIn,
+        checkOut: attendance.checkOut,
+        status: attendance.status,
+        notes: attendance.notes,
+        createdAt: attendance.createdAt,
+      })
+      .from(attendance)
+      .innerJoin(users, eq(attendance.userId, users.id))
+      .where(eq(attendance.date, date))
+      .orderBy(users.name);
+  },
 
-	async getSchedulesByUser(userId) {
-		return await db.select()
-			.from(schedules)
-			.where(and(eq(schedules.userId, userId), eq(schedules.isActive, true)))
-			.orderBy(schedules.dayOfWeek, schedules.startTime);
-	},
+  async updateAttendance(id, attendanceData) {
+    const updateData = {
+      ...attendanceData,
+      updatedAt: new Date().toISOString(),
+    };
 
-	async getAllSchedules() {
-		return await db.select({
-			id: schedules.id,
-			userId: schedules.userId,
-			userName: users.name,
-			dayOfWeek: schedules.dayOfWeek,
-			startTime: schedules.startTime,
-			endTime: schedules.endTime,
-			subject: schedules.subject,
-			class: schedules.class,
-			room: schedules.room,
-			isActive: schedules.isActive
-		})
-		.from(schedules)
-		.innerJoin(users, eq(schedules.userId, users.id))
-		.where(eq(schedules.isActive, true))
-		.orderBy(schedules.dayOfWeek, schedules.startTime);
-	},
+    await db.update(attendance).set(updateData).where(eq(attendance.id, id));
+  },
 
-	async updateSchedule(id, scheduleData) {
-		await db.update(schedules).set(scheduleData).where(eq(schedules.id, id));
-	},
+  async deleteAttendance(id) {
+    await db.delete(attendance).where(eq(attendance.id, id));
+  },
 
-	async deleteSchedule(id) {
-		await db.delete(schedules).where(eq(schedules.id, id));
-	},
+  // Schedule operations
+  async createSchedule(scheduleData) {
+    const scheduleId = nanoid(15);
+    const schedule = {
+      id: scheduleId,
+      ...scheduleData,
+      createdAt: new Date().toISOString(),
+    };
 
-	// Settings operations
-	async setSetting(key, value, description = null) {
-		const setting = {
-			id: nanoid(15),
-			key,
-			value,
-			description,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
-		};
+    await db.insert(schedules).values(schedule);
+    return schedule;
+  },
 
-		// Try to update first, if not exists then insert
-		const existing = await this.getSetting(key);
-		if (existing) {
-			await db.update(settings)
-				.set({ value, updatedAt: new Date().toISOString() })
-				.where(eq(settings.key, key));
-		} else {
-			await db.insert(settings).values(setting);
-		}
-	},
+  async getSchedulesByUser(userId) {
+    return await db
+      .select()
+      .from(schedules)
+      .where(and(eq(schedules.userId, userId), eq(schedules.isActive, true)))
+      .orderBy(schedules.dayOfWeek, schedules.startTime);
+  },
 
-	async getSetting(key) {
-		const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
-		return result[0] || null;
-	},
+  async getAllSchedules() {
+    return await db
+      .select({
+        id: schedules.id,
+        userId: schedules.userId,
+        userName: users.name,
+        dayOfWeek: schedules.dayOfWeek,
+        startTime: schedules.startTime,
+        endTime: schedules.endTime,
+        subject: schedules.subject,
+        class: schedules.class,
+        room: schedules.room,
+        isActive: schedules.isActive,
+      })
+      .from(schedules)
+      .innerJoin(users, eq(schedules.userId, users.id))
+      .where(eq(schedules.isActive, true))
+      .orderBy(schedules.dayOfWeek, schedules.startTime);
+  },
 
-	async getAllSettings() {
-		return await db.select().from(settings).orderBy(settings.key);
-	},
+  async updateSchedule(id, scheduleData) {
+    await db.update(schedules).set(scheduleData).where(eq(schedules.id, id));
+  },
 
-	// Holiday operations
-	async createHoliday(holidayData) {
-		const holidayId = nanoid(15);
-		const holiday = {
-			id: holidayId,
-			...holidayData,
-			createdAt: new Date().toISOString()
-		};
-		
-		await db.insert(holidays).values(holiday);
-		return holiday;
-	},
+  async deleteSchedule(id) {
+    await db.delete(schedules).where(eq(schedules.id, id));
+  },
 
-	async getHolidaysByYear(year) {
-		return await db.select()
-			.from(holidays)
-			.where(sql`strftime('%Y', date) = ${year}`)
-			.orderBy(holidays.date);
-	},
+  // Settings operations
+  async setSetting(key, value, description = null) {
+    const setting = {
+      id: nanoid(15),
+      key,
+      value,
+      description,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-	async isHoliday(date) {
-		const result = await db.select()
-			.from(holidays)
-			.where(eq(holidays.date, date))
-			.limit(1);
-		return result.length > 0;
-	},
+    // Try to update first, if not exists then insert
+    const existing = await this.getSetting(key);
+    if (existing) {
+      await db
+        .update(settings)
+        .set({ value, updatedAt: new Date().toISOString() })
+        .where(eq(settings.key, key));
+    } else {
+      await db.insert(settings).values(setting);
+    }
+  },
 
-	// Stats and reports
-	async getAttendanceStats(userId, startDate, endDate) {
-		const records = await this.getAttendanceByDateRange(userId, startDate, endDate);
-		
-		const stats = {
-			total: records.length,
-			hadir: 0,
-			terlambat: 0,
-			tidak_hadir: 0,
-			izin: 0,
-			sakit: 0,
-			dinas_luar: 0
-		};
+  async getSetting(key) {
+    const result = await db
+      .select()
+      .from(settings)
+      .where(eq(settings.key, key))
+      .limit(1);
+    return result[0] || null;
+  },
 
-		records.forEach(record => {
-			if (stats[record.status] !== undefined) {
-				stats[record.status]++;
-			}
-		});
+  async getAllSettings() {
+    return await db.select().from(settings).orderBy(settings.key);
+  },
 
-		// Untuk kompatibilitas dengan logika "dinas_luar = hadir"
-		stats.hadir_total = stats.hadir + stats.dinas_luar;
+  // Holiday operations
+  async createHoliday(holidayData) {
+    const holidayId = nanoid(15);
+    const holiday = {
+      id: holidayId,
+      ...holidayData,
+      createdAt: new Date().toISOString(),
+    };
 
-		return stats;
-	},
+    await db.insert(holidays).values(holiday);
+    return holiday;
+  },
 
-	async getMonthlyReport(year, month) {
-		const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-		const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
-		
-		return await db.select({
-			userId: users.id,
-			userName: users.name,
-			userNip: users.nip,
-			attendanceId: attendance.id,
-			date: attendance.date,
-			checkIn: attendance.checkIn,
-			checkOut: attendance.checkOut,
-			status: attendance.status,
-			notes: attendance.notes
-		})
-		.from(users)
-		.leftJoin(attendance, and(
-			eq(users.id, attendance.userId),
-			gte(attendance.date, startDate),
-			lte(attendance.date, endDate)
-		))
-		.where(eq(users.role, 'guru'))
-		.orderBy(users.name, attendance.date);
-	},
+  async getHolidaysByYear(year) {
+    return await db
+      .select()
+      .from(holidays)
+      .where(sql`strftime('%Y', date) = ${year}`)
+      .orderBy(holidays.date);
+  },
 
-	// Settings operations
-	async getSetting(key) {
-		const result = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
-		return result[0] || null;
-	},
+  async isHoliday(date) {
+    const result = await db
+      .select()
+      .from(holidays)
+      .where(eq(holidays.date, date))
+      .limit(1);
+    return result.length > 0;
+  },
 
-	async getSchoolSettings() {
-		const schoolKeys = ['school_name', 'school_npsn', 'school_address', 'school_phone', 'school_email', 'school_principal_name', 'school_principal_nip'];
-		const result = await db.select().from(settings).where(
-			inArray(settings.key, schoolKeys)
-		);
-		
-		// Convert to object for easier access
-		const schoolData = {};
-		result.forEach(item => {
-			schoolData[item.key] = item.value;
-		});
-		
-		return schoolData;
-	},
+  // Stats and reports
+  async getAttendanceStats(userId, startDate, endDate) {
+    const records = await this.getAttendanceByDateRange(
+      userId,
+      startDate,
+      endDate,
+    );
 
-	async updateSetting(key, value) {
-		const existing = await this.getSetting(key);
-		
-		if (existing) {
-			await db.update(settings)
-				.set({ 
-					value, 
-					updatedAt: new Date().toISOString() 
-				})
-				.where(eq(settings.key, key));
-		} else {
-			await db.insert(settings).values({
-				id: nanoid(),
-				key,
-				value,
-				updatedAt: new Date().toISOString(),
-				createdAt: new Date().toISOString()
-			});
-		}
-	},
+    const stats = {
+      total: records.length,
+      hadir: 0,
+      terlambat: 0,
+      tidak_hadir: 0,
+      izin: 0,
+      sakit: 0,
+      dinas_luar: 0,
+    };
 
-	async updateSchoolSettings(schoolData) {
-		const promises = Object.entries(schoolData).map(([key, value]) => 
-			this.updateSetting(key, value)
-		);
-		await Promise.all(promises);
-	}
+    records.forEach((record) => {
+      if (stats[record.status] !== undefined) {
+        stats[record.status]++;
+      }
+    });
+
+    // Untuk kompatibilitas dengan logika "dinas_luar = hadir"
+    stats.hadir_total = stats.hadir + stats.dinas_luar;
+
+    return stats;
+  },
+
+  async getMonthlyReport(year, month) {
+    const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
+    const endDate = `${year}-${month.toString().padStart(2, "0")}-31`;
+
+    return await db
+      .select({
+        userId: users.id,
+        userName: users.name,
+        userNip: users.nip,
+        attendanceId: attendance.id,
+        date: attendance.date,
+        checkIn: attendance.checkIn,
+        checkOut: attendance.checkOut,
+        status: attendance.status,
+        notes: attendance.notes,
+      })
+      .from(users)
+      .leftJoin(
+        attendance,
+        and(
+          eq(users.id, attendance.userId),
+          gte(attendance.date, startDate),
+          lte(attendance.date, endDate),
+        ),
+      )
+      .where(eq(users.role, "guru"))
+      .orderBy(users.name, attendance.date);
+  },
+
+  // Settings operations
+  async getSetting(key) {
+    const result = await db
+      .select()
+      .from(settings)
+      .where(eq(settings.key, key))
+      .limit(1);
+    return result[0] || null;
+  },
+
+  async getSchoolSettings() {
+    const schoolKeys = [
+      "school_name",
+      "school_npsn",
+      "school_address",
+      "school_phone",
+      "school_email",
+      "school_principal_name",
+      "school_principal_nip",
+    ];
+    const result = await db
+      .select()
+      .from(settings)
+      .where(inArray(settings.key, schoolKeys));
+
+    // Convert to object for easier access
+    const schoolData = {};
+    result.forEach((item) => {
+      schoolData[item.key] = item.value;
+    });
+
+    return schoolData;
+  },
+
+  async updateSetting(key, value) {
+    const existing = await this.getSetting(key);
+
+    if (existing) {
+      await db
+        .update(settings)
+        .set({
+          value,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(settings.key, key));
+    } else {
+      await db.insert(settings).values({
+        id: nanoid(),
+        key,
+        value,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
+    }
+  },
+
+  async updateSchoolSettings(schoolData) {
+    const promises = Object.entries(schoolData).map(([key, value]) =>
+      this.updateSetting(key, value),
+    );
+    await Promise.all(promises);
+  },
 };

@@ -2,6 +2,7 @@
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
 	import { Users, FileText, TrendingUp, TrendingDown, Clock, UserCheck, Database } from 'lucide-svelte';
+	import PWABanner from '$lib/components/PWABanner.svelte';
 	
 	export let data;
 	$: stats = data.stats;
@@ -89,6 +90,9 @@
 		<h1 class="text-3xl font-bold text-base-content">Dashboard Admin</h1>
 		<p class="text-lg text-base-content/70 mt-2">Kelola dan pantau absensi guru</p>
 	</div>
+
+	<!-- PWA Install Banner -->
+	<PWABanner />
 
 	<!-- Statistik Overview -->
 	<div class="stats shadow-xl w-full bg-base-100">
@@ -206,12 +210,12 @@
 							<td class="font-medium">{user.fullName}</td>
 							<td>{user.email}</td>
 							<td>
-								<div class="badge {user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
+								<div class="badge badge-sm {user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
 									{user.role === 'admin' ? 'Admin' : 'Guru'}
 								</div>
 							</td>
 							<td>
-								<div class="badge badge-success">Aktif</div>
+								<div class="badge badge-sm badge-success">Aktif</div>
 							</td>
 						</tr>
 						{/each}

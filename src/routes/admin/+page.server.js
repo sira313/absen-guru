@@ -1,137 +1,141 @@
-import { redirect, error } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
-import { attendance, users } from '$lib/server/schema.js';
-import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
-import fs from 'fs';
-import path from 'path';
+import { redirect, error } from "@sveltejs/kit";
+import { db } from "$lib/server/db.js";
+import { attendance, users } from "$lib/server/schema.js";
+import { eq, and, gte, lte, desc, count } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
 
 export async function load({ locals, url }) {
-	if (!locals.user) {
-		throw redirect(302, '/login');
-	}
+  if (!locals.user) {
+    throw redirect(302, "/login");
+  }
 
-	if (locals.user.role !== 'admin') {
-		throw error(403, 'Access forbidden');
-	}
+  if (locals.user.role !== "admin") {
+    throw error(403, "Access forbidden");
+  }
 
-	const today = new Date();
-	const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-	const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-	
-	// Ambil parameter filter dari URL
-	const startDate = url.searchParams.get('start') || firstDayOfMonth.toISOString().split('T')[0];
-	const endDate = url.searchParams.get('end') || lastDayOfMonth.toISOString().split('T')[0];
-	
-	try {
-		// Get statistics
-		const summaryStats = await db
-			.select({
-				status: attendance.status,
-				count: count()
-			})
-			.from(attendance)
-			.where(and(
-				gte(attendance.date, startDate),
-				lte(attendance.date, endDate)
-			))
-			.groupBy(attendance.status);
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-		// Get recent attendance records
-		const recentAttendance = await db
-			.select({
-				id: attendance.id,
-				date: attendance.date,
-				check_in_time: attendance.checkIn,
-				status: attendance.status,
-				notes: attendance.notes,
-				user: {
-					id: users.id,
-					fullName: users.name
-				}
-			})
-			.from(attendance)
-			.leftJoin(users, eq(attendance.userId, users.id))
-			.orderBy(desc(attendance.date), desc(attendance.checkIn))
-			.limit(10);
+  // Ambil parameter filter dari URL
+  const startDate =
+    url.searchParams.get("start") ||
+    firstDayOfMonth.toISOString().split("T")[0];
+  const endDate =
+    url.searchParams.get("end") || lastDayOfMonth.toISOString().split("T")[0];
 
-		// Get all users
-		const allUsers = await db
-			.select({
-				id: users.id,
-				fullName: users.name,
-				email: users.email,
-				role: users.role
-			})
-			.from(users)
-			.orderBy(users.name);
+  try {
+    // Get statistics
+    const summaryStats = await db
+      .select({
+        status: attendance.status,
+        count: count(),
+      })
+      .from(attendance)
+      .where(
+        and(gte(attendance.date, startDate), lte(attendance.date, endDate)),
+      )
+      .groupBy(attendance.status);
 
-		// Process summary stats - dinas_luar dihitung sebagai hadir
-		const stats = {
-			total_records: summaryStats.reduce((sum, s) => sum + s.count, 0),
-			hadir: (summaryStats.find(s => s.status === 'hadir')?.count || 0) + 
-			       (summaryStats.find(s => s.status === 'dinas_luar')?.count || 0),
-			terlambat: summaryStats.find(s => s.status === 'terlambat')?.count || 0,
-			tidak_hadir: summaryStats.find(s => s.status === 'tidak_hadir')?.count || 0
-		};
-		
-		return {
-			stats,
-			recentAttendance,
-			users: allUsers,
-			filters: {
-				startDate,
-				endDate
-			}
-		};
-	} catch (err) {
-		console.error('Error loading admin data:', err);
-		throw error(500, 'Internal server error');
-	}
+    // Get recent attendance records
+    const recentAttendance = await db
+      .select({
+        id: attendance.id,
+        date: attendance.date,
+        check_in_time: attendance.checkIn,
+        status: attendance.status,
+        notes: attendance.notes,
+        user: {
+          id: users.id,
+          fullName: users.name,
+        },
+      })
+      .from(attendance)
+      .leftJoin(users, eq(attendance.userId, users.id))
+      .orderBy(desc(attendance.date), desc(attendance.checkIn))
+      .limit(10);
+
+    // Get all users
+    const allUsers = await db
+      .select({
+        id: users.id,
+        fullName: users.name,
+        email: users.email,
+        role: users.role,
+      })
+      .from(users)
+      .orderBy(users.name);
+
+    // Process summary stats - dinas_luar dihitung sebagai hadir
+    const stats = {
+      total_records: summaryStats.reduce((sum, s) => sum + s.count, 0),
+      hadir:
+        (summaryStats.find((s) => s.status === "hadir")?.count || 0) +
+        (summaryStats.find((s) => s.status === "dinas_luar")?.count || 0),
+      terlambat: summaryStats.find((s) => s.status === "terlambat")?.count || 0,
+      tidak_hadir:
+        summaryStats.find((s) => s.status === "tidak_hadir")?.count || 0,
+    };
+
+    return {
+      stats,
+      recentAttendance,
+      users: allUsers,
+      filters: {
+        startDate,
+        endDate,
+      },
+    };
+  } catch (err) {
+    console.error("Error loading admin data:", err);
+    throw error(500, "Internal server error");
+  }
 }
 
 export const actions = {
-	backup: async ({ locals }) => {
-		if (!locals.user || locals.user.role !== 'admin') {
-			throw redirect(302, '/login');
-		}
+  backup: async ({ locals }) => {
+    if (!locals.user || locals.user.role !== "admin") {
+      throw redirect(302, "/login");
+    }
 
-		try {
-			// Buat nama file backup dengan timestamp
-			const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-			const backupFileName = `backup_absen_guru_${timestamp.split('T')[0]}_${timestamp.split('T')[1].split('.')[0]}.db`;
-			const backupPath = path.join(process.cwd(), 'backups');
-			const fullBackupPath = path.join(backupPath, backupFileName);
+    try {
+      // Buat nama file backup dengan timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const backupFileName = `backup_absen_guru_${timestamp.split("T")[0]}_${timestamp.split("T")[1].split(".")[0]}.db`;
+      const backupPath = path.join(process.cwd(), "backups");
+      const fullBackupPath = path.join(backupPath, backupFileName);
 
-			// Buat folder backups jika belum ada
-			if (!fs.existsSync(backupPath)) {
-				fs.mkdirSync(backupPath, { recursive: true });
-			}
+      // Buat folder backups jika belum ada
+      if (!fs.existsSync(backupPath)) {
+        fs.mkdirSync(backupPath, { recursive: true });
+      }
 
-			// Path database SQLite
-			const dbPath = path.join(process.cwd(), 'absen.db');
+      // Path database SQLite
+      const dbPath = path.join(process.cwd(), "absen.db");
 
-			// Copy database file untuk backup
-			if (fs.existsSync(dbPath)) {
-				fs.copyFileSync(dbPath, fullBackupPath);
-				
-				console.log(`Database backup created: ${fullBackupPath}`);
-				
-				return {
-					success: true,
-					message: `Backup database berhasil dibuat: ${backupFileName}`
-				};
-			} else {
-				return {
-					error: true,
-					message: 'File database tidak ditemukan'
-				};
-			}
-		} catch (err) {
-			console.error('Error creating backup:', err);
-			return {
-				error: true,
-				message: 'Gagal membuat backup database: ' + err.message
-			};
-		}
-	}
+      // Copy database file untuk backup
+      if (fs.existsSync(dbPath)) {
+        fs.copyFileSync(dbPath, fullBackupPath);
+
+        console.log(`Database backup created: ${fullBackupPath}`);
+
+        return {
+          success: true,
+          message: `Backup database berhasil dibuat: ${backupFileName}`,
+        };
+      } else {
+        return {
+          error: true,
+          message: "File database tidak ditemukan",
+        };
+      }
+    } catch (err) {
+      console.error("Error creating backup:", err);
+      return {
+        error: true,
+        message: "Gagal membuat backup database: " + err.message,
+      };
+    }
+  },
 };

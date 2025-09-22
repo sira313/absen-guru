@@ -2,7 +2,15 @@
   "name": "absen-guru",
   "version": "2.0.0",
   "description": "Sistem manajemen absensi guru untuk institusi pendidikan - SvelteKit + DaisyUI + TailwindCSS",
-  "keywords": ["attendance", "teacher", "education", "svelte", "sveltekit", "daisyui", "tailwindcss"],
+  "keywords": [
+    "attendance",
+    "teacher",
+    "education",
+    "svelte",
+    "sveltekit",
+    "daisyui",
+    "tailwindcss"
+  ],
   "author": "Developer",
   "license": "MIT",
   "private": false,

@@ -192,7 +192,11 @@
 										>
 											<option value="">Pilih Kepala Sekolah</option>
 											{#each kepalaSekolahUsers as kepala}
-												<option value={kepala.id}>{kepala.name} {kepala.nip ? `(${kepala.nip})` : ''}</option>
+												<option value={kepala.id}>
+													{kepala.name} 
+													{kepala.nip ? `(${kepala.nip})` : ''} 
+													- {kepala.position}
+												</option>
 											{/each}
 										</select>
 									</div>
