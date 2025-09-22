@@ -13,13 +13,15 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node.js-v22+-brightgreen.svg)](https://nodejs.org/)
 [![pnpm Version](https://img.shields.io/badge/pnpm-9.12+-blue.svg)](https://pnpm.io/)
->>>>>>> origin/main
+
+> > > > > > > origin/main
 
 </div>
 
 ## ✨ Fitur Utama
 
 ### 📱 **Progressive Web App (PWA)**
+
 - 🚀 Install langsung ke device sebagai aplikasi native
 - 💾 Offline-first capabilities dengan service worker
 - ⚡ Auto-update dan caching otomatis
@@ -27,18 +29,21 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 - 🎯 App shortcuts dan native-like experience
 
 ### 📊 **Manajemen Absensi Cerdas**
+
 - ✅ Absensi harian dengan berbagai status (Hadir, Sakit, Izin, Terlambat, Dinas Luar)
 - 🎭 **Sistem upacara otomatis** - Khusus untuk hari Senin dengan tracking terpisah
 - 📅 Kalender absensi interaktif dengan pagination
 - 🔄 Logika absensi cerdas dengan validasi otomatis
 
 ### 👥 **Manajemen User & Jabatan**
+
 - 🔐 Sistem autentikasi berbasis role (Admin, Guru)
 - 👨‍🏫 Manajemen profil guru lengkap dengan jabatan
 - 🏛️ Jabatan tersedia: Kepala Sekolah, Guru Kelas, Guru Penjaskes, Guru Agama, Administrator
 - 📋 Data personil terintegrasi dengan sistem absensi
 
 ### 📈 **Laporan Komprehensif**
+
 - 📊 Laporan bulanan dengan analisis kehadiran
 - 🏆 **Laporan TPP (Tambahan Penghasilan Pegawai)** dengan filter PNS/PPPK
 - 📑 Export Excel dengan format yang rapi dan data lengkap
@@ -46,12 +51,14 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 - 🔍 Filter berdasarkan tipe pegawai dan periode
 
 ### 🏢 **Pengaturan Sekolah**
+
 - 🏫 Manajemen data sekolah (NPSN, alamat, kontak)
 - 👤 **Pemilihan kepala sekolah otomatis** dari database user
 - 🔧 Konfigurasi sistem yang fleksibel
 - 🗄️ Backup dan restore database
 
 ### 🎨 **Antarmuka Modern**
+
 - 📱 Responsive design untuk desktop dan mobile
 - 🌙 Dark mode support dengan DaisyUI themes
 - 🎭 Animasi smooth dan transisi yang elegan
@@ -59,6 +66,7 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 - 🚀 Performance optimized dengan SvelteKit
 
 ### 📱 **Progressive Web App (PWA)**
+
 - 💾 **Installable** - Install di home screen perangkat mobile
 - ⚡ **Offline capable** - Bekerja tanpa koneksi internet (terbatas)
 - 🔄 **Auto-update** - Update otomatis tanpa download manual
@@ -69,14 +77,16 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 ### 💾 **Instalasi One-Click** (Recommended)
 
 **Windows:**
+
 ```cmd
 # Download dan jalankan setup otomatis
 setup-windows.bat
 ```
 
 **Linux/macOS/VPS:**
+
 ```bash
-# Download dan jalankan setup otomatis  
+# Download dan jalankan setup otomatis
 ./setup-linux.sh
 ```
 
@@ -107,22 +117,24 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 ### Windows
 
 1. **Clone repository:**
+
    ```bash
    git clone https://github.com/sira313/absen-guru.git
    cd absen-guru
    ```
 
 2. **Setup aplikasi:**
+
    ```cmd
    # Install dependencies
    pnpm install
-   
+
    # Setup database (sudah ada absen.db default)
    # Database sudah siap, tidak perlu db:push atau seed
-   
+
    # Build untuk production
    pnpm build
-   
+
    # Run production server
    pnpm start
    ```
@@ -133,22 +145,24 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 ### Linux/Ubuntu/VPS
 
 1. **Clone repository:**
+
    ```bash
    git clone https://github.com/sira313/absen-guru.git
    cd absen-guru
    ```
 
 2. **Setup aplikasi:**
+
    ```bash
    # Install dependencies
    pnpm install
-   
+
    # Setup database (sudah ada absen.db default)
    # Database sudah siap, tidak perlu db:push atau seed
-   
+
    # Build untuk production
    pnpm build
-   
+
    # Run production server
    node build
    # atau: pnpm start
@@ -161,14 +175,16 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 ### 🌐 **Universal Deployment**
 
 **Konfigurasi ini bekerja universal untuk:**
+
 - ✅ **Local development** (localhost)
 - ✅ **Local network** (192.168.x.x, 10.x.x.x)
 - ✅ **VPS/Cloud** (any public IP)
 - ✅ **Domain name** (example.com)
 
 **Quick Deploy:**
+
 ```bash
-# Clone dan setup  
+# Clone dan setup
 git clone https://github.com/sira313/absen-guru.git
 cd absen-guru
 pnpm install
@@ -179,6 +195,7 @@ node build
 ```
 
 **PM2 Production Deploy:**
+
 ```bash
 # Install PM2
 npm install -g pm2
@@ -193,6 +210,7 @@ pm2 monit
 ## � Default Credentials
 
 ### 👑 **Administrator**
+
 ```
 Username: admin
 Password: admin123
@@ -202,6 +220,7 @@ Role: Full access
 ## 🔐 Default Login
 
 ### � **Administrator**
+
 ```
 Username: admin
 Password: admin123
@@ -209,6 +228,7 @@ Role: Full admin access
 ```
 
 ### �👨‍🏫 **Sample Guru (Optional)**
+
 ```
 Username: guru1, guru2, guru3
 Password: guru123
@@ -216,6 +236,7 @@ Role: Teacher access
 ```
 
 ### ⚠️ **PENTING - Keamanan Production**
+
 1. **WAJIB ganti password default** setelah login pertama
 2. **Hapus akun guru sample** jika tidak dibutuhkan
 3. **Setup environment variables** untuk production
@@ -229,12 +250,14 @@ Role: Teacher access
 ## �️ Database Ready
 
 **Database `absen.db` sudah tersedia** dengan schema dan data sample:
+
 - ✅ Tables sudah dibuat dengan migrasi Drizzle
 - ✅ Default admin dan guru sample sudah ada
 - ✅ Tidak perlu jalankan `db:push` atau `seed`
 - ✅ Langsung `pnpm build` → `node build` → ready to use!
 
 **Database includes:**
+
 - 👤 Admin account: `admin/admin123`
 - 👨‍🏫 Sample teachers: `guru1,guru2,guru3/guru123`
 - 📋 Complete schema with positions, attendance, etc.
@@ -273,17 +296,20 @@ Role: Teacher access
 ## 🏗️ Arsitektur Teknologi
 
 ### Frontend
+
 - **SvelteKit** - Framework web modern dengan SSR
 - **TailwindCSS v4** - Utility-first CSS framework
 - **DaisyUI 5.1.13** - Component library untuk UI yang konsisten
 - **Lucide Svelte** - Icon library yang elegan
 
 ### Backend
+
 - **SQLite** - Database ringan dan portable
 - **Drizzle ORM** - Type-safe ORM untuk TypeScript
 - **SvelteKit API Routes** - Server-side API handling
 
 ### Fitur Khusus
+
 - **ExcelJS** - Generate laporan Excel dengan formatting lengkap
 - **Zod** - Schema validation untuk data integrity
 - **bcrypt** - Password hashing untuk keamanan
@@ -342,6 +368,7 @@ HOST=0.0.0.0
 ### Database Schema
 
 Sistem menggunakan SQLite dengan tabel utama:
+
 - `users` - Data guru dan admin
 - `attendance` - Record absensi harian
 - `settings` - Konfigurasi aplikasi
@@ -407,6 +434,7 @@ Aplikasi ini menggunakan **universal CSRF configuration** yang secara otomatis b
 ### 📦 **VPS Deployment dengan PM2**
 
 **1. Clone dan Setup di VPS:**
+
 ```bash
 # Login ke VPS
 ssh root@your-vps-ip
@@ -421,6 +449,7 @@ pnpm build
 ```
 
 **2. Setup PM2:**
+
 ```bash
 # Install PM2 global
 npm install -g pm2
@@ -438,18 +467,21 @@ pm2 logs absen-guru
 ```
 
 **3. Akses Aplikasi:**
+
 - URL: `http://your-vps-ip:3000`
 - Login: admin / admin123
 
 ### 🔧 **Local/Development Server**
 
 **1. Development mode:**
+
 ```bash
 pnpm dev
 # Akses: http://localhost:5173
 ```
 
 **2. Production mode:**
+
 ```bash
 pnpm build
 pnpm start
@@ -492,16 +524,18 @@ Kontribusi sangat diterima! Silakan:
 ## 📝 Changelog
 
 ### v2.0.0 (2025-09-22)
+
 - 🌐 **Universal CSRF Configuration** - Otomatis bekerja di semua environment (localhost, LAN, VPS, domain)
 - 🚀 **PM2 ES Module Support** - Production deployment dengan ecosystem.config.js yang proper
 - 🔧 **Node.js v22+ Support** - Update ke Node.js LTS terbaru dengan performa optimal
-- 📦 **pnpm v9.12+ Support** - Package manager terbaru dengan caching yang lebih baik  
+- 📦 **pnpm v9.12+ Support** - Package manager terbaru dengan caching yang lebih baik
 - 🐛 **Frontend JavaScript Fix** - Resolve "Illegal invocation" error di admin settings
 - 🗄️ **Database Refresh** - Fresh sample data dengan schema terbaru
 - 📚 **Documentation Update** - Panduan deployment VPS dan troubleshooting lengkap
 - ⚡ **Performance Improvements** - Optimasi konfigurasi untuk production deployment
 
 ### v1.0.0 (2025-09-21)
+
 - ✨ Initial release
 - 🎭 Sistem absensi dengan logic upacara Senin
 - 👥 Manajemen user dengan jabatan

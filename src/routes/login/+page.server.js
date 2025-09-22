@@ -1,65 +1,65 @@
-import { redirect } from '@sveltejs/kit';
-import { createSession, setSessionCookie } from '$lib/server/auth.js';
-import { dbHelpers } from '$lib/server/db.js';
-import { fail } from '@sveltejs/kit';
+import { redirect } from "@sveltejs/kit";
+import { createSession, setSessionCookie } from "$lib/server/auth.js";
+import { dbHelpers } from "$lib/server/db.js";
+import { fail } from "@sveltejs/kit";
 
 // Simple hash verification function
 async function verifyPassword(password, hashedPassword) {
-	const encoder = new TextEncoder();
-	const data = encoder.encode(password + 'salt123'); // Same salt as in seed.js
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-	return hash === hashedPassword;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "salt123"); // Same salt as in seed.js
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hash === hashedPassword;
 }
 
 export async function load({ locals }) {
-	if (locals.user) {
-		if (locals.user.role === 'admin') {
-			throw redirect(302, '/admin');
-		} else {
-			throw redirect(302, '/guru');
-		}
-	}
+  if (locals.user) {
+    if (locals.user.role === "admin") {
+      throw redirect(302, "/admin");
+    } else {
+      throw redirect(302, "/guru");
+    }
+  }
 }
 
 export const actions = {
-	default: async ({ request, cookies }) => {
-		const formData = await request.formData();
-		const username = formData.get('username')?.toString();
-		const password = formData.get('password')?.toString();
+  default: async ({ request, cookies }) => {
+    const formData = await request.formData();
+    const username = formData.get("username")?.toString();
+    const password = formData.get("password")?.toString();
 
-		if (!username || !password) {
-			return fail(400, {
-				message: 'Username dan password harus diisi',
-				username
-			});
-		}
+    if (!username || !password) {
+      return fail(400, {
+        message: "Username dan password harus diisi",
+        username,
+      });
+    }
 
-		const user = await dbHelpers.getUserByUsername(username);
-		if (!user || !user.isActive) {
-			return fail(400, {
-				message: 'Username atau password salah',
-				username
-			});
-		}
+    const user = await dbHelpers.getUserByUsername(username);
+    if (!user || !user.isActive) {
+      return fail(400, {
+        message: "Username atau password salah",
+        username,
+      });
+    }
 
-		const validPassword = await verifyPassword(password, user.hashedPassword);
-		if (!validPassword) {
-			return fail(400, {
-				message: 'Username atau password salah',
-				username
-			});
-		}
+    const validPassword = await verifyPassword(password, user.hashedPassword);
+    if (!validPassword) {
+      return fail(400, {
+        message: "Username atau password salah",
+        username,
+      });
+    }
 
-		const session = await createSession(user.id);
-		setSessionCookie(cookies, session.id, session.expiresAt);
+    const session = await createSession(user.id);
+    setSessionCookie(cookies, session.id, session.expiresAt);
 
-		// Redirect langsung berdasarkan role untuk menghindari loop
-		if (user.role === 'admin') {
-			throw redirect(302, '/admin');
-		} else {
-			throw redirect(302, '/guru');
-		}
-	}
+    // Redirect langsung berdasarkan role untuk menghindari loop
+    if (user.role === "admin") {
+      throw redirect(302, "/admin");
+    } else {
+      throw redirect(302, "/guru");
+    }
+  },
 };

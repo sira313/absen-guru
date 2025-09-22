@@ -95,6 +95,7 @@
 					method="POST" 
 					action="?/create" 
 					class="space-y-4"
+					use:enhance
 					on:submit={(e) => {
 						console.log('Form submit event triggered');
 						console.log('Form data:', new FormData(e.target));
@@ -285,18 +286,19 @@
 								</label>
 								<div class="relative">
 									<Badge class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
-									<select 
+									<input 
 										id="position"
 										name="position" 
+										type="text"
+										placeholder="Contoh: Guru Kelas, Guru Matematika, Wali Kelas, dll"
 										required
-										class="select select-bordered w-full pl-10"
-									>
-										<option value="">Pilih Jabatan</option>
-										<option value="Kepala Sekolah">Kepala Sekolah</option>
-										<option value="Guru Kelas">Guru Kelas</option>
-										<option value="Guru Penjaskes">Guru Penjaskes</option>
-										<option value="Guru Agama">Guru Agama</option>
-									</select>
+										class="input input-bordered w-full pl-10"
+									/>
+								</div>
+								<div class="label">
+									<span class="label-text-alt text-base-content/70">
+										Ketik jabatan guru, misalnya: "Guru Kelas 5A", "Guru Matematika", "Kepala Sekolah", dll
+									</span>
 								</div>
 							</div>
 						</div>
@@ -360,15 +362,16 @@
 								<td class="text-sm opacity-70">{user.username}</td>
 								<td>{user.email}</td>
 								<td>
-									<div class="badge {user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
+									<div class="badge badge-sm {user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
 										{user.role === 'admin' ? 'Admin' : 'Guru'}
 									</div>
 								</td>
 								<td>
 									{#if user.role === 'guru' && user.employeeType}
-										<div class="badge badge-outline 
+										<div class="badge badge-outline badge-sm
 											{user.employeeType === 'PNS' ? 'badge-success' : 
-											 user.employeeType === 'PPPK' ? 'badge-info' : 'badge-warning'}">
+											 user.employeeType === 'PPPK' ? 'badge-info' : 'badge-warning'}
+											max-w-[80px] text-xs">
 											{user.employeeType}
 										</div>
 									{:else}
@@ -377,9 +380,10 @@
 								</td>
 								<td>
 									{#if user.position}
-										<div class="badge badge-outline
+										<div class="badge badge-outline badge-sm
 											{user.position === 'Kepala Sekolah' ? 'badge-primary' :
-											 user.position === 'Administrator' ? 'badge-accent' : 'badge-neutral'}">
+											 user.position === 'Administrator' ? 'badge-accent' : 'badge-neutral'}
+											max-w-[120px] text-xs whitespace-nowrap overflow-hidden text-ellipsis">
 											{user.position}
 										</div>
 									{:else}
@@ -441,7 +445,7 @@
 		<div class="modal-box max-w-2xl">
 			<h3 class="font-bold text-lg mb-4">Edit User</h3>
 			
-			<form method="POST" action="?/updateUser" on:submit={() => editingUser = null}>
+			<form method="POST" action="?/updateUser" use:enhance on:submit={() => editingUser = null}>
 				<input type="hidden" name="id" value={editingUser.id}>
 				
 				<!-- Name -->
@@ -519,13 +523,19 @@
 						</label>
 						<div class="relative">
 							<Badge class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
-							<select id="edit-position" name="position" class="select select-bordered w-full pl-10">
-								<option value="">Pilih Jabatan</option>
-								<option value="Kepala Sekolah" selected={editingUser.position === 'Kepala Sekolah'}>Kepala Sekolah</option>
-								<option value="Guru Kelas" selected={editingUser.position === 'Guru Kelas'}>Guru Kelas</option>
-								<option value="Guru Penjaskes" selected={editingUser.position === 'Guru Penjaskes'}>Guru Penjaskes</option>
-								<option value="Guru Agama" selected={editingUser.position === 'Guru Agama'}>Guru Agama</option>
-							</select>
+							<input 
+								id="edit-position" 
+								name="position" 
+								type="text"
+								bind:value={editingUser.position}
+								placeholder="Contoh: Guru Kelas, Guru Matematika, Wali Kelas, dll"
+								class="input input-bordered w-full pl-10"
+							/>
+						</div>
+						<div class="label">
+							<span class="label-text-alt text-base-content/70">
+								Ketik jabatan guru, misalnya: "Guru Kelas 5A", "Guru Matematika", "Kepala Sekolah", dll
+							</span>
 						</div>
 					</div>
 				</div>

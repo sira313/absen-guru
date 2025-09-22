@@ -5,11 +5,13 @@
 Setelah instalasi pertama, gunakan kredensial default berikut:
 
 ### 👑 Administrator
+
 - **Username**: `admin`
 - **Password**: `admin123`
 - **Role**: Administrator dengan akses penuh
 
 ### 👨‍🏫 Guru Sample (Optional)
+
 - **Username**: `guru1`, `guru2`, `guru3`
 - **Password**: `guru123`
 - **Role**: Guru dengan akses terbatas
@@ -42,7 +44,7 @@ Setelah instalasi pertama, gunakan kredensial default berikut:
 Aplikasi ini sudah dikonfigurasi untuk **deployment universal** tanpa perlu setting IP spesifik:
 
 - ✅ **Local development** (localhost)
-- ✅ **Local network** (192.168.x.x, 10.x.x.x)  
+- ✅ **Local network** (192.168.x.x, 10.x.x.x)
 - ✅ **VPS/Cloud** (any public IP)
 - ✅ **Domain name** (example.com)
 
@@ -80,6 +82,7 @@ pm2 monit
 ### 🔧 **Manual Environment Variables** (Optional)
 
 Jika ada masalah khusus, bisa set manual:
+
 ```bash
 # Contoh untuk IP spesifik
 ORIGIN=http://202.10.48.25:3000 node build
@@ -91,6 +94,7 @@ ORIGIN=https://sekolah.example.com node build
 ## 📱 Akses Mobile
 
 Aplikasi ini sudah mendukung **Progressive Web App (PWA)**:
+
 - Akses via browser mobile
 - Install sebagai app di home screen
 - Bekerja offline (terbatas)

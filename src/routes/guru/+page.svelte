@@ -3,6 +3,7 @@
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
 	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList, Coffee } from 'lucide-svelte';
+	import PWABanner from '$lib/components/PWABanner.svelte';
 	
 	export let data;
 	export let form;
@@ -86,6 +87,9 @@
 		<p class="text-base lg:text-lg text-base-content/70">{todayFormatted}</p>
 		<div class="text-xl lg:text-2xl font-mono mt-2 text-base-content">{currentTimeString}</div>
 	</div>
+
+	<!-- PWA Install Banner -->
+	<PWABanner />
 
 	<!-- Error/Success Messages -->
 	{#if form?.message}

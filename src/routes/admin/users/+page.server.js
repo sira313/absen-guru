@@ -1,295 +1,303 @@
-import { error, redirect, fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
-import { users } from '$lib/server/schema.js';
-import { eq, desc } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
+import { error, redirect, fail } from "@sveltejs/kit";
+import { db } from "$lib/server/db.js";
+import { users } from "$lib/server/schema.js";
+import { eq, desc } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 // Simple hash function - sama dengan yang digunakan di sistem
 async function simpleHash(password) {
-	const encoder = new TextEncoder();
-	const data = encoder.encode(password + 'salt123'); // Same salt as in seed.js
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "salt123"); // Same salt as in seed.js
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export async function load({ locals }) {
-	if (!locals.user) {
-		throw redirect(302, '/login');
-	}
+  if (!locals.user) {
+    throw redirect(302, "/login");
+  }
 
-	if (locals.user.role !== 'admin') {
-		throw error(403, 'Access forbidden');
-	}
+  if (locals.user.role !== "admin") {
+    throw error(403, "Access forbidden");
+  }
 
-	try {
-		// Get all users
-		const allUsers = await db
-			.select({
-				id: users.id,
-				username: users.username,
-				name: users.name,
-				email: users.email,
-				role: users.role,
-				nip: users.nip,
-				subject: users.subject,
-				employeeType: users.employeeType,
-				position: users.position,
-				phone: users.phone,
-				isActive: users.isActive,
-				createdAt: users.createdAt
-			})
-			.from(users)
-			.orderBy(desc(users.createdAt));
+  try {
+    // Get all users
+    const allUsers = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        nip: users.nip,
+        subject: users.subject,
+        employeeType: users.employeeType,
+        position: users.position,
+        phone: users.phone,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt));
 
-		return {
-			users: allUsers
-		};
-	} catch (err) {
-		console.error('Database error:', err);
-		throw error(500, 'Internal server error');
-	}
+    return {
+      users: allUsers,
+    };
+  } catch (err) {
+    console.error("Database error:", err);
+    throw error(500, "Internal server error");
+  }
 }
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		console.log('=== CREATE USER ACTION START ===');
-		console.log('locals.user:', locals.user);
-		
-		if (!locals.user || locals.user.role !== 'admin') {
-			console.log('Access forbidden - user:', locals.user);
-			throw error(403, 'Access forbidden');
-		}
+  create: async ({ request, locals }) => {
+    console.log("=== CREATE USER ACTION START ===");
+    console.log("locals.user:", locals.user);
 
-		const data = await request.formData();
-		const username = data.get('username');
-		const name = data.get('name');
-		const email = data.get('email');
-		const password = data.get('password');
-		const role = data.get('role');
-		const nip = data.get('nip');
-		const subject = data.get('subject');
-		const employeeType = data.get('employeeType');
-		const position = data.get('position');
-		const phone = data.get('phone');
+    if (!locals.user || locals.user.role !== "admin") {
+      console.log("Access forbidden - user:", locals.user);
+      throw error(403, "Access forbidden");
+    }
 
-		console.log('Form data received:', {
-			username,
-			name,
-			email,
-			password: password ? '[HIDDEN]' : null,
-			role,
-			nip,
-			subject,
-			employeeType,
-			position,
-			phone
-		});
+    const data = await request.formData();
+    const username = data.get("username");
+    const name = data.get("name");
+    const email = data.get("email");
+    const password = data.get("password");
+    const role = data.get("role");
+    const nip = data.get("nip");
+    const subject = data.get("subject");
+    const employeeType = data.get("employeeType");
+    const position = data.get("position");
+    const phone = data.get("phone");
 
-		// Validation
-		if (!username || !name || !email || !password || !role) {
-			console.log('Validation failed - missing required fields');
-			return fail(400, { message: 'Username, nama, email, password, dan role harus diisi' });
-		}
+    console.log("Form data received:", {
+      username,
+      name,
+      email,
+      password: password ? "[HIDDEN]" : null,
+      role,
+      nip,
+      subject,
+      employeeType,
+      position,
+      phone,
+    });
 
-		if (role === 'guru' && !employeeType) {
-			console.log('Validation failed - missing employeeType for guru');
-			return fail(400, { message: 'Status kepegawaian harus diisi untuk guru' });
-		}
+    // Validation
+    if (!username || !name || !email || !password || !role) {
+      console.log("Validation failed - missing required fields");
+      return fail(400, {
+        message: "Username, nama, email, password, dan role harus diisi",
+      });
+    }
 
-		if (role === 'guru' && !position) {
-			console.log('Validation failed - missing position for guru');
-			return fail(400, { message: 'Jabatan harus diisi untuk guru' });
-		}
+    if (role === "guru" && !employeeType) {
+      console.log("Validation failed - missing employeeType for guru");
+      return fail(400, {
+        message: "Status kepegawaian harus diisi untuk guru",
+      });
+    }
 
-		if (password.length < 6) {
-			console.log('Validation failed - password too short');
-			return fail(400, { message: 'Password minimal 6 karakter' });
-		}
+    if (role === "guru" && !position) {
+      console.log("Validation failed - missing position for guru");
+      return fail(400, { message: "Jabatan harus diisi untuk guru" });
+    }
 
-		if (username.length < 3) {
-			console.log('Validation failed - username too short');
-			return fail(400, { message: 'Username minimal 3 karakter' });
-		}
+    if (password.length < 6) {
+      console.log("Validation failed - password too short");
+      return fail(400, { message: "Password minimal 6 karakter" });
+    }
 
-		try {
-			console.log('Starting database operations...');
-			
-			// Check if username already exists
-			console.log('Checking if username exists:', username);
-			const existingUsername = await db
-				.select()
-				.from(users)
-				.where(eq(users.username, username))
-				.limit(1);
+    if (username.length < 3) {
+      console.log("Validation failed - username too short");
+      return fail(400, { message: "Username minimal 3 karakter" });
+    }
 
-			if (existingUsername.length > 0) {
-				console.log('Username already exists');
-				return fail(400, { message: 'Username sudah digunakan' });
-			}
+    try {
+      console.log("Starting database operations...");
 
-			// Check if email already exists
-			console.log('Checking if email exists:', email);
-			const existingEmail = await db
-				.select()
-				.from(users)
-				.where(eq(users.email, email))
-				.limit(1);
+      // Check if username already exists
+      console.log("Checking if username exists:", username);
+      const existingUsername = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username))
+        .limit(1);
 
-			if (existingEmail.length > 0) {
-				console.log('Email already exists');
-				return fail(400, { message: 'Email sudah digunakan' });
-			}
+      if (existingUsername.length > 0) {
+        console.log("Username already exists");
+        return fail(400, { message: "Username sudah digunakan" });
+      }
 
-			// Hash password using same method as login system
-			console.log('Hashing password...');
-			const hashedPassword = await simpleHash(password);
+      // Check if email already exists
+      console.log("Checking if email exists:", email);
+      const existingEmail = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
 
-			// Generate unique ID
-			console.log('Generating user ID...');
-			const userId = nanoid();
+      if (existingEmail.length > 0) {
+        console.log("Email already exists");
+        return fail(400, { message: "Email sudah digunakan" });
+      }
 
-			console.log('Creating user with data:', {
-				id: userId,
-				username,
-				name,
-				role,
-				nip,
-				subject,
-				phone,
-				email,
-				hashedPassword: hashedPassword.substring(0, 10) + '...'
-			});
+      // Hash password using same method as login system
+      console.log("Hashing password...");
+      const hashedPassword = await simpleHash(password);
 
-			// Create user
-			console.log('Inserting user into database...');
-			const result = await db.insert(users).values({
-				id: userId,
-				username: username,
-				hashedPassword: hashedPassword,
-				name: name,
-				role: role,
-				nip: nip || null,
-				subject: subject || null,
-				employeeType: role === 'guru' ? employeeType : null,
-				position: position || (role === 'admin' ? 'Administrator' : 'Guru Kelas'),
-				phone: phone || null,
-				email: email,
-				isActive: true
-			});
+      // Generate unique ID
+      console.log("Generating user ID...");
+      const userId = nanoid();
 
-			console.log('Database insert result:', result);
-			console.log('User created successfully');
-			return { success: true, message: 'User berhasil dibuat' };
-		} catch (err) {
-			console.error('Database error details:');
-			console.error('Error message:', err.message);
-			console.error('Error stack:', err.stack);
-			console.error('Full error object:', err);
-			return fail(500, { message: 'Terjadi kesalahan server: ' + err.message });
-		}
-	},
+      console.log("Creating user with data:", {
+        id: userId,
+        username,
+        name,
+        role,
+        nip,
+        subject,
+        phone,
+        email,
+        hashedPassword: hashedPassword.substring(0, 10) + "...",
+      });
 
-	updateUser: async ({ request, locals }) => {
-		if (!locals.user || locals.user.role !== 'admin') {
-			throw error(403, 'Access forbidden');
-		}
+      // Create user
+      console.log("Inserting user into database...");
+      const result = await db.insert(users).values({
+        id: userId,
+        username: username,
+        hashedPassword: hashedPassword,
+        name: name,
+        role: role,
+        nip: nip || null,
+        subject: subject || null,
+        employeeType: role === "guru" ? employeeType : null,
+        position:
+          position || (role === "admin" ? "Administrator" : "Guru Kelas"),
+        phone: phone || null,
+        email: email,
+        isActive: true,
+      });
 
-		const data = await request.formData();
-		const id = data.get('id');
-		const name = data.get('name');
-		const email = data.get('email');
-		const role = data.get('role');
-		const employeeType = data.get('employee_type');
-		const position = data.get('position');
-		const newPassword = data.get('newPassword');
+      console.log("Database insert result:", result);
+      console.log("User created successfully");
+      return { success: true, message: "User berhasil dibuat" };
+    } catch (err) {
+      console.error("Database error details:");
+      console.error("Error message:", err.message);
+      console.error("Error stack:", err.stack);
+      console.error("Full error object:", err);
+      return fail(500, { message: "Terjadi kesalahan server: " + err.message });
+    }
+  },
 
-		// Validation
-		if (!id || !name || !email || !role) {
-			return fail(400, { message: 'ID, nama, email, dan role wajib diisi' });
-		}
+  updateUser: async ({ request, locals }) => {
+    if (!locals.user || locals.user.role !== "admin") {
+      throw error(403, "Access forbidden");
+    }
 
-		if (role === 'guru' && !employeeType) {
-			return fail(400, { message: 'Status kepegawaian harus diisi untuk guru' });
-		}
+    const data = await request.formData();
+    const id = data.get("id");
+    const name = data.get("name");
+    const email = data.get("email");
+    const role = data.get("role");
+    const employeeType = data.get("employee_type");
+    const position = data.get("position");
+    const newPassword = data.get("newPassword");
 
-		if (role === 'guru' && !position) {
-			return fail(400, { message: 'Jabatan harus diisi untuk guru' });
-		}
+    // Validation
+    if (!id || !name || !email || !role) {
+      return fail(400, { message: "ID, nama, email, dan role wajib diisi" });
+    }
 
-		// Validate employee type for guru
-		if (role === 'guru' && !employeeType) {
-			return fail(400, { message: 'Status kepegawaian wajib diisi untuk guru' });
-		}
+    if (role === "guru" && !employeeType) {
+      return fail(400, {
+        message: "Status kepegawaian harus diisi untuk guru",
+      });
+    }
 
-		// Prevent changing own role
-		if (id === locals.user.id && role !== locals.user.role) {
-			return fail(400, { message: 'Tidak dapat mengubah role sendiri' });
-		}
+    if (role === "guru" && !position) {
+      return fail(400, { message: "Jabatan harus diisi untuk guru" });
+    }
 
-		try {
-			// Check if email is already used by another user
-			const existingEmail = await db
-				.select({ id: users.id })
-				.from(users)
-				.where(eq(users.email, email));
+    // Validate employee type for guru
+    if (role === "guru" && !employeeType) {
+      return fail(400, {
+        message: "Status kepegawaian wajib diisi untuk guru",
+      });
+    }
 
-			if (existingEmail.length > 0 && existingEmail[0].id !== id) {
-				return fail(400, { message: 'Email sudah digunakan oleh user lain' });
-			}
+    // Prevent changing own role
+    if (id === locals.user.id && role !== locals.user.role) {
+      return fail(400, { message: "Tidak dapat mengubah role sendiri" });
+    }
 
-			// Prepare update data
-			const updateData = {
-				name,
-				email,
-				role,
-				employeeType: role === 'guru' ? employeeType : null,
-				position: position || (role === 'admin' ? 'Administrator' : 'Guru Kelas')
-			};
+    try {
+      // Check if email is already used by another user
+      const existingEmail = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, email));
 
-			// If password is provided, hash it and include in update
-			if (newPassword && newPassword.trim() !== '') {
-				if (newPassword.length < 6) {
-					return fail(400, { message: 'Password minimal 6 karakter' });
-				}
-				updateData.password = await simpleHash(newPassword);
-			}
+      if (existingEmail.length > 0 && existingEmail[0].id !== id) {
+        return fail(400, { message: "Email sudah digunakan oleh user lain" });
+      }
 
-			// Update user
-			await db.update(users)
-				.set(updateData)
-				.where(eq(users.id, id));
+      // Prepare update data
+      const updateData = {
+        name,
+        email,
+        role,
+        employeeType: role === "guru" ? employeeType : null,
+        position:
+          position || (role === "admin" ? "Administrator" : "Guru Kelas"),
+      };
 
-			return { success: true, message: 'User berhasil diperbarui' };
-		} catch (err) {
-			console.error('Database error:', err);
-			return fail(500, { message: 'Terjadi kesalahan server: ' + err.message });
-		}
-	},
+      // If password is provided, hash it and include in update
+      if (newPassword && newPassword.trim() !== "") {
+        if (newPassword.length < 6) {
+          return fail(400, { message: "Password minimal 6 karakter" });
+        }
+        updateData.password = await simpleHash(newPassword);
+      }
 
-	delete: async ({ request, locals }) => {
-		if (!locals.user || locals.user.role !== 'admin') {
-			throw error(403, 'Access forbidden');
-		}
+      // Update user
+      await db.update(users).set(updateData).where(eq(users.id, id));
 
-		const data = await request.formData();
-		const userId = data.get('userId');
+      return { success: true, message: "User berhasil diperbarui" };
+    } catch (err) {
+      console.error("Database error:", err);
+      return fail(500, { message: "Terjadi kesalahan server: " + err.message });
+    }
+  },
 
-		if (!userId) {
-			return fail(400, { message: 'User ID diperlukan' });
-		}
+  delete: async ({ request, locals }) => {
+    if (!locals.user || locals.user.role !== "admin") {
+      throw error(403, "Access forbidden");
+    }
 
-		// Prevent deleting self
-		if (userId == locals.user.id) {
-			return fail(400, { message: 'Tidak dapat menghapus akun sendiri' });
-		}
+    const data = await request.formData();
+    const userId = data.get("userId");
 
-		try {
-			await db.delete(users).where(eq(users.id, userId));
-			return { success: true, message: 'User berhasil dihapus' };
-		} catch (err) {
-			console.error('Database error:', err);
-			return fail(500, { message: 'Terjadi kesalahan server' });
-		}
-	}
+    if (!userId) {
+      return fail(400, { message: "User ID diperlukan" });
+    }
+
+    // Prevent deleting self
+    if (userId == locals.user.id) {
+      return fail(400, { message: "Tidak dapat menghapus akun sendiri" });
+    }
+
+    try {
+      await db.delete(users).where(eq(users.id, userId));
+      return { success: true, message: "User berhasil dihapus" };
+    } catch (err) {
+      console.error("Database error:", err);
+      return fail(500, { message: "Terjadi kesalahan server" });
+    }
+  },
 };

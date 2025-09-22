@@ -1,52 +1,72 @@
 {
-	"name": "Sistem Absensi Guru",
-	"short_name": "Absen Guru",
-	"description": "Aplikasi absensi guru untuk institusi pendidikan",
-	"start_url": "/",
-	"display": "standalone",
-	"background_color": "#ffffff",
-	"theme_color": "#0ea5e9",
-	"orientation": "portrait-primary",
-	"categories": ["education", "productivity"],
-	"lang": "id",
-	"icons": [
-		{
-			"src": "/icon-192.png",
-			"sizes": "192x192",
-			"type": "image/png",
-			"purpose": "maskable any"
-		},
-		{
-			"src": "/icon-512.png", 
-			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "maskable any"
-		}
-	],
-	"shortcuts": [
-		{
-			"name": "Absen Hari Ini",
-			"short_name": "Absen",
-			"description": "Langsung ke halaman absensi",
-			"url": "/guru",
-			"icons": [
-				{
-					"src": "/icon-192.png",
-					"sizes": "192x192"
-				}
-			]
-		},
-		{
-			"name": "Riwayat Absensi",
-			"short_name": "Riwayat", 
-			"description": "Lihat riwayat absensi",
-			"url": "/guru/riwayat",
-			"icons": [
-				{
-					"src": "/icon-192.png",
-					"sizes": "192x192"
-				}
-			]
-		}
-	]
+  "name": "Sistem Absensi Guru",
+  "short_name": "Absen Guru",
+  "description": "Aplikasi absensi guru untuk institusi pendidikan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Absen Hari Ini",
+      "short_name": "Absen",
+      "description": "Langsung ke halaman absensi",
+      "url": "/guru",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Riwayat Absensi",
+      "short_name": "Riwayat",
+      "description": "Lihat riwayat absensi",
+      "url": "/guru/riwayat",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
 }
