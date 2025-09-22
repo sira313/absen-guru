@@ -13,6 +13,7 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node.js-v22+-brightgreen.svg)](https://nodejs.org/)
 [![pnpm Version](https://img.shields.io/badge/pnpm-9.12+-blue.svg)](https://pnpm.io/)
+>>>>>>> origin/main
 
 </div>
 
@@ -167,7 +168,7 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 **Quick Deploy:**
 ```bash
-# Clone dan setup
+# Clone dan setup  
 git clone https://github.com/sira313/absen-guru.git
 cd absen-guru
 pnpm install
@@ -392,31 +393,72 @@ node scripts/setup-school-settings.js
 
 ## 🚀 Deployment
 
-### Production Server
+### 🌐 **Universal Configuration** (v2.0.0)
 
-1. **Build aplikasi:**
-   ```bash
-   pnpm build
-   ```
+Aplikasi ini menggunakan **universal CSRF configuration** yang secara otomatis berfungsi di semua environment:
 
-2. **Jalankan dengan PM2:**
-   ```bash
-   npm install -g pm2
-   pm2 start build/index.js --name absen-guru
-   pm2 startup
-   pm2 save
-   ```
+- ✅ **Localhost** - `http://localhost:3000`
+- ✅ **LAN Network** - `http://192.168.1.100:3000`
+- ✅ **VPS/Server** - `http://your-vps-ip:3000`
+- ✅ **Domain** - `https://your-domain.com`
 
-3. **Atau dengan systemd** (Linux):
-   ```bash
-   # Setup script sudah membuat service file
-   sudo systemctl start absen-guru
-   sudo systemctl enable absen-guru
-   ```
+**Tidak perlu setting khusus** untuk ORIGIN atau CSRF - aplikasi otomatis mendeteksi environment yang tepat!
 
-### Nginx Proxy (Opsional)
+### 📦 **VPS Deployment dengan PM2**
 
-Konfigurasi nginx untuk reverse proxy:
+**1. Clone dan Setup di VPS:**
+```bash
+# Login ke VPS
+ssh root@your-vps-ip
+
+# Clone repository
+git clone https://github.com/sira313/absen-guru.git
+cd absen-guru
+
+# Install dependencies dan build
+pnpm install
+pnpm build
+```
+
+**2. Setup PM2:**
+```bash
+# Install PM2 global
+npm install -g pm2
+
+# Start dengan ecosystem config
+pm2 start ecosystem.config.js
+
+# Auto-start saat reboot
+pm2 startup
+pm2 save
+
+# Monitor aplikasi
+pm2 status
+pm2 logs absen-guru
+```
+
+**3. Akses Aplikasi:**
+- URL: `http://your-vps-ip:3000`
+- Login: admin / admin123
+
+### 🔧 **Local/Development Server**
+
+**1. Development mode:**
+```bash
+pnpm dev
+# Akses: http://localhost:5173
+```
+
+**2. Production mode:**
+```bash
+pnpm build
+pnpm start
+# Akses: http://localhost:3000
+```
+
+### 🌐 **Nginx Reverse Proxy** (Opsional)
+
+Untuk production dengan domain dan HTTPS:
 
 ```nginx
 server {
@@ -448,6 +490,16 @@ Kontribusi sangat diterima! Silakan:
 5. Buat Pull Request
 
 ## 📝 Changelog
+
+### v2.0.0 (2025-09-22)
+- 🌐 **Universal CSRF Configuration** - Otomatis bekerja di semua environment (localhost, LAN, VPS, domain)
+- 🚀 **PM2 ES Module Support** - Production deployment dengan ecosystem.config.js yang proper
+- 🔧 **Node.js v22+ Support** - Update ke Node.js LTS terbaru dengan performa optimal
+- 📦 **pnpm v9.12+ Support** - Package manager terbaru dengan caching yang lebih baik  
+- 🐛 **Frontend JavaScript Fix** - Resolve "Illegal invocation" error di admin settings
+- 🗄️ **Database Refresh** - Fresh sample data dengan schema terbaru
+- 📚 **Documentation Update** - Panduan deployment VPS dan troubleshooting lengkap
+- ⚡ **Performance Improvements** - Optimasi konfigurasi untuk production deployment
 
 ### v1.0.0 (2025-09-21)
 - ✨ Initial release
