@@ -67,8 +67,19 @@ export async function POST({ request, url }) {
         filename = `Laporan_${getMonthName(month)}_${year}.xlsx`;
     }
 
-    // Generate buffer
-    const buffer = await workbook.xlsx.writeBuffer();
+    // Validasi workbook
+    if (!workbook || typeof workbook.xlsx.writeBuffer !== "function") {
+      console.error("Workbook invalid:", workbook);
+      throw error(500, "Workbook generation failed. Silakan cek data dan parameter ekspor.");
+    }
+
+    let buffer;
+    try {
+      buffer = await workbook.xlsx.writeBuffer();
+    } catch (err) {
+      console.error("ExcelJS writeBuffer error:", err);
+      throw error(500, `Gagal membuat file Excel: ${err.message}`);
+    }
 
     // Return file
     return new Response(buffer, {

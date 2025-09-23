@@ -58,28 +58,26 @@ export async function generateTPPReport(
     // Execute query using raw SQL
     const result = await client.execute({
       sql: `
-				SELECT 
-					u.id as user_id,
-					u.name as name,
-					u.nip,
-					u.employee_type,
-					u.position,
-					COUNT(CASE WHEN a.status = 'hadir' OR a.status = 'dinas_luar' THEN 1 END) as hadir_count,
-					COUNT(CASE WHEN a.status = 'sakit' THEN 1 END) as sakit_count,
-					COUNT(CASE WHEN a.status = 'izin' THEN 1 END) as izin_count,
-					COUNT(CASE WHEN a.status = 'terlambat' THEN 1 END) as terlambat_count,
-					COUNT(CASE WHEN a.status = 'dinas_luar' THEN 1 END) as dinas_luar_count,
-					COUNT(CASE WHEN a.status = 'tidak_hadir' THEN 1 END) as tidak_hadir_count,
-					COUNT(CASE WHEN a.ceremony_status = 'hadir' THEN 1 END) as upacara_hadir,
-					COUNT(CASE WHEN a.ceremony_status = 'tidak_hadir' THEN 1 END) as upacara_tidak_hadir
-				FROM users u
-				LEFT JOIN attendance a ON u.id = a.user_id 
-					AND a.date >= ? 
-					AND a.date <= ?
-				WHERE ${whereClause}
-				GROUP BY u.id, u.name, u.nip, u.employee_type, u.position
-				ORDER BY u.name
-			`,
+        SELECT 
+          u.id as user_id,
+          u.name as name,
+          u.nip,
+          u.employee_type,
+          u.position,
+          COUNT(CASE WHEN a.status = 'hadir' OR a.status = 'dinas_luar' THEN 1 END) as hadir_count,
+          COUNT(CASE WHEN a.status = 'sakit' THEN 1 END) as sakit_count,
+          COUNT(CASE WHEN a.status = 'izin' THEN 1 END) as izin_count,
+          COUNT(CASE WHEN a.status = 'terlambat' THEN 1 END) as terlambat_count,
+          COUNT(CASE WHEN a.status = 'dinas_luar' THEN 1 END) as dinas_luar_count,
+          COUNT(CASE WHEN a.status = 'tidak_hadir' THEN 1 END) as tidak_hadir_count
+        FROM users u
+        LEFT JOIN attendance a ON u.id = a.user_id 
+          AND a.date >= ? 
+          AND a.date <= ?
+        WHERE ${whereClause}
+        GROUP BY u.id, u.name, u.nip, u.employee_type, u.position
+        ORDER BY u.name
+      `,
       args: [startDate, endDate],
     });
 

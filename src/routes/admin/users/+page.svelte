@@ -382,7 +382,7 @@
 									{#if user.position}
 										<div class="badge badge-outline badge-sm
 											{user.position === 'Kepala Sekolah' ? 'badge-primary' :
-											 user.position === 'Administrator' ? 'badge-accent' : 'badge-neutral'}
+											 user.position === 'Administrator' ? 'badge-accent' : 'badge-info'}
 											max-w-[120px] text-xs whitespace-nowrap overflow-hidden text-ellipsis">
 											{user.position}
 										</div>
