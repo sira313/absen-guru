@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="id" data-theme="light">
   <head>
+    <script>
+      // Set theme from localStorage before SvelteKit loads
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+      } catch (e) {}
+    </script>
     <meta charset="utf-8" />
     <link
       rel="icon"
