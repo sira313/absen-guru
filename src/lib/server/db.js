@@ -351,16 +351,6 @@ export const dbHelpers = {
       .orderBy(users.name, attendance.date);
   },
 
-  // Settings operations
-  async getSetting(key) {
-    const result = await db
-      .select()
-      .from(settings)
-      .where(eq(settings.key, key))
-      .limit(1);
-    return result[0] || null;
-  },
-
   async getSchoolSettings() {
     const schoolKeys = [
       "school_name",

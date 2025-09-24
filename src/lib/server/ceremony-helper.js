@@ -1,10 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import { sql } from "drizzle-orm";
-import {
-  determineAttendanceStatus,
-  getDayTypeInfo,
-} from "./attendance-logic.js";
+import { determineAttendanceStatus } from "./attendance-logic.js";
 
 const client = createClient({ url: "file:./absen.db" });
 const db = drizzle(client);

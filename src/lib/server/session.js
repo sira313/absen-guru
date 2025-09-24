@@ -2,7 +2,6 @@
 // Custom session implementation following Lucia v3 migration guide
 // https://lucia-auth.com/lucia-v3/migrate
 
-import { dev } from "$app/environment";
 import { dbHelpers } from "./db.js";
 
 // Base32 encoding implementation from Lucia migration guide
@@ -110,8 +109,12 @@ export async function validateSession(sessionId) {
   };
 
   // Return user without sensitive fields
-  const { hashedPassword, createdAt, updatedAt, ...userWithoutSensitive } =
-    user;
+  const {
+    hashedPassword: _hashedPassword,
+    createdAt: _createdAt,
+    updatedAt: _updatedAt,
+    ...userWithoutSensitive
+  } = user;
 
   return {
     session: convertedSession,

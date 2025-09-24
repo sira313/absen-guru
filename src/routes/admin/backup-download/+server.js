@@ -1,4 +1,4 @@
-import { json, error } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import fs from "fs";
 import path from "path";
 

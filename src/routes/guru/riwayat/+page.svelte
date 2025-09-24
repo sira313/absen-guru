@@ -220,7 +220,7 @@
 									<td class="font-medium">{formatDate(record.date)}</td>
 									<td>{formatTime(record.checkIn)}</td>
 									<td>
-										<span class="badge {getStatusClass(record.status)}">
+										<span class="badge text-nowrap {getStatusClass(record.status)}">
 											{getStatusText(record.status)}
 										</span>
 									</td>

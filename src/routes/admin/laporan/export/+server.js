@@ -4,7 +4,7 @@ import {
 } from "$lib/server/excel-generator.js";
 import { error } from "@sveltejs/kit";
 
-export async function POST({ request, url }) {
+export async function POST({ request }) {
   try {
     let month, year, workDays, exportType, employeeTypeFilter;
 
@@ -43,7 +43,7 @@ export async function POST({ request, url }) {
     let filename;
 
     switch (exportType) {
-      case "tpp":
+      case "tpp": {
         workbook = await generateTPPReport(
           month,
           year,
@@ -53,6 +53,7 @@ export async function POST({ request, url }) {
         const filterSuffix = employeeTypeFilter ? `_${employeeTypeFilter}` : "";
         filename = `Laporan_TPP${filterSuffix}_${getMonthName(month)}_${year}.xlsx`;
         break;
+      }
       case "bulanan":
         workbook = await generateMonthlyReport(month, year);
         filename = `Daftar_Hadir_${getMonthName(month)}_${year}.xlsx`;

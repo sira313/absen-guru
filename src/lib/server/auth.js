@@ -1,6 +1,5 @@
 // src/lib/server/auth.js
 // Custom authentication implementation replacing Lucia
-import { dbHelpers } from "./db.js";
 import {
   createSession,
   validateSession,

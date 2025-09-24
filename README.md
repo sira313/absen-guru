@@ -1,6 +1,6 @@
-# 🏫 Absen Guru v2.0.0 - Production Ready
+# 🏫 Absen Guru v2.0.0 - Sistem Absensi Guru Modern
 
-Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Dibangun dengan SvelteKit, TailwindCSS v4, dan DaisyUI dengan dukungan PWA untuk pengalaman seperti aplikasi native.
+**Aplikasi web untuk mengelola absensi guru di sekolah.** Mudah digunakan, dapat diakses dari semua perangkat, dan siap pakai!
 
 <div align="center">
 
@@ -14,124 +14,159 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 [![Node.js Version](https://img.shields.io/badge/node.js-v22+-brightgreen.svg)](https://nodejs.org/)
 [![pnpm Version](https://img.shields.io/badge/pnpm-9.12+-blue.svg)](https://pnpm.io/)
 
+**🎯 Instalasi 5 Menit | 📱 Akses Multi-Device | 💾 Siap Pakai**
+
 </div>
 
-## ✨ Fitur Utama
+## 🌟 Mengapa Pilih Absen Guru?
 
-### 📱 **Progressive Web App (PWA)**
+| ✅ **Kelebihan** | 🔥 **Fitur Unggulan** |
+|----------------|-------------------|
+| 🚀 **Install 5 menit** | Setup otomatis Windows/Linux |
+| 📱 **Multi-device** | Akses dari HP, laptop, PC |
+| 💾 **Siap pakai** | Database + akun admin sudah ada |
+| 🔒 **Aman** | Login terpisah admin & guru |
+| 📊 **Laporan otomatis** | Export Excel, TPP, bulanan |
+| 🌐 **Tidak perlu internet** | Bisa offline, data tersimpan lokal |
+| 🆓 **Gratis selamanya** | Open source, tidak ada biaya |
+| 💪 **24/7 with PM2** | Server otomatis restart jika error |
 
-- 🚀 Install langsung ke device sebagai aplikasi native
-- 💾 Offline-first capabilities dengan service worker
-- ⚡ Auto-update dan caching otomatis
-- 📲 Push notifications untuk reminder
-- 🎯 App shortcuts dan native-like experience
+> **💡 Perfect untuk:** Sekolah kecil sampai menengah yang butuh sistem absensi sederhana tapi lengkap!
 
-### 📊 **Manajemen Absensi Cerdas**
+## 🎯 Apa yang Bisa Dilakukan?
 
-- ✅ Absensi harian dengan berbagai status (Hadir, Sakit, Izin, Terlambat, Dinas Luar)
-- 🎭 **Sistem upacara otomatis** - Khusus untuk hari Senin dengan tracking terpisah
-- 📅 Kalender absensi interaktif dengan pagination
-- 🔄 Logika absensi cerdas dengan validasi otomatis
+### � **Absensi Harian**
+- ✅ **Catat kehadiran guru** dengan status: Hadir, Sakit, Izin, Terlambat, Dinas Luar
+- 🎭 **Absen upacara Senin** - Otomatis tracking kehadiran upacara bendera
+- 📱 **Akses dari HP atau komputer** - Bisa absen dari mana saja
+- 🕒 **Validasi waktu otomatis** - Sistem tahu status berdasarkan jam absen
 
-### 👥 **Manajemen User & Jabatan**
+### 👥 **Kelola Data Guru**
+- 👨‍🏫 **Daftar semua guru** dengan data lengkap (NIP, jabatan, kontak)
+- 🔐 **Login terpisah untuk Admin dan Guru** - Keamanan terjaga
+- 🏛️ **Berbagai jabatan**: Kepala Sekolah, Guru Kelas, Guru Penjaskes, dll
+- 📋 **Profile lengkap** setiap guru terintegrasi dengan absensi
 
-- 🔐 Sistem autentikasi berbasis role (Admin, Guru)
-- 👨‍🏫 Manajemen profil guru lengkap dengan jabatan
-- 🏛️ Jabatan tersedia: Kepala Sekolah, Guru Kelas, Guru Penjaskes, Guru Agama, Administrator
-- 📋 Data personil terintegrasi dengan sistem absensi
+### � **Laporan Otomatis**
+- � **Laporan bulanan** - Rekap kehadiran per bulan dengan chart
+- 💰 **Laporan TPP** - Khusus untuk perhitungan tunjangan PNS/PPPK  
+- � **Export ke Excel** - Download laporan dalam format Excel rapi
+- 🏫 **Data sekolah otomatis** - Kepala sekolah dan info sekolah ter-update
 
-### 📈 **Laporan Komprehensif**
+### 📱 **Seperti Aplikasi Mobile**
+- � **Install di HP** - Seperti aplikasi asli dari Play Store
+- 💾 **Bekerja offline** - Tetap bisa buka meski internet lemot
+- ⚡ **Update otomatis** - Selalu dapat fitur terbaru
+- 🌙 **Dark mode** - Nyaman untuk mata di malam hari
 
-- 📊 Laporan bulanan dengan analisis kehadiran
-- 🏆 **Laporan TPP (Tambahan Penghasilan Pegawai)** dengan filter PNS/PPPK
-- 📑 Export Excel dengan format yang rapi dan data lengkap
-- 👤 Integrasi data kepala sekolah otomatis dari database
-- 🔍 Filter berdasarkan tipe pegawai dan periode
+### ⚙️ **Pengaturan Sekolah**
+- 🏫 **Data sekolah lengkap** - NPSN, alamat, nomor telepon
+- 👤 **Pilih kepala sekolah** - Otomatis dari daftar guru
+- � **Backup database** - Aman dari kehilangan data
+- 🔧 **Setting fleksibel** - Sesuaikan dengan kebutuhan sekolah
 
-### 🏢 **Pengaturan Sekolah**
+---
 
-- 🏫 Manajemen data sekolah (NPSN, alamat, kontak)
-- 👤 **Pemilihan kepala sekolah otomatis** dari database user
-- 🔧 Konfigurasi sistem yang fleksibel
-- 🗄️ Backup dan restore database
+## 🚀 Cara Install (Super Mudah!)
 
-### 🎨 **Antarmuka Modern**
+> **💡 Tips:** Pilih salah satu cara di bawah. Cara 1 paling mudah untuk pemula!
 
-- 📱 Responsive design untuk desktop dan mobile
-- 🌙 Dark mode support dengan DaisyUI themes
-- 🎭 Animasi smooth dan transisi yang elegan
-- ♿ Accessibility compliant (A11y standards)
-- 🚀 Performance optimized dengan SvelteKit
+### � **Cara 1: Instalasi Otomatis** (Direkomendasikan)
 
-### 📱 **Progressive Web App (PWA)**
+**Untuk Windows:**
+1. Download aplikasi dari GitHub
+2. Klik 2x file `setup-windows.bat` 
+3. Tunggu sampai selesai
+4. Aplikasi siap digunakan!
 
-- 💾 **Installable** - Install di home screen perangkat mobile
-- ⚡ **Offline capable** - Bekerja tanpa koneksi internet (terbatas)
-- 🔄 **Auto-update** - Update otomatis tanpa download manual
-- 📞 **Native-like experience** - Seperti aplikasi native
+**Untuk Linux/Ubuntu/VPS:**
+1. Download aplikasi 
+2. Jalankan: `./setup-linux.sh`
+3. Tunggu sampai selesai
+4. Aplikasi siap digunakan!
 
-## 🚀 Quick Start
+### 🎯 **Cara 2: Instalasi Manual** (Untuk yang suka kontrol)
 
-### 💾 **Instalasi & Setup** (Recommended)
+**Yang dibutuhkan:**
+- Komputer Windows/Mac/Linux
+- Internet untuk download
+- 10-15 menit waktu
 
-**1. Clone dan Install:**
+**Langkah-langkah:**
+
+1. **Install Node.js** (jika belum ada)
+   - Download dari: https://nodejs.org
+   - Pilih versi LTS (yang paling kiri)
+   - Install seperti aplikasi biasa
+
+2. **Download aplikasi ini**
+   ```bash
+   git clone https://github.com/sira313/absen-guru.git
+   cd absen-guru
+   ```
+
+3. **Install dan build**
+   ```bash
+   npm install -g pnpm   # Install pnpm dulu
+   pnpm install         # Install dependencies  
+   pnpm build          # Build aplikasi
+   ```
+
+---
+
+## 🌐 Cara Menjalankan
+
+### 🏠 **Mode 1: Hanya di Komputer Ini**
 ```bash
-git clone https://github.com/sira313/absen-guru.git
-cd absen-guru
-pnpm install && pnpm build
+pnpm start
+# Buka: http://localhost:3000
 ```
 
-**2. Pilih Mode Akses:**
-
-#### **🏠 Local Development**
-```bash
-pnpm dev
-# Akses: http://localhost:5173
-```
-
-#### **🌐 Network Access (Multi-Device)**
+### 📱 **Mode 2: Akses dari HP/Laptop Lain** (Paling Populer)
 
 **Windows:**
 ```cmd
-# Auto-detect IP dan start server
 start-network.bat
 ```
 
-**Linux/macOS:**
-```bash  
-# Auto-detect IP dan start server
+**Linux/Mac:**  
+```bash
 ./start-network.sh
 ```
 
-**Manual (All OS):**
+**Manual:**
 ```bash
-# Ganti IP dengan IP komputer Anda
+# Ganti 192.168.1.100 dengan IP komputer Anda
 ORIGIN=http://192.168.1.100:3000 pnpm start
 ```
 
-#### **🚀 Production Deployment**
+### 🚀 **Mode 3: Server 24/7 dengan PM2**
+
+**Install PM2:**
 ```bash
-NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
+npm install -g pm2
 ```
 
-### 📋 **Setup Otomatis (Full Installation)**
-
-**Windows:**
-```cmd
-setup-windows.bat
-```
-
-**Linux/macOS/VPS:**
+**Jalankan aplikasi:**
 ```bash
-./setup-linux.sh
+# Pilihan 1: Hanya lokal
+pnpm pm2:start
+
+# Pilihan 2: Akses network (HP/laptop lain bisa akses)
+pnpm pm2:start:network  
+
+# Pilihan 3: Mode production (server/hosting)
+pnpm pm2:start:prod
 ```
 
-### 🔧 **Manual Installation**
-
-#### Prerequisites
-
-- **Node.js v22.19.0 LTS** atau lebih baru ([Download](https://nodejs.org/en/blog/release/v22.19.0))
-- **pnpm v9.12+** package manager ([Install Guide](https://pnpm.io/installation))
+**Kelola PM2:**
+```bash
+pnpm pm2:status     # Lihat status
+pnpm pm2:logs       # Lihat log
+pnpm pm2:stop       # Stop aplikasi
+pnpm pm2:restart    # Restart aplikasi
+pnpm pm2:monit      # Monitor real-time
+```
 
 ```bash
 # Install Node.js (jika belum ada)
@@ -213,14 +248,16 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 **Aplikasi ini mendukung berbagai mode deployment dengan konfigurasi environment variables:**
 
-#### **1. Local Development** 
+#### **1. Local Development**
+
 ```bash
 # Development dengan hot reload (localhost only)
 pnpm dev
 # Akses: http://localhost:5173
 ```
 
-#### **2. Network Testing** 
+#### **2. Network Testing**
+
 ```bash
 # Testing di network local (akses via IP address)
 ORIGIN=http://192.168.x.x:3000 pnpm start
@@ -228,6 +265,7 @@ ORIGIN=http://192.168.x.x:3000 pnpm start
 ```
 
 #### **3. Production Deployment**
+
 ```bash
 # Production server
 NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
@@ -257,6 +295,68 @@ pm2 start ecosystem.config.js
 
 # Monitor
 pm2 monit
+```
+
+---
+
+## 🔐 Login Pertama Kali
+
+**Setelah aplikasi jalan, buka browser dan masuk dengan:**
+
+### 👑 **Admin (Pengelola Sistem)**
+```
+Username: admin  
+Password: admin123
+```
+*Admin bisa kelola semua data guru, laporan, dan pengaturan*
+
+### 👨‍🏫 **Guru (Contoh - Opsional)**
+```
+Username: guru1, guru2, atau guru3
+Password: guru123  
+```
+*Guru hanya bisa absen dan lihat data pribadi*
+
+### ⚠️ **PENTING - Keamanan:**
+
+1. ✅ **Ganti password admin** setelah login pertama!
+2. ✅ **Hapus akun guru contoh** jika tidak diperlukan
+3. ✅ **Buat akun guru baru** dengan data asli
+4. ✅ **Backup database** secara berkala
+
+---
+
+## 🗄️ Database Siap Pakai
+
+**Aplikasi sudah include database lengkap:**
+
+- ✅ **Database sudah ada** (`absen.db`) - tidak perlu setup database
+- ✅ **Admin dan guru contoh** sudah dibuatkan
+- ✅ **Struktur tabel lengkap** - langsung bisa digunakan  
+- ✅ **Data sample** untuk testing fitur
+
+**Tidak perlu jalankan command database apapun - langsung pakai!**
+
+---
+
+## 📱 Cara Mengakses dari HP/Tablet
+
+1. **Pastikan HP dan komputer terhubung WiFi yang sama**
+2. **Jalankan aplikasi dengan mode network**:
+   - Windows: `start-network.bat`
+   - Linux/Mac: `./start-network.sh`
+   - PM2: `pnpm pm2:start:network`
+
+3. **Lihat IP address yang muncul**, contoh: `http://192.168.1.100:3000`
+4. **Buka browser di HP**, ketik IP tersebut
+5. **Login dengan akun admin/guru**
+6. **Install ke homescreen** (PWA): Klik menu browser → "Tambah ke layar utama"
+
+**Tips PWA (Progressive Web App):**
+- Setelah di-install, aplikasi muncul seperti app asli
+- Bisa dibuka tanpa browser
+- Bekerja offline (terbatas)
+- Update otomatis
 ```
 
 ## � Default Credentials
@@ -435,7 +535,7 @@ Sistem menggunakan SQLite dengan tabel utama:
 pnpm dev                    # Development dengan hot reload (localhost:5173)
 pnpm preview               # Preview build hasil
 
-# Production  
+# Production
 pnpm build                 # Build untuk production
 pnpm start                 # Start production server (localhost:3000)
 pnpm start:prod           # Start dengan NODE_ENV=production
@@ -443,7 +543,7 @@ pnpm start:network        # Info untuk network access
 
 # Network Access (Auto IP Detection)
 ./start-network.sh        # Linux/macOS - auto detect IP
-start-network.bat         # Windows - auto detect IP  
+start-network.bat         # Windows - auto detect IP
 
 # Manual Network Setup
 ORIGIN=http://192.168.1.100:3000 pnpm start   # Manual IP setup
@@ -451,11 +551,11 @@ ORIGIN=http://192.168.1.100:3000 pnpm start   # Manual IP setup
 # Development Tools
 pnpm check                # Type checking
 pnpm lint                 # Linting
-pnpm format              # Code formatting  
+pnpm format              # Code formatting
 
 # Database
 pnpm db:push             # Apply schema changes
-pnpm db:studio          # Open database GUI  
+pnpm db:studio          # Open database GUI
 pnpm db:seed            # Seed initial data
 
 # Setup
@@ -484,7 +584,7 @@ Aplikasi menggunakan **proper CSRF protection** dengan konfigurasi yang aman:
 **🚨 WAJIB untuk Production:**
 Set environment variable `ORIGIN` sesuai domain/IP server Anda:
 
-```bash
+````bash
 Untuk production dengan domain dan HTTPS:
 
 ```env
@@ -496,7 +596,7 @@ ORIGIN=http://your-server-ip:3000
 
 # Contoh untuk subdomain
 ORIGIN=https://absen-guru.example.com
-```
+````
 
 ## 🔧 **Environment Variables Guide**
 
@@ -517,22 +617,25 @@ NODE_ENV=production pnpm start
 Aplikasi menggunakan CSRF protection yang berbeda berdasarkan environment:
 
 #### **Development Mode** (default)
+
 ```bash
 pnpm dev
 # - CSRF checks disabled
 # - Akses: localhost only
 ```
 
-#### **Network Testing Mode** 
+#### **Network Testing Mode**
+
 ```bash
-ORIGIN=http://192.168.x.x:3000 pnpm start  
+ORIGIN=http://192.168.x.x:3000 pnpm start
 # - CSRF allows network origin
 # - NODE_ENV masih development
 # - Akses: localhost + network IP
 ```
 
 #### **Production Mode**
-```bash  
+
+```bash
 NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
 # - CSRF strict mode
 # - Only specified origin allowed
@@ -544,25 +647,29 @@ NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
 **Masalah**: Login gagal dengan error 403 Forbidden
 
 **Solusi**:
+
 1. **Pastikan ORIGIN di-set dengan benar**:
+
    ```bash
    # Ganti dengan IP komputer Anda
    ORIGIN=http://192.168.1.100:3000 pnpm start
    ```
 
 2. **Cek IP address komputer**:
+
    ```bash
    # Windows
    ipconfig
-   
-   # Linux/Mac  
+
+   # Linux/Mac
    ifconfig
    ```
 
 3. **Pastikan port tidak terblokir firewall**
 
 📖 **Untuk panduan lengkap network setup dan troubleshooting, lihat: [NETWORK_SETUP.md](./NETWORK_SETUP.md)**
-```
+
+````
 
 ### 📦 **VPS Deployment dengan PM2**
 
@@ -579,7 +686,7 @@ cd absen-guru
 # Install dependencies dan build
 pnpm install
 pnpm build
-```
+````
 
 **2. Setup PM2:**
 
@@ -680,15 +787,82 @@ Kontribusi sangat diterima! Silakan:
 
 Laporkan bug atau request fitur melalui [GitHub Issues](https://github.com/sira313/absen-guru/issues).
 
+---
+
+## 🆘 Troubleshooting & FAQ
+
+### ❓ **Pertanyaan Sering Ditanya**
+
+**Q: Aplikasi tidak bisa dibuka dari HP?**
+A: Pastikan:
+- HP dan komputer terhubung WiFi yang sama
+- Jalankan dengan mode network (`start-network.bat` atau `pnpm pm2:start:network`)
+- Coba matikan Windows Firewall sementara
+- Gunakan IP yang muncul di terminal, bukan localhost
+
+**Q: Lupa password admin?**
+A: Jalankan: `node scripts/reset-admin-password.js` lalu restart aplikasi
+
+**Q: Database error atau corrupt?**
+A: Reset database:
+```bash
+rm absen.db          # Hapus database lama
+pnpm db:push        # Buat struktur baru  
+pnpm db:seed        # Isi data sample
+```
+
+**Q: Aplikasi lemot atau crash?**
+A: 
+- Restart aplikasi: `pnpm pm2:restart` 
+- Cek log error: `pnpm pm2:logs`
+- Pastikan RAM cukup (minimal 1GB free)
+
+**Q: Tidak bisa export Excel?**
+A: Pastikan ada data absensi, lalu coba refresh browser
+
+**Q: Aplikasi tidak update setelah git pull?**
+A: Jalankan: `pnpm install && pnpm build` lalu restart
+
+### 🔧 **Masalah Umum**
+
+**Port 3000 sudah digunakan:**
+```bash
+# Lihat proses yang pakai port 3000
+netstat -ano | findstr :3000
+# Kill prosesnya atau ganti port di .env
+```
+
+**Tidak bisa install di Windows:**
+- Pastikan Windows PowerShell/CMD run as Administrator
+- Install Git for Windows dulu
+- Install Node.js dari website resmi
+
+**PM2 error di Windows:**
+```bash
+# Install ulang PM2
+npm uninstall -g pm2
+npm install -g pm2@latest
+```
+
+### 📞 **Butuh Bantuan?**
+
+1. **Cek log error**: `pnpm pm2:logs` 
+2. **Restart aplikasi**: `pnpm pm2:restart`
+3. **Reset database**: Hapus `absen.db` → `pnpm db:push` → `pnpm db:seed`
+4. **Reinstall**: Hapus `node_modules` → `pnpm install`
+5. **Buat issue** di GitHub dengan detail error
+
+---
+
 ## 📄 Lisensi
 
-Projekt ini menggunakan lisensi [MIT](LICENSE).
+Projekt ini menggunakan lisensi [MIT](LICENSE) - bebas digunakan untuk komersial maupun personal.
 
 ## 🙏 Acknowledgments
 
 - Tim pengembang SvelteKit untuk framework yang luar biasa
-- Komunitas Tailwind CSS dan DaisyUI
-- Seluruh kontributor open source
+- Komunitas Tailwind CSS dan DaisyUI  
+- Seluruh kontributor open source yang membuat ini mungkin
 
 ---
 

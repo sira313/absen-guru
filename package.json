@@ -18,7 +18,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
-    "preview": "vite preview", 
+    "preview": "vite preview",
     "start": "node build/index.js",
     "start:network": "echo 'Set ORIGIN environment variable first: ORIGIN=http://your-ip:3000 pnpm start:network' && node build/index.js",
     "start:prod": "NODE_ENV=production node build/index.js",
@@ -29,7 +29,18 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "node scripts/seed.js",
-    "setup": "pnpm install && pnpm db:push && pnpm db:seed"
+    "setup": "pnpm install && pnpm db:push && pnpm db:seed",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:start:prod": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:start:network": "pm2 start ecosystem.config.cjs --env network",
+    "pm2:stop": "pm2 stop absen-guru",
+    "pm2:restart": "pm2 restart absen-guru",
+    "pm2:reload": "pm2 reload absen-guru",
+    "pm2:delete": "pm2 delete absen-guru",
+    "pm2:logs": "pm2 logs absen-guru",
+    "pm2:monit": "pm2 monit",
+    "pm2:status": "pm2 status",
+    "pm2:reset": "pm2 delete absen-guru || true"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -48,12 +59,10 @@
   "dependencies": {
     "@libsql/client": "^0.15.15",
     "@tailwindcss/vite": "^4.1.13",
-    "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.5",
     "exceljs": "^4.4.0",
-    "file-saver": "^2.0.5",
     "lucide-svelte": "^0.544.0",
     "nanoid": "^5.1.6",
     "tailwindcss": "^4.1.13",

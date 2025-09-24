@@ -159,7 +159,7 @@ export function calculateAttendanceStats(attendanceRecords) {
     stats.totalDays++;
 
     // Count by status
-    if (stats.hasOwnProperty(record.status)) {
+    if (Object.prototype.hasOwnProperty.call(stats, record.status)) {
       stats[record.status]++;
     }
 
