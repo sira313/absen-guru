@@ -1,12 +1,27 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	
-	export let value = '';
-	export let disabled = false;
-	export let name = '';
-	export let id = '';
-	export let label = '';
-	export let required = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [value]
+	 * @property {boolean} [disabled]
+	 * @property {string} [name]
+	 * @property {string} [id]
+	 * @property {string} [label]
+	 * @property {boolean} [required]
+	 * @property {string} [placeholder]
+	 */
+
+	/** @type {Props} */
+	let {
+		value = $bindable(''),
+		disabled = false,
+		name = '',
+		id = '',
+		label = '',
+		required = false,
+		placeholder = ''
+	} = $props();
 
 	const dispatch = createEventDispatcher();
 
@@ -32,7 +47,8 @@
 	{required}
 	{disabled}
 	bind:value
-	on:change={handleDateChange}
+	onchange={handleDateChange}
 	class="input input-bordered w-full"
 	class:input-disabled={disabled}
+	{placeholder}
 />

@@ -1,5 +1,5 @@
 import { dbHelpers } from "./db.js";
-import { format, isToday, parseISO, isBefore, isAfter } from "date-fns";
+import { format, parseISO, isAfter } from "date-fns";
 import {
   determineAttendanceStatus,
   validateCheckInTime,

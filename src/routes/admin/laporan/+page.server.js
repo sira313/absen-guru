@@ -1,7 +1,7 @@
 import { error, redirect } from "@sveltejs/kit";
 import { db } from "$lib/server/db.js";
 import { attendance, users } from "$lib/server/schema.js";
-import { eq, and, gte, lte, desc, count, sql } from "drizzle-orm";
+import { eq, and, gte, lte, desc, count } from "drizzle-orm";
 
 export async function load({ locals, url }) {
   if (!locals.user) {

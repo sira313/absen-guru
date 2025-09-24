@@ -5,8 +5,8 @@
 	
 	// PWA install prompt
 	let deferredPrompt = null;
-	let showInstallBanner = false;
-	let isInstalled = false;
+	let showInstallBanner = $state(false);
+	let isInstalled = $state(false);
 	
 	onMount(() => {
 		// Check if already installed
@@ -100,7 +100,7 @@
 				<div class="flex flex-row lg:flex-col xl:flex-row gap-2">
 					<button 
 						class="btn btn-sm btn-ghost hover:bg-primary-content hover:text-primary flex-1 lg:flex-none"
-						on:click={dismissBanner}
+						onclick={dismissBanner}
 						title="Tutup"
 					>
 						<X class="w-4 h-4" />
@@ -109,7 +109,7 @@
 					</button>
 					<button 
 						class="btn btn-sm btn-primary-content text-primary hover:bg-white flex-1 lg:flex-none"
-						on:click={installPWA}
+						onclick={installPWA}
 					>
 						<Download class="w-4 h-4" />
 						Install

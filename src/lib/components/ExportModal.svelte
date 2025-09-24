@@ -1,3 +1,5 @@
+<!-- @migration-task Error while migrating Svelte code: `<button>` cannot be a descendant of `<button>`. The browser will 'repair' the HTML (by moving, removing, or inserting elements) which breaks Svelte's assumptions about the structure of your components.
+https://svelte.dev/e/node_invalid_placement -->
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import { Calendar, Download, X } from 'lucide-svelte';
@@ -91,11 +93,11 @@
 <!-- Modal -->
 {#if showModal}
 	<!-- Backdrop -->
-	<button 
+	<div 
 		class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
 		on:click={handleBackdrop}
 		on:keydown={(e) => e.key === 'Escape' && closeModal()}
-		aria-label="Close modal"
+		role="presentation"
 	>
 		<!-- Modal Content -->
 		<div 
@@ -240,5 +242,5 @@
 				</button>
 			</div>
 		</div>
-	</button>
+	</div>
 {/if}

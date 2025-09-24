@@ -1,7 +1,7 @@
 import ExcelJS from "exceljs";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import { sql, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { settings } from "./schema.js";
 
 const client = createClient({ url: "file:./absen.db" });
@@ -164,26 +164,6 @@ export async function generateTPPReport(
 
     // Empty row
     worksheet.getRow(5).height = 10;
-
-    // Headers setup (Row 6-7)
-    const headers = [
-      { text: "NO", rowspan: 2, colstart: "A", colend: "A" },
-      { text: "NAMA", rowspan: 2, colstart: "B", colend: "B" },
-      { text: "NIP", rowspan: 2, colstart: "C", colend: "C" },
-      { text: "JABATAN", rowspan: 2, colstart: "D", colend: "D" },
-      { text: "JUMLAH\nHARI\nKERJA", rowspan: 2, colstart: "E", colend: "E" },
-      { text: "HADIR", rowspan: 2, colstart: "F", colend: "F" },
-      { text: "ABSENSI", rowspan: 1, colstart: "G", colend: "J" },
-      { text: "KETERANGAN\nLAIN", rowspan: 1, colstart: "K", colend: "M" },
-      { text: "UPACARA", rowspan: 2, colstart: "N", colend: "N" },
-      {
-        text: "JUMLAH\nPROSENTASE\nKETIDAK-\nHADIRAN",
-        rowspan: 2,
-        colstart: "O",
-        colend: "O",
-      },
-      { text: "KETERANGAN", rowspan: 2, colstart: "P", colend: "P" },
-    ];
 
     // Main headers (Row 6)
     worksheet.mergeCells("A6:A7");

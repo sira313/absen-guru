@@ -10,9 +10,33 @@ const config = {
       envPrefix: "",
     }),
     csrf: {
-      // Universal CSRF protection - allow all origins untuk kemudahan deployment
-      // Cocok untuk local network, VPS, dan cloud deployment
-      trustedOrigins: ["*"],
+      // Modern CSRF protection with environment-based configuration
+      trustedOrigins: (() => {
+        // For network testing (when ORIGIN is set but NODE_ENV is not production)
+        // Allow the specific network origin without full production mode
+        if (process.env.ORIGIN && process.env.NODE_ENV !== "production") {
+          return [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:3000",
+            process.env.ORIGIN,
+          ];
+        }
+
+        // For production mode
+        if (process.env.NODE_ENV === "production") {
+          return process.env.ORIGIN
+            ? [process.env.ORIGIN]
+            : ["http://localhost:3000"];
+        }
+
+        // For development (default)
+        return [
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "http://localhost:3000",
+        ];
+      })(),
     },
   },
 };

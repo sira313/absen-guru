@@ -21,7 +21,12 @@ export async function GET({ locals, cookies }) {
     // Redirect to login page
     throw redirect(302, "/login");
   } catch (error) {
-    console.error("Logout error:", error);
+    // Redirect is expected behavior, not an error
+    if (error?.status === 302) {
+      console.log("Logout successful, redirecting to login");
+    } else {
+      console.error("Logout error:", error);
+    }
     // Still try to redirect to login even if logout fails
     throw redirect(302, "/login");
   }

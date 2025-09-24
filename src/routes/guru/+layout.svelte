@@ -1,20 +1,11 @@
 <script>
 	import AppLayout from '$lib/components/AppLayout.svelte';
 	
-	export let data;
+	let { data, children } = $props();
 	
-	// Handle SvelteKit props that are automatically passed to layouts
-	export let params = undefined;
-	export let url = undefined;
-	export let route = undefined;
-	export let form = undefined;
-	
-	$: ({ user } = data);
-	
-	// Mark unused props to avoid warnings
-	params, url, route, form;
+	let { user } = $derived(data);
 </script>
 
 <AppLayout {user}>
-	<slot />
+	{@render children?.()}
 </AppLayout>

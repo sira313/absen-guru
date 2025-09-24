@@ -1,9 +1,9 @@
 <script>
 	import { BarChart3, FileText, Users, Clock, Calendar, User, Settings } from 'lucide-svelte';
 	
-	export let user;
+	let { user } = $props();
 	
-	$: isAdmin = user?.role === 'admin';
+	let isAdmin = $derived(user?.role === 'admin');
 </script>
 
 <div class="drawer-side">

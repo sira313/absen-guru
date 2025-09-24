@@ -3,12 +3,9 @@
 	import { User, Lock, School, Eye, EyeOff } from 'lucide-svelte';
 	import SimpleLayout from '$lib/components/SimpleLayout.svelte';
 	
-	export let form;
+	let { form } = $props();
 	
-	let showPassword = false;
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
+	let showPassword = $state(false);
 </script>
 
 <svelte:head>
@@ -67,7 +64,7 @@
 						<button 
 							type="button" 
 							class="btn btn-circle btn-ghost btn-sm"
-							on:click={() => showPassword = !showPassword}
+							onclick={() => showPassword = !showPassword}
 						>
 							{#if showPassword}
 								<EyeOff class="w-4 h-4" />

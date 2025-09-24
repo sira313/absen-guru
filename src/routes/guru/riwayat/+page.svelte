@@ -1,23 +1,22 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { ArrowLeft, Calendar, Clock, AlertCircle } from 'lucide-svelte';
 	
-	export let data;
+	let { data } = $props();
 	
-	$: ({ user, attendanceRecords, stats, currentMonth, currentYear, monthName } = data);
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
+	let { user, attendanceRecords, stats, currentMonth, currentYear, monthName } = $derived(data);
 	
 	// Pagination state
-	let currentPage = 1;
+	let currentPage = $state(1);
 	const itemsPerPage = 10;
 	
 	// Computed pagination values
-	$: totalItems = attendanceRecords.length;
-	$: totalPages = Math.ceil(totalItems / itemsPerPage);
-	$: startIndex = (currentPage - 1) * itemsPerPage;
-	$: endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-	$: paginatedRecords = attendanceRecords.slice(startIndex, endIndex);
+	let totalItems = $derived(attendanceRecords.length);
+	let totalPages = $derived(Math.ceil(totalItems / itemsPerPage));
+	let startIndex = $derived((currentPage - 1) * itemsPerPage);
+	let endIndex = $derived(Math.min(startIndex + itemsPerPage, totalItems));
+	let paginatedRecords = $derived(attendanceRecords.slice(startIndex, endIndex));
 	
 	// Pagination functions
 	function goToPage(page) {
@@ -39,9 +38,11 @@
 	}
 	
 	// Reset pagination when data changes
-	$: if (attendanceRecords) {
-		currentPage = 1;
-	}
+	run(() => {
+		if (attendanceRecords) {
+			currentPage = 1;
+		}
+	});
 	
 	// Helper function to format date
 	function formatDate(dateString) {
@@ -132,7 +133,7 @@
 					<label class="label" for="month">
 						<span class="label-text">Bulan</span>
 					</label>
-					<select id="month" class="select select-bordered w-full sm:w-auto" bind:value={currentMonth} on:change={handleFilterChange}>
+					<select id="month" class="select select-bordered w-full sm:w-auto" bind:value={currentMonth} onchange={handleFilterChange}>
 						{#each months as month}
 							<option value={month.value}>{month.label}</option>
 						{/each}
@@ -142,7 +143,7 @@
 					<label class="label" for="year">
 						<span class="label-text">Tahun</span>
 					</label>
-					<select id="year" class="select select-bordered w-full sm:w-auto" bind:value={currentYear} on:change={handleFilterChange}>
+					<select id="year" class="select select-bordered w-full sm:w-auto" bind:value={currentYear} onchange={handleFilterChange}>
 						{#each years as year}
 							<option value={year}>{year}</option>
 						{/each}
@@ -219,7 +220,7 @@
 									<td class="font-medium">{formatDate(record.date)}</td>
 									<td>{formatTime(record.checkIn)}</td>
 									<td>
-										<span class="badge {getStatusClass(record.status)}">
+										<span class="badge text-nowrap {getStatusClass(record.status)}">
 											{getStatusText(record.status)}
 										</span>
 									</td>
@@ -240,7 +241,7 @@
 							<button 
 								class="join-item btn btn-sm" 
 								class:btn-disabled={currentPage === 1}
-								on:click={prevPage}
+								onclick={prevPage}
 							>
 								«
 							</button>
@@ -252,7 +253,7 @@
 									<button 
 										class="join-item btn btn-sm" 
 										class:btn-active={currentPage === pageNum}
-										on:click={() => goToPage(pageNum)}
+										onclick={() => goToPage(pageNum)}
 									>
 										{pageNum}
 									</button>
@@ -267,7 +268,7 @@
 							<button 
 								class="join-item btn btn-sm" 
 								class:btn-disabled={currentPage === totalPages}
-								on:click={nextPage}
+								onclick={nextPage}
 							>
 								»
 							</button>

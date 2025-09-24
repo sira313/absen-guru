@@ -64,18 +64,29 @@ if [ ! -f .env ]; then
     else
         echo "Membuat file .env default universal..."
         cat > .env << EOF
-# Absen Guru Universal Configuration
-# Works for localhost, LAN, VPS, and domain deployment
+# Absen Guru Configuration
 
-# Database
+# Database Configuration
 DATABASE_URL="file:./absen.db"
+DB_FILE_NAME=file:absen.db
 
-# Session Secret (change in production)
-SESSION_SECRET="your-super-secret-key-change-this-$(date +%s)"
-
-# Server Configuration
+# Server Configuration  
 PORT=3000
 HOST=0.0.0.0
+
+# Optional: Timezone
+TZ=Asia/Jakarta
+
+# Optional: Attendance Rules
+ATTENDANCE_CUTOFF_HOUR=8
+ATTENDANCE_LATE_MINUTES=15
+
+# Optional: App Branding
+APP_NAME="Sistem Absensi Guru"
+
+# NOTE: NODE_ENV dan ORIGIN harus di-set via command line atau environment
+# Contoh:
+# NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
 EOF
         echo "✅ File .env default dibuat"
         echo "⚠️  Silakan edit file .env untuk production"
@@ -205,27 +216,46 @@ echo ""
 echo "✨ Selamat menggunakan Absen Guru!"
 echo "🎉 Setup completed successfully!"
 echo ""
-echo "🚀 To start the application:"
+echo "🚀 Pilih cara menjalankan aplikasi:"
+echo ""
+echo "1️⃣  Development Mode (localhost + hot reload):"
+echo "     pnpm dev"
+echo "     → http://localhost:5173"
+echo ""
+echo "2️⃣  Network Access (untuk akses multi-device):"
+echo "     ./start-network.sh"
+echo "     → Auto-detect IP dan start server"
+echo ""
+echo "3️⃣  Manual Network Setup:"
+echo "     ifconfig  # atau: ip addr"
+echo "     ORIGIN=http://YOUR_IP:3000 pnpm start"
+echo "     → Ganti YOUR_IP dengan IP server Anda"
+echo ""
+echo "4️⃣  Production Mode dengan Systemd:"
 echo "     sudo systemctl start absen-guru"
+echo "     → Service otomatis dengan auto-restart"
 echo ""
-echo "📊 To check status:"
-echo "     sudo systemctl status absen-guru"
+echo "5️⃣  Production Manual:"
+echo "     NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start"
+echo "     → Untuk deployment manual"
 echo ""
-echo "📋 To view logs:"
-echo "     sudo journalctl -u absen-guru -f"
+echo "👤 Login default:"
+echo "     Username: admin"
+echo "     Password: admin123"
 echo ""
-echo "🌐 Application will be available at:"
-echo "     http://your-ip:3000"
-echo "     http://localhost:3000 (local access)"
+echo "📖 Dokumentasi lengkap:"
+echo "     - README.md - Setup dan usage guide"
+echo "     - NETWORK_SETUP.md - Network troubleshooting"
+echo "     - FIRST_INSTALL.md - Panduan instalasi detail"
 echo ""
-echo "⚠️  Important next steps:"
-echo "     1. Edit .env file with proper database and JWT settings"
-echo "     2. Create the first admin user via the web interface"
-echo "     3. Configure your router/firewall if needed"
+echo "⚠️  Penting untuk Network Access:"
+echo "     1. Gunakan ./start-network.sh untuk auto-setup"
+echo "     2. Buka port 3000 di firewall: sudo ufw allow 3000"
+echo "     3. NODE_ENV jangan di .env file (gunakan command line)"
 echo ""
-echo "📚 Tech Stack:"
-echo "     - Frontend: SvelteKit + TailwindCSS v4 + DaisyUI 5.1.13"
-echo "     - Icons: Lucide Svelte (Feather icons)"
-echo "     - Database: SQLite with better-sqlite3"
-echo "     - Authentication: JWT with secure sessions"
+echo "� Tech Stack:"
+echo "     - Frontend: SvelteKit + TailwindCSS v4 + DaisyUI 5.1.14"
+echo "     - Database: SQLite dengan Drizzle ORM"
+echo "     - Auth: Custom session management"
+echo "     - PWA: Install di mobile/desktop"
 echo ""

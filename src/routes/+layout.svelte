@@ -1,21 +1,18 @@
+<!-- @migration-task Error while migrating Svelte code: `$:` is not allowed in runes mode, use `$derived` or `$effect` instead
+https://svelte.dev/e/legacy_reactive_statement_invalid -->
 <script>
 	import '../app.css';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	
-	export let data;
+	// Use Svelte 5 $props() runes - automatically handles all SvelteKit props
+	let { data, children, ...restProps } = $props();
 	
-	// Handle SvelteKit props that are automatically passed to layouts
-	export let params = undefined;
-	export let url = undefined;
-	export let route = undefined;
-	export let form = undefined;
+	let user = $derived(data.user);
 	
-	$: user = data.user;
-	
-	// Register service worker
+	// Register service worker (only in production)
 	onMount(() => {
-		if (browser && 'serviceWorker' in navigator) {
+		if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
 			navigator.serviceWorker.register('/service-worker.js')
 				.then(registration => {
 					console.log('SW registered successfully');
@@ -25,9 +22,6 @@
 				});
 		}
 	});
-	
-	// Mark unused props to avoid warnings
-	params, url, route, form;
 </script>
 
 <svelte:head>
@@ -39,5 +33,5 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-200">
-	<slot />
+	{@render children()}
 </div>

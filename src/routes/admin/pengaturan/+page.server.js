@@ -115,7 +115,7 @@ export const actions = {
       const backupDir = path.resolve("./backups");
       try {
         await fs.mkdir(backupDir, { recursive: true });
-      } catch (e) {
+      } catch (_e) {
         // Directory might already exist
       }
 

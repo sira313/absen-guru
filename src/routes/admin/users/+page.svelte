@@ -4,22 +4,18 @@
 	import { id as localeId } from 'date-fns/locale';
 	import { Plus, ArrowLeft, Check, X, Users, Trash2, User, Mail, Lock, Shield, UserPlus, Edit3, Eye, EyeOff, Hash, BookOpen, Phone, Briefcase, Badge } from 'lucide-svelte';
 	
-	export let data;
-	export let form;
+	let { data, form } = $props();
 	
-	$: users = data.users;
-	$: searchTerm = '';
+	let users = $derived(data.users);
 	
-	// Ignore unused SvelteKit props
-	$$restProps;
 	
-	let showCreateForm = false;
-	let editingUser = null;
-	let deleteUserId = null;
-	let selectedRole = '';
-	let editSelectedRole = '';
-	let showCreatePassword = false;
-	let showEditPassword = false;
+	let showCreateForm = $state(false);
+	let editingUser = $state(null);
+	let deleteUserId = $state(null);
+	let selectedRole = $state('');
+	let editSelectedRole = $state('');
+	let showCreatePassword = $state(false);
+	let showEditPassword = $state(false);
 	
 	function showDeleteConfirm(userId, userName) {
 		if (confirm(`Yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
@@ -53,7 +49,7 @@
 		</div>
 		<div class="flex flex-col sm:flex-row gap-2">
 			<button 
-				on:click={() => {
+				onclick={() => {
 					console.log('Toggle button clicked, current state:', showCreateForm);
 					showCreateForm = !showCreateForm;
 					console.log('New state:', showCreateForm);
@@ -96,7 +92,7 @@
 					action="?/create" 
 					class="space-y-4"
 					use:enhance
-					on:submit={(e) => {
+					onsubmit={(e) => {
 						console.log('Form submit event triggered');
 						console.log('Form data:', new FormData(e.target));
 					}}
@@ -246,7 +242,7 @@
 									<button 
 										type="button" 
 										class="btn btn-circle btn-ghost btn-sm"
-										on:click={() => showCreatePassword = !showCreatePassword}
+										onclick={() => showCreatePassword = !showCreatePassword}
 									>
 										{#if showCreatePassword}
 											<EyeOff class="w-4 h-4" />
@@ -311,14 +307,14 @@
 						<button 
 							type="submit" 
 							class="btn btn-primary"
-							on:click={() => console.log('Submit button clicked')}
+							onclick={() => console.log('Submit button clicked')}
 						>
 							<Check class="w-5 h-5" />
 							Simpan User
 						</button>
 						<button 
 							type="button" 
-							on:click={() => showCreateForm = false}
+							onclick={() => showCreateForm = false}
 							class="btn btn-outline"
 						>
 							<X class="w-5 h-5" />
@@ -405,14 +401,14 @@
 								<td>
 									<div class="flex gap-2">
 										<button 
-											on:click={() => showEditForm(user)}
+											onclick={() => showEditForm(user)}
 											class="btn btn-sm btn-warning btn-outline"
 										>
 											<Edit3 class="w-4 h-4" />
 											Edit
 										</button>
 										<button 
-											on:click={() => showDeleteConfirm(user.id, user.name)}
+											onclick={() => showDeleteConfirm(user.id, user.name)}
 											class="btn btn-sm btn-error btn-outline"
 										>
 											<Trash2 class="w-4 h-4" />
@@ -445,7 +441,7 @@
 		<div class="modal-box max-w-2xl">
 			<h3 class="font-bold text-lg mb-4">Edit User</h3>
 			
-			<form method="POST" action="?/updateUser" use:enhance on:submit={() => editingUser = null}>
+			<form method="POST" action="?/updateUser" use:enhance onsubmit={() => editingUser = null}>
 				<input type="hidden" name="id" value={editingUser.id}>
 				
 				<!-- Name -->
@@ -562,7 +558,7 @@
 						<button 
 							type="button" 
 							class="btn btn-circle btn-ghost btn-sm"
-							on:click={() => showEditPassword = !showEditPassword}
+							onclick={() => showEditPassword = !showEditPassword}
 						>
 							{#if showEditPassword}
 								<EyeOff class="w-4 h-4" />
@@ -574,7 +570,7 @@
 				</div>
 
 				<div class="modal-action">
-					<button type="button" class="btn btn-ghost" on:click={cancelEdit}>
+					<button type="button" class="btn btn-ghost" onclick={cancelEdit}>
 						Batal
 					</button>
 					<button type="submit" class="btn btn-primary">

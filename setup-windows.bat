@@ -59,14 +59,21 @@ if not exist .env (
         echo ⚠️  Silakan edit file .env sesuai kebutuhan production
     ) else (
         echo Membuat file .env default universal...
-        echo # Absen Guru Universal Configuration > .env
-        echo # Works for localhost, LAN, VPS, and domain deployment >> .env
+        echo # Absen Guru Configuration > .env
         echo. >> .env
-        echo # Database >> .env
+        echo # Database Configuration >> .env
         echo DATABASE_URL="file:./absen.db" >> .env
+        echo DB_FILE_NAME=file:absen.db >> .env
         echo. >> .env
-        echo # Session Secret (MUST change in production) >> .env
-        echo SESSION_SECRET="your-super-secret-key-change-this" >> .env
+        echo # Server Configuration >> .env  
+        echo PORT=3000 >> .env
+        echo HOST=0.0.0.0 >> .env
+        echo. >> .env
+        echo # Optional: Timezone >> .env
+        echo TZ=Asia/Jakarta >> .env
+        echo. >> .env
+        echo # NOTE: NODE_ENV dan ORIGIN harus di-set via command line >> .env
+        echo # Contoh: set NODE_ENV=production ^&^& set ORIGIN=https://yourdomain.com ^&^& pnpm start >> .env
         echo. >> .env
         echo ✅ File .env default dibuat
         echo ⚠️  Silakan edit file .env untuk production
@@ -133,51 +140,43 @@ if %errorlevel% neq 0 (
 echo.
 echo 🎉 Setup berhasil diselesaikan!
 echo.
-echo 🚀 Untuk menjalankan aplikasi:
+echo 🚀 Pilih cara menjalankan aplikasi:
 echo.
-echo    Mode Development (dengan hot reload):
+echo 1️⃣  Development Mode (localhost + hot reload):
 echo      pnpm dev
+echo      → http://localhost:5173
 echo.
-echo    Mode Production:
-echo      pnpm start
+echo 2️⃣  Network Access (untuk akses mobile/tablet):
+echo      start-network.bat
+echo      → Auto-detect IP dan start server
 echo.
-echo    Preview aplikasi yang sudah di-build:
-echo      pnpm preview
+echo 3️⃣  Manual Network Setup:
+echo      ipconfig
+echo      set ORIGIN=http://YOUR_IP:3000 ^&^& pnpm start
+echo      → Ganti YOUR_IP dengan IP dari ipconfig
 echo.
-echo 🌐 Aplikasi akan tersedia di:
-echo      http://localhost:5173 (development)
-echo      http://localhost:4173 (preview)
-echo      http://localhost:3000 (production)
+echo 4️⃣  Production Mode:
+echo      set NODE_ENV=production ^&^& set ORIGIN=https://yourdomain.com ^&^& pnpm start
+echo      → Untuk deployment server
 echo.
 echo 👤 Login default:
 echo      Username: admin
 echo      Password: admin123
 echo.
-echo � PWA Support:
-echo      - Install sebagai app di mobile/desktop
-echo      - Bekerja offline (terbatas)
-echo      - Auto-update otomatis
+echo 📖 Dokumentasi lengkap:
+echo      - README.md - Setup dan usage guide
+echo      - NETWORK_SETUP.md - Network troubleshooting
+echo      - FIRST_INSTALL.md - Panduan instalasi detail
 echo.
-echo �📖 Baca FIRST_INSTALL.md untuk panduan lengkap
+echo ⚠️  Penting untuk Network Access:
+echo      1. Jalankan start-network.bat untuk auto-setup
+echo      2. Buka port 3000 di Windows Firewall
+echo      3. Pastikan device di WiFi yang sama
 echo.
-pause
-echo      http://localhost:3000 (production)
-echo      http://localhost:4173 (preview)
-echo.
-echo ⚠️  Important next steps:
-echo      1. Edit .env file with proper database and JWT settings
-echo      2. Create the first admin user via the web interface
-echo      3. Configure Windows Defender/firewall if needed
-echo.
-echo 📚 Tech Stack:
-echo      - Frontend: SvelteKit + TailwindCSS v4 + DaisyUI 5.1.13
-echo      - Icons: Lucide Svelte (Feather icons)
-echo      - Database: SQLite with better-sqlite3
-echo      - Authentication: JWT with secure sessions
-echo.
-echo 💡 Troubleshooting:
-echo      - If build fails, install Visual Studio Build Tools
-echo      - Run Windows PowerShell as Administrator if needed
-echo      - Check Windows Defender isn't blocking Node.js
+echo � Tech Stack:
+echo      - Frontend: SvelteKit + TailwindCSS v4 + DaisyUI 5.1.14
+echo      - Database: SQLite dengan Drizzle ORM
+echo      - Auth: Custom session management
+echo      - PWA: Install di mobile/desktop
 echo.
 pause

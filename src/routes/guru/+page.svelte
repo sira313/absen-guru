@@ -5,28 +5,9 @@
 	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList, Coffee } from 'lucide-svelte';
 	import PWABanner from '$lib/components/PWABanner.svelte';
 	
-	export let data;
-	export let form;
 	
-	// Handle SvelteKit props that are automatically passed to page components
-	export let params = undefined;
-	export let url = undefined;
-	export let route = undefined;
 	
-	$: user = data.user;
-	$: todayAttendance = data.todayAttendance;
-	$: stats = data.stats;
-	$: today = data.today;
-	$: isWeekend = data.isWeekend;
-	$: weekendDayName = data.weekendDayName;
-	
-	// Mark unused props to avoid warnings
-	params, url, route;
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
-	
-	let currentTime = new Date();
+	let currentTime = $state(new Date());
 	let clockInterval;
 	
 	// Update jam setiap detik
@@ -44,12 +25,11 @@
 	
 	// Jalankan clock saat component mount
 	import { onMount, onDestroy } from 'svelte';
+	let { data, form } = $props();
 	
 	onMount(startClock);
 	onDestroy(stopClock);
 	
-	$: currentTimeString = format(currentTime, 'HH:mm:ss');
-	$: todayFormatted = format(new Date(today), 'dd MMMM yyyy', { locale: localeId });
 	
 	function getStatusBadgeClass(status) {
 		switch(status) {
@@ -74,6 +54,14 @@
 			default: return status;
 		}
 	}
+	let user = $derived(data.user);
+	let todayAttendance = $derived(data.todayAttendance);
+	let stats = $derived(data.stats);
+	let today = $derived(data.today);
+	let isWeekend = $derived(data.isWeekend);
+	let weekendDayName = $derived(data.weekendDayName);
+	let currentTimeString = $derived(format(currentTime, 'HH:mm:ss'));
+	let todayFormatted = $derived(format(new Date(today), 'dd MMMM yyyy', { locale: localeId }));
 </script>
 
 <svelte:head>
@@ -261,7 +249,7 @@
 						
 						<button class="btn btn-primary btn-block btn-lg" type="submit">
 							<Clock class="w-6 h-6 mr-2" />
-							Submit Absensi
+							Kirim
 							<div class="badge badge-outline ml-2">
 								{currentTimeString.slice(0, 5)}
 							</div>
