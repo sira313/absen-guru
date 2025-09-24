@@ -72,19 +72,57 @@ Sistem manajemen absensi guru modern berbasis web untuk institusi pendidikan. Di
 
 ## 🚀 Quick Start
 
-### 💾 **Instalasi One-Click** (Recommended)
+### 💾 **Instalasi & Setup** (Recommended)
+
+**1. Clone dan Install:**
+```bash
+git clone https://github.com/sira313/absen-guru.git
+cd absen-guru
+pnpm install && pnpm build
+```
+
+**2. Pilih Mode Akses:**
+
+#### **🏠 Local Development**
+```bash
+pnpm dev
+# Akses: http://localhost:5173
+```
+
+#### **🌐 Network Access (Multi-Device)**
 
 **Windows:**
-
 ```cmd
-# Download dan jalankan setup otomatis
+# Auto-detect IP dan start server
+start-network.bat
+```
+
+**Linux/macOS:**
+```bash  
+# Auto-detect IP dan start server
+./start-network.sh
+```
+
+**Manual (All OS):**
+```bash
+# Ganti IP dengan IP komputer Anda
+ORIGIN=http://192.168.1.100:3000 pnpm start
+```
+
+#### **🚀 Production Deployment**
+```bash
+NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
+```
+
+### 📋 **Setup Otomatis (Full Installation)**
+
+**Windows:**
+```cmd
 setup-windows.bat
 ```
 
 **Linux/macOS/VPS:**
-
 ```bash
-# Download dan jalankan setup otomatis
 ./setup-linux.sh
 ```
 
@@ -133,8 +171,9 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
    # Build untuk production
    pnpm build
 
-   # Run production server
-   pnpm start
+   # Run production server with NODE_ENV
+   NODE_ENV=production pnpm start
+   # Atau gunakan: NODE_ENV=production node build
    ```
 
 3. **Akses aplikasi:**
@@ -161,35 +200,50 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
    # Build untuk production
    pnpm build
 
-   # Run production server
-   node build
-   # atau: pnpm start
+   # Run production server with NODE_ENV
+   NODE_ENV=production pnpm start
+   # Atau: NODE_ENV=production node build
    ```
 
 3. **Akses aplikasi:**
    - Production: http://localhost:3000
    - Mobile/Network: http://YOUR_IP:3000
 
-### 🌐 **Universal Deployment**
+### 🌐 **Environment Configuration**
 
-**Konfigurasi ini bekerja universal untuk:**
+**Aplikasi ini mendukung berbagai mode deployment dengan konfigurasi environment variables:**
 
-- ✅ **Local development** (localhost)
-- ✅ **Local network** (192.168.x.x, 10.x.x.x)
-- ✅ **VPS/Cloud** (any public IP)
-- ✅ **Domain name** (example.com)
+#### **1. Local Development** 
+```bash
+# Development dengan hot reload (localhost only)
+pnpm dev
+# Akses: http://localhost:5173
+```
 
-**Quick Deploy:**
+#### **2. Network Testing** 
+```bash
+# Testing di network local (akses via IP address)
+ORIGIN=http://192.168.x.x:3000 pnpm start
+# Akses: http://192.168.x.x:3000 (ganti dengan IP Anda)
+```
+
+#### **3. Production Deployment**
+```bash
+# Production server
+NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
+# Atau dengan IP: NODE_ENV=production ORIGIN=http://your-ip:3000 pnpm start
+```
+
+**Quick Deploy untuk Testing:**
 
 ```bash
 # Clone dan setup
 git clone https://github.com/sira313/absen-guru.git
 cd absen-guru
-pnpm install
+pnpm install && pnpm build
 
-# Build dan run (universal - no config needed!)
-pnpm build
-node build
+# Network testing (ganti IP sesuai dengan IP komputer Anda)
+ORIGIN=http://192.168.1.100:3000 pnpm start
 ```
 
 **PM2 Production Deploy:**
@@ -354,13 +408,14 @@ Buat file `.env` dengan konfigurasi berikut:
 ```env
 # Database
 DATABASE_URL="file:./absen.db"
-
-# Session Secret (WAJIB diubah untuk production)
-SESSION_SECRET="your-super-secret-key-change-this"
+DB_FILE_NAME=file:absen.db
 
 # Server Configuration (opsional)
 PORT=3000
 HOST=0.0.0.0
+
+# Production only - set ORIGIN untuk CSRF protection
+# ORIGIN=https://yourdomain.com
 ```
 
 ### Database Schema
@@ -376,34 +431,35 @@ Sistem menggunakan SQLite dengan tabel utama:
 ### Scripts Tersedia
 
 ```bash
-# Development dengan hot reload
-pnpm dev
+# Development
+pnpm dev                    # Development dengan hot reload (localhost:5173)
+pnpm preview               # Preview build hasil
 
-# Build untuk production
-pnpm build
+# Production  
+pnpm build                 # Build untuk production
+pnpm start                 # Start production server (localhost:3000)
+pnpm start:prod           # Start dengan NODE_ENV=production
+pnpm start:network        # Info untuk network access
 
-# Start production server
-pnpm start
+# Network Access (Auto IP Detection)
+./start-network.sh        # Linux/macOS - auto detect IP
+start-network.bat         # Windows - auto detect IP  
 
-# Preview build hasil
-pnpm preview
+# Manual Network Setup
+ORIGIN=http://192.168.1.100:3000 pnpm start   # Manual IP setup
 
-# Type checking
-pnpm check
+# Development Tools
+pnpm check                # Type checking
+pnpm lint                 # Linting
+pnpm format              # Code formatting  
 
-# Linting
-pnpm lint
+# Database
+pnpm db:push             # Apply schema changes
+pnpm db:studio          # Open database GUI  
+pnpm db:seed            # Seed initial data
 
-# Code formatting
-pnpm format
-
-# Database operations
-pnpm db:push     # Apply schema changes
-pnpm db:studio   # Open database GUI
-pnpm db:seed     # Seed initial data
-
-# One-command setup
-pnpm setup       # Install + db:push + db:seed
+# Setup
+pnpm setup              # One-command: install + db:push + db:seed
 ```
 
 ### Database Management
@@ -418,16 +474,95 @@ node scripts/setup-school-settings.js
 
 ## 🚀 Deployment
 
-### 🌐 **Universal Configuration** (v2.0.0)
+### 🔐 **Secure CSRF Configuration** (v2.0.0)
 
-Aplikasi ini menggunakan **universal CSRF configuration** yang secara otomatis berfungsi di semua environment:
+Aplikasi menggunakan **proper CSRF protection** dengan konfigurasi yang aman:
 
-- ✅ **Localhost** - `http://localhost:3000`
-- ✅ **LAN Network** - `http://192.168.1.100:3000`
-- ✅ **VPS/Server** - `http://your-vps-ip:3000`
-- ✅ **Domain** - `https://your-domain.com`
+- ✅ **Development** - Auto-detect localhost ports (5173, 5174, 3000)
+- ✅ **Production** - Menggunakan `ORIGIN` environment variable untuk security
 
-**Tidak perlu setting khusus** untuk ORIGIN atau CSRF - aplikasi otomatis mendeteksi environment yang tepat!
+**🚨 WAJIB untuk Production:**
+Set environment variable `ORIGIN` sesuai domain/IP server Anda:
+
+```bash
+Untuk production dengan domain dan HTTPS:
+
+```env
+# Contoh untuk domain
+ORIGIN=https://yourdomain.com
+
+# Contoh untuk VPS dengan IP
+ORIGIN=http://your-server-ip:3000
+
+# Contoh untuk subdomain
+ORIGIN=https://absen-guru.example.com
+```
+
+## 🔧 **Environment Variables Guide**
+
+### **NODE_ENV Configuration**
+
+⚠️ **PENTING**: `NODE_ENV` tidak boleh di-set di file `.env` (tidak didukung Vite). Gunakan command line atau environment variables.
+
+```bash
+# ❌ SALAH - di file .env
+NODE_ENV=production
+
+# ✅ BENAR - via command line
+NODE_ENV=production pnpm start
+```
+
+### **CSRF & Network Access**
+
+Aplikasi menggunakan CSRF protection yang berbeda berdasarkan environment:
+
+#### **Development Mode** (default)
+```bash
+pnpm dev
+# - CSRF checks disabled
+# - Akses: localhost only
+```
+
+#### **Network Testing Mode** 
+```bash
+ORIGIN=http://192.168.x.x:3000 pnpm start  
+# - CSRF allows network origin
+# - NODE_ENV masih development
+# - Akses: localhost + network IP
+```
+
+#### **Production Mode**
+```bash  
+NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
+# - CSRF strict mode
+# - Only specified origin allowed
+# - Optimized performance
+```
+
+### **Troubleshooting Network Access**
+
+**Masalah**: Login gagal dengan error 403 Forbidden
+
+**Solusi**:
+1. **Pastikan ORIGIN di-set dengan benar**:
+   ```bash
+   # Ganti dengan IP komputer Anda
+   ORIGIN=http://192.168.1.100:3000 pnpm start
+   ```
+
+2. **Cek IP address komputer**:
+   ```bash
+   # Windows
+   ipconfig
+   
+   # Linux/Mac  
+   ifconfig
+   ```
+
+3. **Pastikan port tidak terblokir firewall**
+
+📖 **Untuk panduan lengkap network setup dan troubleshooting, lihat: [NETWORK_SETUP.md](./NETWORK_SETUP.md)**
+```
 
 ### 📦 **VPS Deployment dengan PM2**
 

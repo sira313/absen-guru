@@ -249,7 +249,7 @@
 						
 						<button class="btn btn-primary btn-block btn-lg" type="submit">
 							<Clock class="w-6 h-6 mr-2" />
-							Submit Absensi
+							Kirim
 							<div class="badge badge-outline ml-2">
 								{currentTimeString.slice(0, 5)}
 							</div>

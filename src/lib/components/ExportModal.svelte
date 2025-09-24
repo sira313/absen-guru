@@ -93,11 +93,11 @@ https://svelte.dev/e/node_invalid_placement -->
 <!-- Modal -->
 {#if showModal}
 	<!-- Backdrop -->
-	<button 
+	<div 
 		class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
 		on:click={handleBackdrop}
 		on:keydown={(e) => e.key === 'Escape' && closeModal()}
-		aria-label="Close modal"
+		role="presentation"
 	>
 		<!-- Modal Content -->
 		<div 
@@ -242,5 +242,5 @@ https://svelte.dev/e/node_invalid_placement -->
 				</button>
 			</div>
 		</div>
-	</button>
+	</div>
 {/if}
