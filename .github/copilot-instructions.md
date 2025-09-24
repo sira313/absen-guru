@@ -4,6 +4,23 @@
 
 `absen-guru` is an attendance management system designed for educational institutions, focusing on teacher attendance tracking and management.
 
+## Development Environment
+
+### Operating System & Package Manager
+
+- **OS**: Windows 11
+- **Package Manager**: pnpm (required for all package management operations)
+- **Shell**: bash.exe (default shell for terminal commands)
+
+### Commands Convention
+
+- Always use pnpm commands: `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm add`, `pnpm remove`
+- Development server: `pnpm dev --port 5174`
+- Terminal commands should be compatible with bash.exe on Windows
+- File paths use Windows format with drive letters (C:\Users\...)
+- **Process Management**: Windows doesn't have `pkill` - use `taskkill //F //IM node.exe` instead
+- **Process Stop**: Use Ctrl+C in terminal or `taskkill` for forceful termination
+
 ## Architecture Guidelines
 
 ### Core Domain Concepts
@@ -24,9 +41,12 @@ When developing this system, consider these typical components:
 - **Reporting Engine**: Generate attendance reports and analytics
 - **Notification System**: Alerts for absences and schedule changes
 
-### Svelte + DaisyUI Implementation Patterns
+### Svelte 5 + DaisyUI Implementation Patterns
 
-- **Attendance Forms**: Use DaisyUI 5.1.13 form components with Svelte's bind directives
+- **Svelte Version**: Use Svelte 5.39.5 with modern runes syntax ($props, $state, $derived)
+- **Props Handling**: Use `let { data, ...props } = $props()` instead of `export let` for cleaner prop management
+- **State Management**: Use `let state = $state()` for reactive state instead of `let` variables
+- **Attendance Forms**: Use DaisyUI 5.1.13 form components with Svelte 5's bind directives
 - **Data Tables**: Implement attendance lists using DaisyUI table classes with Svelte's reactive filtering
 - **Dashboard Cards**: Use DaisyUI card components for attendance statistics and summaries
 - **Modal Dialogs**: DaisyUI modals for attendance confirmation and editing

@@ -8,9 +8,6 @@
 	$: stats = data.stats;
 	$: recentAttendance = data.recentAttendance;
 	$: users = data.users;
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
 
 	// Helper functions for status display
 	function getStatusClass(status) {

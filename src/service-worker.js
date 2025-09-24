@@ -1,12 +1,15 @@
-import { build, files, version } from "$service-worker";
-
-// Create unique cache name
-const CACHE = `cache-${version}`;
+// Service Worker untuk PWA
+const CACHE_VERSION = '1.0.0';
+const CACHE = `cache-${CACHE_VERSION}`;
 
 // Assets to cache (app shell)
 const ASSETS = [
-  ...build, // the app itself
-  ...files, // static files
+  '/',
+  '/favicon.png',
+  '/favicon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/manifest.json'
 ];
 
 // Install service worker

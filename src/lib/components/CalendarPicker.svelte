@@ -7,6 +7,7 @@
 	export let id = '';
 	export let label = '';
 	export let required = false;
+	export let placeholder = '';
 
 	const dispatch = createEventDispatcher();
 
@@ -35,4 +36,5 @@
 	on:change={handleDateChange}
 	class="input input-bordered w-full"
 	class:input-disabled={disabled}
+	{placeholder}
 />

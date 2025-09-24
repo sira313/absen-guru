@@ -6,9 +6,6 @@
 	export let form;
 	
 	let showPassword = false;
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
 </script>
 
 <svelte:head>

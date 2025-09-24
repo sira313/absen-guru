@@ -10,9 +10,6 @@
 	
 	export let data;
 	
-	// Ignore unused SvelteKit props
-	$$restProps;
-	
 	$: attendanceRecords = data.attendanceRecords;
 	$: stats = data.stats;
 	$: allUsers = data.allUsers;

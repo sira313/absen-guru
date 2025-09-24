@@ -8,23 +8,12 @@
 	export let data;
 	export let form;
 	
-	// Handle SvelteKit props that are automatically passed to page components
-	export let params = undefined;
-	export let url = undefined;
-	export let route = undefined;
-	
 	$: user = data.user;
 	$: todayAttendance = data.todayAttendance;
 	$: stats = data.stats;
 	$: today = data.today;
 	$: isWeekend = data.isWeekend;
 	$: weekendDayName = data.weekendDayName;
-	
-	// Mark unused props to avoid warnings
-	params, url, route;
-	
-	// Ignore unused SvelteKit props
-	$$restProps;
 	
 	let currentTime = new Date();
 	let clockInterval;

@@ -6,17 +6,9 @@
 	export let data;
 	export let form;
 	
-	// Handle SvelteKit props that are automatically passed to page components
-	export let params = undefined;
-	export let url = undefined;
-	export let route = undefined;
-	
 	$: user = data.user;
 	$: schoolSettings = data.schoolSettings;
 	$: kepalaSekolahUsers = data.kepalaSekolahUsers || [];
-	
-	// Mark unused props to avoid warnings
-	params, url, route;
 
 	// Selected kepala sekolah
 	let selectedKepalaSekolahId = '';

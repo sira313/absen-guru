@@ -5,9 +5,6 @@
 	
 	$: ({ user, attendanceRecords, stats, currentMonth, currentYear, monthName } = data);
 	
-	// Ignore unused SvelteKit props
-	$$restProps;
-	
 	// Pagination state
 	let currentPage = 1;
 	const itemsPerPage = 10;

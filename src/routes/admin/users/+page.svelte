@@ -10,9 +10,6 @@
 	$: users = data.users;
 	$: searchTerm = '';
 	
-	// Ignore unused SvelteKit props
-	$$restProps;
-	
 	let showCreateForm = false;
 	let editingUser = null;
 	let deleteUserId = null;
