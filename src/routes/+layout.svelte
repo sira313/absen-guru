@@ -1,12 +1,14 @@
+<!-- @migration-task Error while migrating Svelte code: `$:` is not allowed in runes mode, use `$derived` or `$effect` instead
+https://svelte.dev/e/legacy_reactive_statement_invalid -->
 <script>
 	import '../app.css';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	
 	// Use Svelte 5 $props() runes - automatically handles all SvelteKit props
-	let { data, ...restProps } = $props();
+	let { data, children, ...restProps } = $props();
 	
-	$: user = data.user;
+	let user = $derived(data.user);
 	
 	// Register service worker (only in production)
 	onMount(() => {
@@ -31,5 +33,5 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-200">
-	<slot />
+	{@render children()}
 </div>

@@ -4,10 +4,10 @@
 	import { Users, FileText, TrendingUp, TrendingDown, Clock, UserCheck, Database } from 'lucide-svelte';
 	import PWABanner from '$lib/components/PWABanner.svelte';
 	
-	export let data;
-	$: stats = data.stats;
-	$: recentAttendance = data.recentAttendance;
-	$: users = data.users;
+	let { data } = $props();
+	let stats = $derived(data.stats);
+	let recentAttendance = $derived(data.recentAttendance);
+	let users = $derived(data.users);
 
 	// Helper functions for status display
 	function getStatusClass(status) {
@@ -27,7 +27,7 @@
 	}
 
 	// Function to handle backup download
-	let isBackingUp = false;
+	let isBackingUp = $state(false);
 	
 	async function handleBackupDownload() {
 		isBackingUp = true;
@@ -140,7 +140,7 @@
 					type="button" 
 					class="btn btn-success btn-outline btn-lg w-full"
 					disabled={isBackingUp}
-					on:click={handleBackupDownload}
+					onclick={handleBackupDownload}
 				>
 					<Database class="w-5 h-5 mr-2" />
 					{isBackingUp ? 'Mendownload...' : 'Download Backup'}

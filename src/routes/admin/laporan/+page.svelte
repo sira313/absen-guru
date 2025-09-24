@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { enhance } from '$app/forms';
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
@@ -8,26 +10,26 @@
 	import CalendarPicker from '$lib/components/CalendarPicker.svelte';
 	import ExportModal from '$lib/components/ExportModal.svelte';
 	
-	export let data;
+	let { data } = $props();
 	
-	$: attendanceRecords = data.attendanceRecords;
-	$: stats = data.stats;
-	$: allUsers = data.allUsers;
-	$: filters = data.filters;
+	let attendanceRecords = $derived(data.attendanceRecords);
+	let stats = $derived(data.stats);
+	let allUsers = $derived(data.allUsers);
+	let filters = $derived(data.filters);
 	
 	// Export modal state
-	let showExportModal = false;
+	let showExportModal = $state(false);
 
 	// Pagination state
-	let currentPage = 1;
+	let currentPage = $state(1);
 	const itemsPerPage = 10;
 	
 	// Computed pagination values
-	$: totalItems = attendanceRecords.length;
-	$: totalPages = Math.ceil(totalItems / itemsPerPage);
-	$: startIndex = (currentPage - 1) * itemsPerPage;
-	$: endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-	$: paginatedRecords = attendanceRecords.slice(startIndex, endIndex);
+	let totalItems = $derived(attendanceRecords.length);
+	let totalPages = $derived(Math.ceil(totalItems / itemsPerPage));
+	let startIndex = $derived((currentPage - 1) * itemsPerPage);
+	let endIndex = $derived(Math.min(startIndex + itemsPerPage, totalItems));
+	let paginatedRecords = $derived(attendanceRecords.slice(startIndex, endIndex));
 	
 	// Pagination functions
 	function goToPage(page) {
@@ -49,9 +51,11 @@
 	}
 	
 	// Reset to first page when filters change
-	$: if (attendanceRecords) {
-		currentPage = 1;
-	}
+	run(() => {
+		if (attendanceRecords) {
+			currentPage = 1;
+		}
+	});
 
 	function getStatusBadgeClass(status) {
 		switch(status) {
@@ -168,13 +172,13 @@
 		</div>
 		<div class="flex flex-col sm:flex-row gap-2">
 			<button 
-				on:click={() => showExportModal = true} 
+				onclick={() => showExportModal = true} 
 				class="btn btn-primary"
 			>
 				<Download class="w-5 h-5" />
 				Export Excel
 			</button>
-			<button on:click={exportToCSV} class="btn btn-outline">
+			<button onclick={exportToCSV} class="btn btn-outline">
 				<Download class="w-5 h-5" />
 				Export CSV
 			</button>
@@ -251,7 +255,7 @@
 				<button 
 					id="filter-button"
 					type="button" 
-					on:click={handleFilterChange}
+					onclick={handleFilterChange}
 					class="btn btn-primary"
 				>
 					<Filter class="w-4 h-4" />
@@ -341,7 +345,7 @@
 								<button 
 									class="join-item btn btn-sm" 
 									class:btn-disabled={currentPage === 1}
-									on:click={prevPage}
+									onclick={prevPage}
 								>
 									«
 								</button>
@@ -353,7 +357,7 @@
 										<button 
 											class="join-item btn btn-sm" 
 											class:btn-active={currentPage === pageNum}
-											on:click={() => goToPage(pageNum)}
+											onclick={() => goToPage(pageNum)}
 										>
 											{pageNum}
 										</button>
@@ -368,7 +372,7 @@
 								<button 
 									class="join-item btn btn-sm" 
 									class:btn-disabled={currentPage === totalPages}
-									on:click={nextPage}
+									onclick={nextPage}
 								>
 									»
 								</button>

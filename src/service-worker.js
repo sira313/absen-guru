@@ -1,15 +1,15 @@
 // Service Worker untuk PWA
-const CACHE_VERSION = '1.0.0';
+const CACHE_VERSION = "1.0.0";
 const CACHE = `cache-${CACHE_VERSION}`;
 
 // Assets to cache (app shell)
 const ASSETS = [
-  '/',
-  '/favicon.png',
-  '/favicon.svg',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/manifest.json'
+  "/",
+  "/favicon.png",
+  "/favicon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/manifest.json",
 ];
 
 // Install service worker

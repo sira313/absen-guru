@@ -1,15 +1,26 @@
 <script>
 	import { User, Menu, Sun, Moon, LogOut, BarChart3, Clock } from 'lucide-svelte';
 	
-	export let user;
-	export let showDrawerToggle = true;
-	export let title = '';
-	export let homeUrl = '';
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} user
+	 * @property {boolean} [showDrawerToggle]
+	 * @property {string} [title]
+	 * @property {string} [homeUrl]
+	 */
+
+	/** @type {Props} */
+	let {
+		user,
+		showDrawerToggle = true,
+		title = '',
+		homeUrl = ''
+	} = $props();
 	
 	// Computed properties
-	$: isAdmin = user?.role === 'admin';
-	$: displayTitle = title || (isAdmin ? 'Admin Panel - Absen Guru' : 'Absen Guru');
-	$: defaultHomeUrl = homeUrl || (isAdmin ? '/admin' : '/guru');
+	let isAdmin = $derived(user?.role === 'admin');
+	let displayTitle = $derived(title || (isAdmin ? 'Admin Panel - Absen Guru' : 'Absen Guru'));
+	let defaultHomeUrl = $derived(homeUrl || (isAdmin ? '/admin' : '/guru'));
 </script>
 
 <div class="navbar bg-base-100 shadow-sm sticky top-0 z-30 px-2 sm:px-4">

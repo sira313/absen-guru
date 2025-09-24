@@ -3,14 +3,13 @@
 	import { User, Lock, Save, Eye, EyeOff } from 'lucide-svelte';
 	import AppLayout from '$lib/components/AppLayout.svelte';
 	
-	export let data;
-	export let form;
+	let { data, form } = $props();
 	
-	let showCurrentPassword = false;
-	let showNewPassword = false;
-	let showConfirmPassword = false;
+	let showCurrentPassword = $state(false);
+	let showNewPassword = $state(false);
+	let showConfirmPassword = $state(false);
 
-	$: user = data.user;
+	let user = $derived(data.user);
 </script>
 
 <svelte:head>
@@ -205,7 +204,7 @@
 							<button 
 								type="button" 
 								class="btn btn-circle btn-ghost btn-sm"
-								on:click={() => showCurrentPassword = !showCurrentPassword}
+								onclick={() => showCurrentPassword = !showCurrentPassword}
 							>
 								{#if showCurrentPassword}
 									<EyeOff class="w-4 h-4" />
@@ -231,7 +230,7 @@
 							<button 
 								type="button" 
 								class="btn btn-circle btn-ghost btn-sm"
-								on:click={() => showNewPassword = !showNewPassword}
+								onclick={() => showNewPassword = !showNewPassword}
 							>
 								{#if showNewPassword}
 									<EyeOff class="w-4 h-4" />
@@ -257,7 +256,7 @@
 							<button 
 								type="button" 
 								class="btn btn-circle btn-ghost btn-sm"
-								on:click={() => showConfirmPassword = !showConfirmPassword}
+								onclick={() => showConfirmPassword = !showConfirmPassword}
 							>
 								{#if showConfirmPassword}
 									<EyeOff class="w-4 h-4" />
@@ -278,5 +277,6 @@
 				</form>
 			</div>
 		</div>
+	</div>
 	</div>
 </AppLayout>

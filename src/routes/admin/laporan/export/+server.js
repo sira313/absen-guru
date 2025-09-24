@@ -70,7 +70,10 @@ export async function POST({ request, url }) {
     // Validasi workbook
     if (!workbook || typeof workbook.xlsx.writeBuffer !== "function") {
       console.error("Workbook invalid:", workbook);
-      throw error(500, "Workbook generation failed. Silakan cek data dan parameter ekspor.");
+      throw error(
+        500,
+        "Workbook generation failed. Silakan cek data dan parameter ekspor.",
+      );
     }
 
     let buffer;

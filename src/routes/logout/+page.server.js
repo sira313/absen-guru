@@ -2,6 +2,6 @@
 export async function load() {
   // Return empty data object to prevent layout errors
   return {
-    user: null
+    user: null,
   };
 }

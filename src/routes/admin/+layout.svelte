@@ -1,11 +1,11 @@
 <script>
 	import AppLayout from '$lib/components/AppLayout.svelte';
 	
-	export let data;
+	let { data, children } = $props();
 	
-	$: ({ user } = data);
+	let { user } = $derived(data);
 </script>
 
 <AppLayout {user}>
-	<slot />
+	{@render children?.()}
 </AppLayout>

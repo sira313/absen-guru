@@ -1,20 +1,21 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { School, Database, Download, Upload, Save, Building, MapPin, Phone, Mail, Hash } from 'lucide-svelte';
 	
-	export let data;
-	export let form;
+	let { data, form } = $props();
 	
-	$: user = data.user;
-	$: schoolSettings = data.schoolSettings;
-	$: kepalaSekolahUsers = data.kepalaSekolahUsers || [];
+	let user = $derived(data.user);
+	let schoolSettings = $derived(data.schoolSettings);
+	let kepalaSekolahUsers = $derived(data.kepalaSekolahUsers || []);
 
 	// Selected kepala sekolah
-	let selectedKepalaSekolahId = '';
+	let selectedKepalaSekolahId = $state('');
 	
 	// Initialize selected kepala sekolah from settings
-	$: {
+	run(() => {
 		if (schoolSettings && schoolSettings.school_principal_name && kepalaSekolahUsers.length > 0) {
 			// Try to find matching kepala sekolah by name and NIP
 			const matchingUser = kepalaSekolahUsers.find(u => 
@@ -25,10 +26,10 @@
 				selectedKepalaSekolahId = matchingUser.id;
 			}
 		}
-	}
+	});
 	
 	// Get selected kepala sekolah data
-	$: selectedKepalaSekolah = kepalaSekolahUsers.find(u => u.id === selectedKepalaSekolahId);
+	let selectedKepalaSekolah = $derived(kepalaSekolahUsers.find(u => u.id === selectedKepalaSekolahId));
 
 	// Enhanced form handler untuk update data setelah submit
 	const handleSchoolFormEnhance = () => {

@@ -1,8 +1,15 @@
 <script>
 	import { User, Sun, Moon } from 'lucide-svelte';
 	
-	export let title = 'Absen Guru';
-	export let showThemeToggle = true;
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [title]
+	 * @property {boolean} [showThemeToggle]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { title = 'Absen Guru', showThemeToggle = true, children } = $props();
 </script>
 
 <div class="min-h-screen bg-base-200">
@@ -28,6 +35,6 @@
 	
 	<!-- Page content -->
 	<main class="container mx-auto px-4 py-8">
-		<slot />
+		{@render children?.()}
 	</main>
 </div>

@@ -3,10 +3,23 @@
 	import Navbar from './Navbar.svelte';
 	import Sidebar from './Sidebar.svelte';
 	
-	export let user;
-	export let showSidebar = true;
-	export let navbarTitle = '';
-	export let navbarHomeUrl = '';
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} user
+	 * @property {boolean} [showSidebar]
+	 * @property {string} [navbarTitle]
+	 * @property {string} [navbarHomeUrl]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let {
+		user,
+		showSidebar = true,
+		navbarTitle = '',
+		navbarHomeUrl = '',
+		children
+	} = $props();
 </script>
 
 <div class="drawer {showSidebar ? 'lg:drawer-open' : ''}">
@@ -23,7 +36,7 @@
 		
 		<!-- Page content -->
 		<main class="flex-1 p-4 lg:p-6">
-			<slot />
+			{@render children?.()}
 		</main>
 	</div>
 	
