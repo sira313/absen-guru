@@ -2,13 +2,29 @@
 <html lang="id" data-theme="light">
   <head>
     <script>
-      // Set theme from localStorage before SvelteKit loads
+      // Set theme from localStorage or system preference before SvelteKit loads
       try {
-        const theme = localStorage.getItem("theme");
-        if (theme) {
-          document.documentElement.setAttribute("data-theme", theme);
+        const THEME_KEY = 'selected-theme';
+        const saved = localStorage.getItem(THEME_KEY);
+        
+        let theme;
+        if (saved) {
+          // User sudah pernah memilih tema
+          theme = saved;
+        } else {
+          // Deteksi tema sistem jika user belum pernah memilih
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          } else {
+            theme = 'light';
+          }
         }
-      } catch (e) {}
+        
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {
+        // Fallback ke light theme jika ada error
+        document.documentElement.setAttribute("data-theme", "light");
+      }
     </script>
     <meta charset="utf-8" />
     <link

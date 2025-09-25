@@ -11,28 +11,51 @@
 	
 	let showCreateForm = $state(false);
 	let editingUser = $state(null);
-	let deleteUserId = $state(null);
 	let selectedRole = $state('');
 	let editSelectedRole = $state('');
+	let editSelectedEmployeeType = $state('');
 	let showCreatePassword = $state(false);
 	let showEditPassword = $state(false);
+	let deleteConfirmModal = $state({ show: false, userId: null, userName: '' });
 	
 	function showDeleteConfirm(userId, userName) {
-		if (confirm(`Yakin ingin menghapus user "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
-			deleteUserId = userId;
-			document.getElementById('deleteForm').requestSubmit();
+		deleteConfirmModal = { show: true, userId, userName };
+	}
+	
+	function confirmDelete() {
+		if (deleteConfirmModal.userId) {
+			// Create a temporary form element and submit it
+			const form = document.createElement('form');
+			form.method = 'POST';
+			form.action = '?/delete';
+			
+			const userIdInput = document.createElement('input');
+			userIdInput.type = 'hidden';
+			userIdInput.name = 'userId';
+			userIdInput.value = deleteConfirmModal.userId;
+			
+			form.appendChild(userIdInput);
+			document.body.appendChild(form);
+			form.submit();
 		}
+		deleteConfirmModal = { show: false, userId: null, userName: '' };
+	}
+	
+	function cancelDelete() {
+		deleteConfirmModal = { show: false, userId: null, userName: '' };
 	}
 
 	function showEditForm(user) {
 		editingUser = { ...user };
 		editSelectedRole = user.role;
+		editSelectedEmployeeType = user.employeeType || '';
 		showCreateForm = false; // Close create form if open
 	}
 
 	function cancelEdit() {
 		editingUser = null;
 		editSelectedRole = '';
+		editSelectedEmployeeType = '';
 	}
 </script>
 
@@ -91,10 +114,17 @@
 					method="POST" 
 					action="?/create" 
 					class="space-y-4"
-					use:enhance
-					onsubmit={(e) => {
-						console.log('Form submit event triggered');
-						console.log('Form data:', new FormData(e.target));
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success') {
+								// Reset form fields
+								selectedRole = '';
+								showCreatePassword = false;
+								// Close form
+								showCreateForm = false;
+							}
+							await update();
+						};
 					}}
 				>
 					<div class="space-y-4">
@@ -263,8 +293,8 @@
 								<div class="relative">
 									<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
 									<select 
-										id="employeeType"
-										name="employeeType" 
+										id="employee_type"
+										name="employee_type" 
 										required
 										class="select select-bordered w-full pl-10"
 									>
@@ -292,7 +322,7 @@
 									/>
 								</div>
 								<div class="label">
-									<span class="label-text-alt text-base-content/70">
+									<span class="label-text-alt text-base-content/70 text-wrap">
 										Ketik jabatan guru, misalnya: "Guru Kelas 5A", "Guru Matematika", "Kepala Sekolah", dll
 									</span>
 								</div>
@@ -441,8 +471,18 @@
 		<div class="modal-box max-w-2xl">
 			<h3 class="font-bold text-lg mb-4">Edit User</h3>
 			
-			<form method="POST" action="?/updateUser" use:enhance onsubmit={() => editingUser = null}>
-				<input type="hidden" name="id" value={editingUser.id}>
+			<form method="POST" action="?/updateUser" use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						// Close modal first, then update
+						editingUser = null;
+						editSelectedRole = '';
+						editSelectedEmployeeType = '';
+					}
+					await update();
+				};
+			}}>
+				<input type="hidden" name="id" value={editingUser?.id}>
 				
 				<!-- Name -->
 				<div class="form-control mb-4">
@@ -455,7 +495,7 @@
 							type="text" 
 							id="edit-name"
 							name="name" 
-							value={editingUser.name}
+							value={editingUser?.name || ''}
 							class="grow" 
 							required 
 						/>
@@ -473,7 +513,7 @@
 							type="email" 
 							id="edit-email"
 							name="email" 
-							value={editingUser.email}
+							value={editingUser?.email || ''}
 							class="grow" 
 							required 
 						/>
@@ -504,11 +544,11 @@
 						</label>
 						<div class="relative">
 							<Briefcase class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/50 z-10 pointer-events-none" />
-							<select id="edit-employee-type" name="employee_type" class="select select-bordered w-full pl-10">
+							<select id="edit-employee-type" name="employee_type" class="select select-bordered w-full pl-10" bind:value={editSelectedEmployeeType}>
 								<option value="">Pilih Status</option>
-								<option value="PNS" selected={editingUser.employee_type === 'PNS'}>PNS</option>
-								<option value="PPPK" selected={editingUser.employee_type === 'PPPK'}>PPPK</option>
-								<option value="Honorer" selected={editingUser.employee_type === 'Honorer'}>Honorer</option>
+								<option value="PNS">PNS (Pegawai Negeri Sipil)</option>
+								<option value="PPPK">PPPK (Pegawai Pemerintah dengan Perjanjian Kerja)</option>
+								<option value="Honorer">Honorer</option>
 							</select>
 						</div>
 					</div>
@@ -523,13 +563,13 @@
 								id="edit-position" 
 								name="position" 
 								type="text"
-								bind:value={editingUser.position}
+								value={editingUser?.position || ''}
 								placeholder="Contoh: Guru Kelas, Guru Matematika, Wali Kelas, dll"
 								class="input input-bordered w-full pl-10"
 							/>
 						</div>
 						<div class="label">
-							<span class="label-text-alt text-base-content/70">
+							<span class="label-text-alt text-base-content/70 text-wrap">
 								Ketik jabatan guru, misalnya: "Guru Kelas 5A", "Guru Matematika", "Kepala Sekolah", dll
 							</span>
 						</div>
@@ -582,8 +622,41 @@
 	</div>
 	{/if}
 
-	<!-- Hidden Delete Form -->
-	<form id="deleteForm" method="POST" action="?/delete" use:enhance style="display: none;">
-		<input type="hidden" name="userId" value={deleteUserId} />
-	</form>
+	<!-- Delete Confirmation Modal -->
+	{#if deleteConfirmModal.show}
+	<div class="modal modal-open">
+		<div class="modal-box">
+			<h3 class="font-bold text-lg text-error">
+				<Trash2 class="w-5 h-5 inline mr-2" />
+				Konfirmasi Hapus User
+			</h3>
+			
+			<p class="py-4">
+				Yakin ingin menghapus user <strong>"{deleteConfirmModal.userName}"</strong>?
+			</p>
+			
+			<div class="bg-warning/20 border border-warning rounded-lg p-3 mb-4">
+				<div class="flex items-center gap-2 text-warning">
+					<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+					</svg>
+					<span class="text-sm font-medium">
+						Peringatan: Tindakan ini tidak dapat dibatalkan!
+					</span>
+				</div>
+			</div>
+
+			<div class="modal-action">
+				<button type="button" class="btn btn-ghost" onclick={cancelDelete}>
+					Batal
+				</button>
+				<button type="button" class="btn btn-error" onclick={confirmDelete}>
+					<Trash2 class="w-4 h-4 mr-2" />
+					Ya, Hapus User
+				</button>
+			</div>
+		</div>
+	</div>
+	{/if}
+
 </div>

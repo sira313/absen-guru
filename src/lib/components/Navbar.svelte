@@ -1,5 +1,6 @@
 <script>
-	import { User, Menu, Sun, Moon, LogOut, BarChart3, Clock } from 'lucide-svelte';
+	import { User, Menu, LogOut, BarChart3, Clock } from 'lucide-svelte';
+	import ThemeController from './ThemeController.svelte';
 	
 	/**
 	 * @typedef {Object} Props
@@ -66,13 +67,10 @@
 	<div class="flex-none">
 		<div class="flex items-center gap-1 sm:gap-2">
 			<!-- Theme Controller -->
-			<label class="swap swap-rotate btn btn-ghost btn-sm btn-circle">
-				<input type="checkbox" class="theme-controller" value="dark" />
-				<Sun class="swap-off h-4 w-4 sm:h-5 sm:w-5 fill-current" />
-				<Moon class="swap-on h-4 w-4 sm:h-5 sm:w-5 fill-current" />
-			</label>
+			<ThemeController />
 			
-			<!-- User Profile Dropdown -->
+			<!-- User Profile Dropdown or Login Link -->
+			{#if user}
 			<div class="dropdown dropdown-end">
 				<div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm sm:btn-md hover:scale-105 transition-transform duration-200">
 					<div class="avatar">
@@ -129,6 +127,13 @@
 					</li>
 				</ul>
 			</div>
+			{:else}
+			<!-- Login Link for non-authenticated users -->
+			<a href="/login" class="btn btn-primary btn-sm">
+				<User class="w-4 h-4" />
+				Login
+			</a>
+			{/if}
 		</div>
 	</div>
 </div>

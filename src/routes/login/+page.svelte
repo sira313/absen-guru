@@ -6,6 +6,8 @@
 	let { form } = $props();
 	
 	let showPassword = $state(false);
+	let username = $state(form?.username ?? '');
+	let password = $state('');
 </script>
 
 <svelte:head>
@@ -40,7 +42,7 @@
 							placeholder="Masukkan username" 
 							class="grow"
 							class:input-error={form?.message}
-							value={form?.username ?? ''}
+							bind:value={username}
 							required 
 						/>
 					</label>
@@ -59,6 +61,7 @@
 							placeholder="Masukkan password" 
 							class="grow"
 							class:input-error={form?.message}
+							bind:value={password}
 							required 
 						/>
 						<button 

@@ -14,6 +14,11 @@
 	// Selected kepala sekolah
 	let selectedKepalaSekolahId = $state('');
 	
+	// Alert states
+	let showAlert = $state(false);
+	let alertType = $state('success'); // 'success' | 'error'
+	let alertMessage = $state('');
+	
 	// Initialize selected kepala sekolah from settings
 	run(() => {
 		if (schoolSettings && schoolSettings.school_principal_name && kepalaSekolahUsers.length > 0) {
@@ -30,26 +35,44 @@
 	
 	// Get selected kepala sekolah data
 	let selectedKepalaSekolah = $derived(kepalaSekolahUsers.find(u => u.id === selectedKepalaSekolahId));
+	
+	// Function to show alert
+	function showAlertMessage(type, message) {
+		alertType = type;
+		alertMessage = message;
+		showAlert = true;
+		
+		// Auto hide alert after 3 seconds
+		setTimeout(() => {
+			showAlert = false;
+		}, 3000);
+	}
 
 	// Enhanced form handler untuk update data setelah submit
-	const handleSchoolFormEnhance = () => {
-		return enhance(async ({ result }) => {
-			if (result.type === 'success' && result.data?.success) {
-				// Invalidate dan reload data setelah sukses
-				await invalidateAll();
-			}
-		});
-	}
+	const handleSchoolFormEnhance = ({ result }) => {
+		if (result.type === 'success' && result.data?.success) {
+			// Show success alert
+			showAlertMessage('success', 'Data sekolah berhasil disimpan!');
+			// Invalidate dan reload data setelah sukses
+			invalidateAll();
+		} else if (result.type === 'failure') {
+			// Show error alert
+			showAlertMessage('error', 'Gagal menyimpan data sekolah: ' + (result.data?.message || 'Terjadi kesalahan'));
+		}
+	};
 
 	// Enhanced form handler untuk export/import  
-	const handleDatabaseFormEnhance = () => {
-		return enhance(async ({ result }) => {
-			if (result.type === 'success') {
-				// Refresh page untuk memperbarui status
-				await invalidateAll();
-			}
-		});
-	}
+	const handleDatabaseFormEnhance = ({ result }) => {
+		if (result.type === 'success' && result.data?.success) {
+			// Show success alert
+			showAlertMessage('success', 'Operasi database berhasil: ' + (result.data?.message || 'Berhasil'));
+			// Refresh page untuk memperbarui status
+			invalidateAll();
+		} else if (result.type === 'failure') {
+			// Show error alert
+			showAlertMessage('error', 'Operasi database gagal: ' + (result.data?.message || 'Terjadi kesalahan'));
+		}
+	};
 </script>
 
 <svelte:head>
@@ -61,6 +84,26 @@
 		<h1 class="text-3xl font-bold text-base-content">Pengaturan Sistem</h1>
 		<p class="text-base-content/70 mt-2">Kelola pengaturan aplikasi absen guru</p>
 	</div>
+
+	<!-- Custom Alert Messages -->
+	{#if showAlert}
+		<div class="alert {alertType === 'success' ? 'alert-success' : 'alert-error'} mb-6">
+			<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+				{#if alertType === 'success'}
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+				{:else}
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+				{/if}
+			</svg>
+			<span>{alertMessage}</span>
+			<button 
+				class="btn btn-sm btn-circle btn-ghost"
+				onclick={() => showAlert = false}
+			>
+				✕
+			</button>
+		</div>
+	{/if}
 
 	<!-- Success/Error Messages -->
 	{#if form?.success}
@@ -101,7 +144,7 @@
 					Data Sekolah
 				</h2>
 				
-				<form method="POST" action="?/updateSchool" use:enhance={handleSchoolFormEnhance} class="space-y-4">
+				<form method="POST" action="?/updateSchool" use:enhance={() => handleSchoolFormEnhance} class="space-y-4">
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<!-- Nama Sekolah -->
 						<fieldset class="fieldset">
@@ -186,9 +229,7 @@
 											<option value="">Pilih Kepala Sekolah</option>
 											{#each kepalaSekolahUsers as kepala}
 												<option value={kepala.id}>
-													{kepala.name} 
-													{kepala.nip ? `(${kepala.nip})` : ''} 
-													- {kepala.position}
+													{kepala.name}
 												</option>
 											{/each}
 										</select>
@@ -255,7 +296,7 @@
 									</fieldset>
 								</div>
 							{/if}
-							<p class="label text-xs text-base-content/70">Data kepala sekolah akan otomatis diambil dari user dengan jabatan "Kepala Sekolah"</p>
+							<p class="label text-xs text-base-content/70 text-wrap">Data kepala sekolah akan otomatis diambil dari user dengan jabatan "Kepala Sekolah"</p>
 						</fieldset>
 					</div>
 
@@ -300,7 +341,7 @@
 							Buat backup database untuk keamanan data. File backup akan disimpan di folder backups.
 						</p>
 						
-						<form method="POST" action="?/exportDatabase" use:enhance={handleDatabaseFormEnhance}>
+						<form method="POST" action="?/exportDatabase" use:enhance={() => handleDatabaseFormEnhance}>
 							<button type="submit" class="btn btn-success btn-block">
 								<Download class="w-5 h-5 mr-2" />
 								Export Database
@@ -329,7 +370,7 @@
 							Restore database dari file backup. <strong class="text-warning">Hati-hati:</strong> Ini akan mengganti semua data yang ada.
 						</p>
 						
-						<form method="POST" action="?/importDatabase" use:enhance={handleDatabaseFormEnhance} enctype="multipart/form-data" class="space-y-4">
+						<form method="POST" action="?/importDatabase" use:enhance={() => handleDatabaseFormEnhance} enctype="multipart/form-data" class="space-y-4">
 							<div class="form-control">
 								<label class="label" for="database_file">
 									<span class="label-text">Pilih File Database</span>
@@ -347,7 +388,7 @@
 							<div class="form-control">
 								<label class="label cursor-pointer">
                   <input type="checkbox" class="checkbox checkbox-warning" required />
-									<span class="label-text">Saya memahami risiko import database</span>
+									<span class="label-text text-wrap">Saya memahami risiko import database</span>
 								</label>
 							</div>
 							

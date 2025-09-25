@@ -128,27 +128,26 @@
 				<Calendar class="w-5 h-5" />
 				Filter Periode
 			</h2>
-			<div class="flex flex-col sm:flex-row gap-4 items-end">
-				<div class="form-control w-full sm:w-auto">
-					<label class="label" for="month">
-						<span class="label-text">Bulan</span>
-					</label>
-					<select id="month" class="select select-bordered w-full sm:w-auto" bind:value={currentMonth} onchange={handleFilterChange}>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Bulan</legend>
+					<select id="month" class="select select-bordered w-full" bind:value={currentMonth} onchange={handleFilterChange}>
 						{#each months as month}
 							<option value={month.value}>{month.label}</option>
 						{/each}
 					</select>
-				</div>
-				<div class="form-control w-full sm:w-auto">
-					<label class="label" for="year">
-						<span class="label-text">Tahun</span>
-					</label>
-					<select id="year" class="select select-bordered w-full sm:w-auto" bind:value={currentYear} onchange={handleFilterChange}>
+					<p class="label">Pilih bulan untuk filter data</p>
+				</fieldset>
+				
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">Tahun</legend>
+					<select id="year" class="select select-bordered w-full" bind:value={currentYear} onchange={handleFilterChange}>
 						{#each years as year}
 							<option value={year}>{year}</option>
 						{/each}
 					</select>
-				</div>
+					<p class="label">Pilih tahun untuk filter data</p>
+				</fieldset>
 			</div>
 		</div>
 	</div>
