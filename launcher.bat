@@ -8,8 +8,10 @@ echo ║                  🏠 ABSEN-GURU LAUNCHER                 ║
 echo ╚══════════════════════════════════════════════════════════╝
 echo.
 echo Pilih mode deployment:
-echo.
-echo [1] 🖥️  Local Development (localhost:5174)
+echoececho [3] 📝 Logs Tunnel (pm2 logs absen-guru-tunnel)
+echo [4] 📈 Monitor (pm2 monit) [2] 📝 Logs App (pm2 logs absen-guru)
+echo [3] 📝 Logs Tunnel (pm2 logs absen-guru-tunnel)
+echo [4] 📈 Monitor (pm2 monit)echo [1] 🖥️  Local Development (localhost:5174)
 echo [2] 🌐 Local Network (IP Address + Production)  
 echo [3] 🔄 PM2 Local Production (Recommended)
 echo [4] 🔄 PM2 Network Production (Best for 24/7)
@@ -623,15 +625,14 @@ echo   - service: http_status:404>> "%USERPROFILE%\.cloudflared\config.yml"
 
 echo ✅ Konfigurasi dibuat
 
+REM Auto-create DNS record
 echo.
-set /p dns_choice=Set DNS record untuk %DOMAIN%? (y/n): 
-if /i "%dns_choice%"=="y" (
-    cloudflared tunnel route dns absen-guru %DOMAIN%
-    if %ERRORLEVEL% equ 0 (
-        echo ✅ DNS record berhasil dibuat
-    ) else (
-        echo ⚠️  Gagal set DNS record - mungkin sudah ada atau perlu set manual
-    )
+echo ℹ️  🌐 Auto-setting DNS record...
+cloudflared tunnel route dns absen-guru %DOMAIN% >nul 2>&1
+if %ERRORLEVEL%==0 (
+    echo ✅ DNS record created for %DOMAIN%
+) else (
+    echo ⚠️  DNS record already exists or failed ^(continuing anyway^)
 )
 
 echo.
@@ -729,28 +730,38 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-set /p DOMAIN=Masukkan domain yang sudah di-setup (contoh: absen.yourschool.sch.id): 
+set /p DOMAIN=Masukkan domain (contoh: absen.yourschool.sch.id): 
 if "%DOMAIN%"=="" (
     echo ❌ Domain tidak boleh kosong!
     exit /b 1
 )
 
-if not exist "%USERPROFILE%\.cloudflared\config.yml" (
-    echo ℹ️  Membuat konfigurasi tunnel...
-    if not exist "%USERPROFILE%\.cloudflared" mkdir "%USERPROFILE%\.cloudflared"
-    
-    for /f "tokens=1" %%a in ('cloudflared tunnel list ^| findstr "absen-guru"') do set TUNNEL_ID=%%a
-    
-    echo tunnel: !TUNNEL_ID!> "%USERPROFILE%\.cloudflared\config.yml"
-    echo credentials-file: %USERPROFILE%\.cloudflared\!TUNNEL_ID!.json>> "%USERPROFILE%\.cloudflared\config.yml"
-    echo.>> "%USERPROFILE%\.cloudflared\config.yml"
-    echo ingress:>> "%USERPROFILE%\.cloudflared\config.yml"
-    echo   - hostname: %DOMAIN%>> "%USERPROFILE%\.cloudflared\config.yml"
-    echo     service: http://localhost:3000>> "%USERPROFILE%\.cloudflared\config.yml"
-    echo   - service: http_status:404>> "%USERPROFILE%\.cloudflared\config.yml"
-    
-    echo ✅ Konfigurasi dibuat
+REM Get tunnel ID
+for /f "tokens=1" %%a in ('cloudflared tunnel list ^| findstr "absen-guru"') do set TUNNEL_ID=%%a
+
+REM Auto-create DNS record  
+echo.
+echo ℹ️  🌐 Setting up DNS record...
+cloudflared tunnel route dns absen-guru "%DOMAIN%" >nul 2>&1
+if %ERRORLEVEL%==0 (
+    echo ✅ DNS record created for %DOMAIN%
+) else (
+    echo ⚠️  DNS record already exists or failed ^(continuing anyway^)
 )
+
+REM Force update config
+echo ℹ️  📝 Creating/updating tunnel configuration...
+if not exist "%USERPROFILE%\.cloudflared" mkdir "%USERPROFILE%\.cloudflared"
+
+echo tunnel: !TUNNEL_ID!> "%USERPROFILE%\.cloudflared\config.yml"
+echo credentials-file: %USERPROFILE%\.cloudflared\!TUNNEL_ID!.json>> "%USERPROFILE%\.cloudflared\config.yml"
+echo.>> "%USERPROFILE%\.cloudflared\config.yml"
+echo ingress:>> "%USERPROFILE%\.cloudflared\config.yml"
+echo   - hostname: %DOMAIN%>> "%USERPROFILE%\.cloudflared\config.yml"
+echo     service: http://localhost:3000>> "%USERPROFILE%\.cloudflared\config.yml"
+echo   - service: http_status:404>> "%USERPROFILE%\.cloudflared\config.yml"
+
+echo ✅ Configuration updated
 
 echo [1/4] Installing dependencies...
 call pnpm install
@@ -776,18 +787,42 @@ echo.
 echo ✅ 🎉 PM2 + Named Tunnel Service berhasil dimulai!
 echo.
 echo ✅ 🌐 Domain: https://%DOMAIN%
+echo ℹ️  🔗 Tunnel ID: %TUNNEL_ID%
 echo.
-echo ℹ️  Services yang berjalan:
+
+REM DNS validation check
+echo ℹ️  🔍 Testing DNS resolution...
+timeout /t 2 /nobreak >nul
+
+nslookup %DOMAIN% 8.8.8.8 >nul 2>&1
+if %ERRORLEVEL%==0 (
+    echo ✅ DNS sudah aktif!
+    echo.
+    echo ℹ️  🚀 Coba akses: https://%DOMAIN%
+) else (
+    echo ⚠️  DNS belum propagate ^(normal, butuh 5-15 menit^)
+    echo.
+    echo ℹ️  💡 Tips sementara menunggu DNS:
+    echo   • Coba akses: https://%TUNNEL_ID%.cfargotunnel.com
+    echo   • Atau tunggu 5-15 menit lalu coba: https://%DOMAIN%
+    echo.
+    echo ℹ️  🔍 Check DNS status:
+    echo   • nslookup %DOMAIN% 8.8.8.8
+    echo   • Online: https://dnschecker.org/#CNAME/%DOMAIN%
+)
+
+echo.
+echo ℹ️  📊 Services yang berjalan:
 echo   • absen-guru-app (Node.js application)
 echo   • absen-guru-tunnel (Cloudflare named tunnel)
 echo.
-echo ℹ️  Perintah berguna:
+echo ℹ️  🛠️  Perintah berguna:
 echo   • pm2 status              - Lihat status services
-echo   • pm2 logs absen-guru-app - Lihat logs aplikasi
-echo   • pm2 logs absen-guru-tunnel - Lihat logs tunnel
+echo   • pm2 logs absen-guru-app - Logs aplikasi
+echo   • pm2 logs absen-guru-tunnel - Logs tunnel
 echo   • pm2 restart all         - Restart semua services
-echo   • pm2 stop all            - Stop semua services
 echo.
+pause
 exit /b 0
 
 :setup_cloudflare_first_time

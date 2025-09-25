@@ -415,20 +415,14 @@ EOF
     
     print_success "Konfigurasi dibuat di: $CONFIG_FILE"
     
-    # Set DNS record
+    # Auto-create DNS record
     echo ""
-    print_info "Setting DNS record..."
-    printf "Set DNS record untuk $DOMAIN? (y/n): "
-    read dns_choice
-    
-    if [[ "$dns_choice" == "y" || "$dns_choice" == "Y" ]]; then
-        "$CLOUDFLARED_PATH" tunnel route dns "$TUNNEL_NAME" "$DOMAIN"
-        if [ $? -eq 0 ]; then
-            print_success "DNS record berhasil dibuat"
-        else
-            print_warning "Gagal set DNS record - mungkin sudah ada atau perlu set manual"
-        fi
-    fi
+    print_info "🌐 Auto-setting DNS record..."
+    "$CLOUDFLARED_PATH" tunnel route dns "$TUNNEL_NAME" "$DOMAIN" 2>/dev/null && {
+        print_success "✅ DNS record created for $DOMAIN"
+    } || {
+        print_warning "⚠️  DNS record already exists or failed (continuing anyway)"
+    }
     
     # Start application and tunnel
     echo ""
@@ -692,7 +686,7 @@ pm2_named_tunnel_service() {
     
     # Get domain
     echo ""
-    printf "Masukkan domain yang sudah di-setup (contoh: absen.yourschool.sch.id): "
+    printf "Masukkan domain (contoh: absen.yourschool.sch.id): "
     read DOMAIN
     
     if [ -z "$DOMAIN" ]; then
@@ -700,17 +694,26 @@ pm2_named_tunnel_service() {
         return
     fi
     
-    # Setup config if not exists
+    # Get tunnel ID
+    TUNNEL_ID=$("$CLOUDFLARED_PATH" tunnel list | grep "$TUNNEL_NAME" | awk '{print $1}')
+    
+    # Auto-create DNS record
+    echo ""
+    print_info "🌐 Setting up DNS record..."
+    "$CLOUDFLARED_PATH" tunnel route dns "$TUNNEL_NAME" "$DOMAIN" 2>/dev/null && {
+        print_success "✅ DNS record created for $DOMAIN"
+    } || {
+        print_warning "⚠️  DNS record already exists or failed (continuing anyway)"
+    }
+    
+    # Force update config
     CONFIG_DIR="$HOME/.cloudflared"
     CONFIG_FILE="$CONFIG_DIR/config.yml"
     
-    if [ ! -f "$CONFIG_FILE" ]; then
-        print_info "Membuat konfigurasi tunnel..."
-        mkdir -p "$CONFIG_DIR"
-        
-        TUNNEL_ID=$("$CLOUDFLARED_PATH" tunnel list | grep "$TUNNEL_NAME" | awk '{print $1}')
-        
-        cat > "$CONFIG_FILE" << EOF
+    print_info "📝 Creating/updating tunnel configuration..."
+    mkdir -p "$CONFIG_DIR"
+    
+    cat > "$CONFIG_FILE" << EOF
 tunnel: $TUNNEL_ID
 credentials-file: $CONFIG_DIR/$TUNNEL_ID.json
 
@@ -719,8 +722,8 @@ ingress:
     service: http://localhost:3000
   - service: http_status:404
 EOF
-        print_success "Konfigurasi dibuat di: $CONFIG_FILE"
-    fi
+    
+    print_success "✅ Configuration updated: $CONFIG_FILE"
     
     print_info "[1/4] Installing dependencies..."
     pnpm install || { print_error "Failed to install dependencies"; exit 1; }
@@ -755,17 +758,39 @@ EOF
     print_success "🎉 PM2 + Named Tunnel Service berhasil dimulai!"
     echo ""
     print_success "🌐 Domain: https://$DOMAIN"
+    print_info "🔗 Tunnel ID: $TUNNEL_ID"
     echo ""
-    print_info "Services yang berjalan:"
+    
+    # DNS validation check
+    print_info "🔍 Testing DNS resolution..."
+    sleep 2
+    
+    if nslookup "$DOMAIN" 8.8.8.8 >/dev/null 2>&1; then
+        print_success "✅ DNS sudah aktif!"
+        echo ""
+        print_info "🚀 Coba akses: https://$DOMAIN"
+    else
+        print_warning "⚠️  DNS belum propagate (normal, butuh 5-15 menit)"
+        echo ""
+        print_info "💡 Tips sementara menunggu DNS:"
+        echo "  • Coba akses: https://$TUNNEL_ID.cfargotunnel.com"
+        echo "  • Atau tunggu 5-15 menit lalu coba: https://$DOMAIN"
+        echo ""
+        print_info "🔍 Check DNS status:"
+        echo "  • nslookup $DOMAIN 8.8.8.8"
+        echo "  • Online: https://dnschecker.org/#CNAME/$DOMAIN"
+    fi
+    
+    echo ""
+    print_info "📊 Services yang berjalan:"
     echo "  • absen-guru-app (Node.js application)"
     echo "  • absen-guru-tunnel (Cloudflare named tunnel)"
     echo ""
-    print_info "Perintah berguna:"
+    print_info "🛠️  Perintah berguna:"
     echo "  • pm2 status              - Lihat status services"
-    echo "  • pm2 logs absen-guru-app - Lihat logs aplikasi"
-    echo "  • pm2 logs absen-guru-tunnel - Lihat logs tunnel"
+    echo "  • pm2 logs absen-guru-app - Logs aplikasi"
+    echo "  • pm2 logs absen-guru-tunnel - Logs tunnel"
     echo "  • pm2 restart all         - Restart semua services"
-    echo "  • pm2 stop all            - Stop semua services"
     echo ""
     
     printf "Press Enter to continue..."; read dummy
@@ -937,7 +962,7 @@ main() {
         print_header
         print_menu
         
-        printf "Masukkan pilihan (0-8): "; read choice
+        printf "Masukkan pilihan (0-9): "; read choice
         
         case $choice in
             1)
