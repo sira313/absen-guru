@@ -15,4 +15,12 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 4173,
   },
+  build: {
+    rollupOptions: {
+      external: ['events'], // Suppress PouchDB events warning
+    }
+  },
+  define: {
+    global: 'globalThis', // PouchDB compatibility
+  }
 });
