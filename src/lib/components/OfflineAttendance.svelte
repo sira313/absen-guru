@@ -1,7 +1,15 @@
 <!-- src/lib/components/OfflineAttendance.svelte -->
 <script>
+    function getSyncStatusText(status) {
+        switch (status) {
+            case 'syncing': return 'Sinkronisasi...';
+            case 'error': return 'Error sinkronisasi';
+            case 'offline': return 'Offline';
+            default: return 'Tersinkronisasi';
+        }
+    }
     import { onMount } from 'svelte';
-    import { attendanceDB, isOnline, syncStatus, hasUnsyncedData, syncStatusText } from '$lib/stores/pouchdb.js';
+    import { isOnline, syncStatus, offlineData, saveOfflineAttendance, syncOfflineData } from '$lib/stores/offline.js';
     import { page } from '$app/stores';
 
     // Props
@@ -147,7 +155,7 @@
                     {$isOnline ? 'Online' : 'Offline'}
                 </div>
                 
-                {#if $hasUnsyncedData}
+                {#if $offlineData.length > 0}
                     <div class="badge badge-warning gap-2">
                         <span class="loading loading-spinner loading-xs"></span>
                         Data Belum Sync
@@ -158,7 +166,7 @@
 
         <!-- Sync Status -->
         <div class="text-sm {getStatusColor($syncStatus)} mb-4">
-            Status: {$syncStatusText}
+            Status: {getSyncStatusText($syncStatus)}
         </div>
 
         {#if error}

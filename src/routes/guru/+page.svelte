@@ -4,7 +4,7 @@
 	import { id as localeId } from 'date-fns/locale';
 	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList, Coffee } from 'lucide-svelte';
 	import PWABanner from '$lib/components/PWABanner.svelte';
-	import OfflineAttendance from '$lib/components/OfflineAttendance.svelte';
+	import SimpleOfflineAttendance from '$lib/components/SimpleOfflineAttendance.svelte';
 	
 	
 	
@@ -58,8 +58,8 @@
 	let user = $derived(data.user);
 	let todayAttendance = $derived(data.todayAttendance);
 	let stats = $derived(data.stats);
-	let useOfflineMode = $state(true); // Default ke offline mode
 	let today = $derived(data.today);
+	let useOfflineMode = $state(true); // Default ke offline-first mode
 	let isWeekend = $derived(data.isWeekend);
 	let weekendDayName = $derived(data.weekendDayName);
 	let currentTimeString = $derived(format(currentTime, 'HH:mm:ss'));
@@ -89,7 +89,7 @@
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 				{:else}
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-				{/if}
+			{/if}
 			</svg>
 			<span>{form.message}</span>
 		</div>
@@ -181,33 +181,31 @@
 					</div>
 				</div>
 			{/if}
-			
-			<!-- Offline-First Attendance Component -->
-			{#if !isWeekend}
-			<!-- Toggle antara offline dan online mode -->
-			<div class="mb-4">
-				<div class="tabs tabs-boxed bg-base-200">
-					<button 
-						class="tab {useOfflineMode ? 'tab-active' : ''}"
-						onclick={() => useOfflineMode = true}
-					>
-						📱 Mode Offline
-					</button>
-					<button 
-						class="tab {!useOfflineMode ? 'tab-active' : ''}"
-						onclick={() => useOfflineMode = false}
-					>
-						🌐 Mode Online
-					</button>
+			<!-- Form Absensi dengan Mode Toggle -->
+				<!-- Mode Toggle -->
+				<div class="mb-4">
+					<div class="tabs tabs-boxed bg-base-200">
+						<button 
+							class="tab {useOfflineMode ? 'tab-active' : ''}"
+							onclick={() => useOfflineMode = true}
+						>
+							📱 Mode Offline-First
+						</button>
+						<button 
+							class="tab {!useOfflineMode ? 'tab-active' : ''}"
+							onclick={() => useOfflineMode = false}
+						>
+							🌐 Mode Online Tradisional
+						</button>
+					</div>
 				</div>
-			</div>
 
-			{#if useOfflineMode}
-				<!-- Offline-First Component -->
-				<OfflineAttendance user={user} />
-			{:else}
-				<!-- Original Form Absen -->
-				<div class="card bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+				{#if useOfflineMode}
+					<!-- Simple Offline Component -->
+					<SimpleOfflineAttendance user={user} />
+				{:else}
+					<!-- Original Online Form -->
+					<div class="card bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
 					<div class="card-body">
 						<h4 class="card-title text-center text-primary mb-4">
 							<Clock class="w-5 h-5" />
@@ -282,8 +280,7 @@
 					</form>
 				</div>
 			</div>
-			{/if}
-			{/if}
+				{/if}
 		{/if}
 		</div>
 	</div>
