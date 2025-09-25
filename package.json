@@ -73,6 +73,9 @@
     "exceljs": "^4.4.0",
     "lucide-svelte": "^0.544.0",
     "nanoid": "^5.1.6",
+    "pouchdb": "^9.0.0",
+    "pouchdb-adapter-http": "^9.0.0",
+    "pouchdb-adapter-idb": "^9.0.0",
     "tailwindcss": "^4.1.13",
     "zod": "^4.1.11"
   },

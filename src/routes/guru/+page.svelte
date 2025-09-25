@@ -4,6 +4,7 @@
 	import { id as localeId } from 'date-fns/locale';
 	import { CheckCircle, Clock, AlertTriangle, Calendar, User, ClipboardList, Coffee } from 'lucide-svelte';
 	import PWABanner from '$lib/components/PWABanner.svelte';
+	import OfflineAttendance from '$lib/components/OfflineAttendance.svelte';
 	
 	
 	
@@ -57,6 +58,7 @@
 	let user = $derived(data.user);
 	let todayAttendance = $derived(data.todayAttendance);
 	let stats = $derived(data.stats);
+	let useOfflineMode = $state(true); // Default ke offline mode
 	let today = $derived(data.today);
 	let isWeekend = $derived(data.isWeekend);
 	let weekendDayName = $derived(data.weekendDayName);
@@ -180,14 +182,37 @@
 				</div>
 			{/if}
 			
-			<!-- Form Absen dengan Design Baru (hanya tampil jika bukan weekend) -->
+			<!-- Offline-First Attendance Component -->
 			{#if !isWeekend}
-			<div class="card bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
-				<div class="card-body">
-					<h4 class="card-title text-center text-primary mb-4">
-						<Clock class="w-5 h-5" />
-						Form Absensi
-					</h4>
+			<!-- Toggle antara offline dan online mode -->
+			<div class="mb-4">
+				<div class="tabs tabs-boxed bg-base-200">
+					<button 
+						class="tab {useOfflineMode ? 'tab-active' : ''}"
+						onclick={() => useOfflineMode = true}
+					>
+						📱 Mode Offline
+					</button>
+					<button 
+						class="tab {!useOfflineMode ? 'tab-active' : ''}"
+						onclick={() => useOfflineMode = false}
+					>
+						🌐 Mode Online
+					</button>
+				</div>
+			</div>
+
+			{#if useOfflineMode}
+				<!-- Offline-First Component -->
+				<OfflineAttendance user={user} />
+			{:else}
+				<!-- Original Form Absen -->
+				<div class="card bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+					<div class="card-body">
+						<h4 class="card-title text-center text-primary mb-4">
+							<Clock class="w-5 h-5" />
+							Form Absensi
+						</h4>
 					
 					<form method="POST" action="?/absen" use:enhance class="space-y-4">
 						<!-- Pilihan Status Kehadiran -->
@@ -257,6 +282,7 @@
 					</form>
 				</div>
 			</div>
+			{/if}
 			{/if}
 		{/if}
 		</div>

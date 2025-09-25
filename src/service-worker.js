@@ -6,10 +6,12 @@ const CACHE = `cache-${CACHE_VERSION}`;
 const ASSETS = [
   "/",
   "/favicon.png",
-  "/favicon.svg",
+  "/favicon.svg",  
   "/icon-192.png",
   "/icon-512.png",
   "/manifest.json",
+  "/guru", // Cache guru page for offline
+  "/api/pouchdb", // Cache PouchDB API endpoint
 ];
 
 // Install service worker
