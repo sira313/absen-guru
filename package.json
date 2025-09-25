@@ -27,9 +27,11 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db:push": "drizzle-kit push",
+    "db:push:force": "drizzle-kit push --force",
     "db:studio": "drizzle-kit studio",
     "db:seed": "node scripts/seed.js",
-    "setup": "pnpm install && pnpm db:push && pnpm db:seed",
+    "db:setup": "pnpm db:push:force && pnpm db:seed",
+    "setup": "pnpm install && pnpm db:setup",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:start:prod": "pm2 start ecosystem.config.cjs --env production",
     "pm2:start:network": "pm2 start ecosystem.config.cjs --env network",
@@ -40,7 +42,13 @@
     "pm2:logs": "pm2 logs absen-guru",
     "pm2:monit": "pm2 monit",
     "pm2:status": "pm2 status",
-    "pm2:reset": "pm2 delete absen-guru || true"
+    "pm2:reset": "pm2 delete absen-guru || true",
+    "deploy": "./deploy-production.sh",
+    "deploy:win": ".\\deploy-production.bat",
+    "deploy:quick": "./quick-deploy.sh",
+    "deploy:manage": "./manage-deployment.sh",
+    "deploy:manage:win": ".\\manage-deployment.bat",
+    "deploy:tunnel": "./setup-cloudflare-tunnel.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

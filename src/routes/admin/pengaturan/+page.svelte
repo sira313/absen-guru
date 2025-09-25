@@ -61,16 +61,16 @@
 		}
 	};
 
-	// Enhanced form handler untuk export/import  
+	// Enhanced form handler untuk import database  
 	const handleDatabaseFormEnhance = ({ result }) => {
 		if (result.type === 'success' && result.data?.success) {
 			// Show success alert
-			showAlertMessage('success', 'Operasi database berhasil: ' + (result.data?.message || 'Berhasil'));
+			showAlertMessage('success', 'Import database berhasil: ' + (result.data?.message || 'Berhasil'));
 			// Refresh page untuk memperbarui status
 			invalidateAll();
 		} else if (result.type === 'failure') {
 			// Show error alert
-			showAlertMessage('error', 'Operasi database gagal: ' + (result.data?.message || 'Terjadi kesalahan'));
+			showAlertMessage('error', 'Import database gagal: ' + (result.data?.message || 'Terjadi kesalahan'));
 		}
 	};
 </script>
@@ -113,17 +113,6 @@
 			</svg>
 			<div>
 				<span>{form.message}</span>
-				{#if form.backupFile}
-					<div class="mt-2">
-						<a 
-							href="/admin/pengaturan/download?file={form.backupFile}" 
-							class="btn btn-sm btn-success btn-outline"
-						>
-							<Download class="w-4 h-4 mr-2" />
-							Download {form.backupFile}
-						</a>
-					</div>
-				{/if}
 			</div>
 		</div>
 	{:else if form?.message}
@@ -338,26 +327,25 @@
 					<div class="space-y-4">
 						<h3 class="font-semibold text-lg">Export Database</h3>
 						<p class="text-sm text-base-content/70">
-							Buat backup database untuk keamanan data. File backup akan disimpan di folder backups.
+							Download backup database untuk keamanan data. File akan diunduh langsung ke komputer Anda.
 						</p>
 						
-						<form method="POST" action="?/exportDatabase" use:enhance={() => handleDatabaseFormEnhance}>
-							<button type="submit" class="btn btn-success btn-block">
-								<Download class="w-5 h-5 mr-2" />
-								Export Database
-							</button>
-						</form>
+						<a href="/admin/pengaturan/export-download" class="btn btn-success btn-block">
+							<Download class="w-5 h-5 mr-2" />
+							Download Database Backup
+						</a>
 						
 						<div class="alert alert-info">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 							</svg>
 							<div class="text-sm">
-								<p class="font-semibold">Tips Export:</p>
+								<p class="font-semibold">Tips Download Backup:</p>
 								<ul class="list-disc list-inside mt-1 space-y-1">
 									<li>Lakukan backup secara rutin</li>
-									<li>Simpan file backup di tempat aman</li>
+									<li>Pilih lokasi penyimpanan yang aman</li>
 									<li>File berformat SQLite (.db)</li>
+									<li>Backup otomatis tersimpan di server</li>
 								</ul>
 							</div>
 						</div>

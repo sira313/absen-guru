@@ -10,10 +10,12 @@ import {
 } from "./schema.js";
 import { eq, and, gte, lte, desc, sql, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import path from "path";
 
-// Create database client
+// Create database client with absolute path for consistency
+const dbPath = path.resolve(process.cwd(), "absen.db");
 const client = createClient({
-  url: "file:./absen.db",
+  url: `file:${dbPath}`,
 });
 
 export const db = drizzle(client);
