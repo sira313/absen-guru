@@ -69,7 +69,7 @@ export const actions = {
     const role = data.get("role");
     const nip = data.get("nip");
     const subject = data.get("subject");
-    const employeeType = data.get("employeeType");
+    const employeeType = data.get("employee_type");
     const position = data.get("position");
     const phone = data.get("phone");
 

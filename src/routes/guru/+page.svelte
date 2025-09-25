@@ -319,7 +319,8 @@
 			</div>
 			<div class="stat-value text-base-content">{stats.totalDays}</div>
 			<div class="stat-title">Total Hari</div>
-			<div class="stat-desc text-xs opacity-60">30 hari terakhir</div>
+			<div class="stat-desc text-xs opacity-60 sm:hidden">/ 30 hari</div>
+			<div class="stat-desc text-xs opacity-60 hidden sm:block">30 hari terakhir</div>
 		</div>
 	</div>
 

@@ -40,7 +40,7 @@
 		</main>
 	</div>
 	
-	{#if showSidebar}
+	{#if showSidebar && user}
 		<Sidebar {user} />
 	{/if}
 </div>

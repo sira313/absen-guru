@@ -1,11 +1,13 @@
 <script>
-	import { BarChart3, FileText, Users, Clock, Calendar, User, Settings } from 'lucide-svelte';
+	import { BarChart3, FileText, Users, Clock, Calendar, User, Settings, Info } from 'lucide-svelte';
 	
 	let { user } = $props();
 	
 	let isAdmin = $derived(user?.role === 'admin');
+	
 </script>
 
+{#if user}
 <div class="drawer-side">
 	<label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 	<ul class="menu text-base-content min-h-full w-80 pt-[5.5rem] lg:pt-4 px-4 pb-4 bg-base-300">
@@ -63,5 +65,14 @@
 				</a>
 			</li>
 		{/if}
+		
+		<!-- About Menu (Always shown at bottom) -->
+		<li class="mt-auto">
+			<a href="/about" class="text-base-content/70 hover:text-base-content">
+				<Info class="w-5 h-5" />
+				Tentang Aplikasi
+			</a>
+		</li>
 	</ul>
 </div>
+{/if}

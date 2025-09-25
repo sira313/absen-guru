@@ -1,15 +1,22 @@
 <script>
-	import { User, Sun, Moon } from 'lucide-svelte';
+	import { User, Info } from 'lucide-svelte';
+	import ThemeController from './ThemeController.svelte';
 	
 	/**
 	 * @typedef {Object} Props
 	 * @property {string} [title]
 	 * @property {boolean} [showThemeToggle]
+	 * @property {boolean} [showAboutLink]
 	 * @property {import('svelte').Snippet} [children]
 	 */
 
 	/** @type {Props} */
-	let { title = 'Absen Guru', showThemeToggle = true, children } = $props();
+	let { 
+		title = 'Absen Guru', 
+		showThemeToggle = true, 
+		showAboutLink = true,
+		children 
+	} = $props();
 </script>
 
 <div class="min-h-screen bg-base-200">
@@ -23,12 +30,17 @@
 				</a>
 			</div>
 			<div class="flex-none">
-				<!-- Theme Controller -->
-				<label class="swap swap-rotate">
-					<input type="checkbox" class="theme-controller" value="dark" />
-					<Sun class="swap-off h-6 w-6 fill-current" />
-					<Moon class="swap-on h-6 w-6 fill-current" />
-				</label>
+				<div class="flex items-center gap-2">
+					<!-- About Link -->
+					{#if showAboutLink}
+						<a href="/about" class="btn btn-ghost btn-circle" title="Tentang Aplikasi">
+							<Info class="w-5 h-5" />
+						</a>
+					{/if}
+					
+					<!-- Theme Controller -->
+					<ThemeController />
+				</div>
 			</div>
 		</div>
 	{/if}
