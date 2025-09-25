@@ -262,7 +262,7 @@ export const actions = {
         if (newPassword.length < 6) {
           return fail(400, { message: "Password minimal 6 karakter" });
         }
-        updateData.password = await simpleHash(newPassword);
+        updateData.hashedPassword = await simpleHash(newPassword);
       }
 
       // Update user
