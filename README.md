@@ -246,54 +246,83 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 ### 🌐 **Environment Configuration**
 
-**Aplikasi ini mendukung berbagai mode deployment dengan konfigurasi environment variables:**
+## 🚀 Deployment Production - Super Mudah!
 
-#### **1. Local Development**
+### ⚡ **1. Deployment Otomatis (Recommended)**
+
+**Script interaktif yang menangani semua konfigurasi secara otomatis:**
 
 ```bash
-# Development dengan hot reload (localhost only)
-pnpm dev
-# Akses: http://localhost:5173
+# Windows
+.\deploy-production.bat
+
+# Linux/macOS/WSL
+chmod +x deploy-production.sh
+./deploy-production.sh
 ```
 
-#### **2. Network Testing**
+**Pilihan deployment yang tersedia:**
+1. **Local Network** (IP:PORT) - Auto-detect IP lokal
+2. **Domain/Subdomain** (https://domain.com) - Untuk website resmi
+3. **Cloudflare Tunnel** - Akses dari internet tanpa VPS
+4. **Custom Origin** - Konfigurasi manual
+
+### 🔧 **2. Kelola Deployment**
+
+**Script management untuk operasional sehari-hari:**
 
 ```bash
-# Testing di network local (akses via IP address)
-ORIGIN=http://192.168.x.x:3000 pnpm start
-# Akses: http://192.168.x.x:3000 (ganti dengan IP Anda)
+chmod +x manage-deployment.sh
+./manage-deployment.sh
 ```
 
-#### **3. Production Deployment**
+**Fitur management:**
+- 📊 Status & monitoring aplikasi
+- 🔄 Update aplikasi otomatis
+- 🌐 Ubah domain/origin
+- 💾 Backup & restore database
+- 🔑 Reset password admin
+- 📋 Lihat logs real-time
+- 🧹 Cleanup cache & temporary files
+
+### ⚡ **3. Quick Deploy**
+
+**Deploy ulang dengan konfigurasi tersimpan:**
 
 ```bash
-# Production server
-NODE_ENV=production ORIGIN=https://yourdomain.com pnpm start
-# Atau dengan IP: NODE_ENV=production ORIGIN=http://your-ip:3000 pnpm start
+chmod +x quick-deploy.sh
+./quick-deploy.sh
 ```
 
-**Quick Deploy untuk Testing:**
+### ☁️ **4. Cloudflare Tunnel Setup**
+
+**Setup tunnel untuk akses internet tanpa VPS:**
 
 ```bash
-# Clone dan setup
-git clone https://github.com/sira313/absen-guru.git
-cd absen-guru
+chmod +x setup-cloudflare-tunnel.sh
+./setup-cloudflare-tunnel.sh
+```
+
+**Contoh setup Cloudflare Tunnel:**
+1. Domain: `absen.sdn19periji.sch.id`
+2. Target: `localhost:3000`
+3. Auto-generate config dan DNS record
+
+### 📋 **5. Manual Deployment (Advanced)**
+
+**Jika ingin setup manual:**
+
+```bash
+# 1. Build aplikasi
 pnpm install && pnpm build
 
-# Network testing (ganti IP sesuai dengan IP komputer Anda)
-ORIGIN=http://192.168.1.100:3000 pnpm start
-```
+# 2. Setup database
+pnpm db:push && pnpm db:seed
 
-**PM2 Production Deploy:**
+# 3. Start dengan PM2
+pm2 start ecosystem.config.cjs --env production
 
-```bash
-# Install PM2
-npm install -g pm2
-
-# Start dengan PM2
-pm2 start ecosystem.config.js
-
-# Monitor
+# 4. Monitor
 pm2 monit
 ```
 
@@ -332,7 +361,7 @@ Password: guru123
 
 - ✅ **Database sudah ada** (`absen.db`) - tidak perlu setup database
 - ✅ **Admin dan guru contoh** sudah dibuatkan
-- ✅ **Struktur tabel lengkap** - langsung bisa digunakan  
+- ✅ **Struktur tabel lengkap** - langsung bisa digunakan
 - ✅ **Data sample** untuk testing fitur
 
 **Tidak perlu jalankan command database apapun - langsung pakai!**

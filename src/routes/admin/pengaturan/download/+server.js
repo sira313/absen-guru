@@ -26,7 +26,7 @@ export async function GET({ url, cookies }) {
     throw error(400, "Nama file tidak valid");
   }
 
-  const backupPath = path.resolve("./backups", filename);
+  const backupPath = path.resolve(process.cwd(), "backups", filename);
 
   try {
     const fileStats = await fs.stat(backupPath);

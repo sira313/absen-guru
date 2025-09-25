@@ -107,12 +107,12 @@ export const actions = {
     }
 
     try {
-      const dbPath = path.resolve("./absen.db");
+      const dbPath = path.resolve(process.cwd(), "absen.db");
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupName = `backup-absen-${timestamp}.db`;
 
       // Create backup directory if not exists
-      const backupDir = path.resolve("./backups");
+      const backupDir = path.resolve(process.cwd(), "backups");
       try {
         await fs.mkdir(backupDir, { recursive: true });
       } catch (_e) {

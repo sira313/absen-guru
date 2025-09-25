@@ -17,6 +17,11 @@ pnpm-lock.yaml
 *.sqlite
 *.sqlite3
 
+# Data directories (should not be in repo)
+backups/
+logs/
+data/
+
 # Temporary files
 *.tmp
 *.temp

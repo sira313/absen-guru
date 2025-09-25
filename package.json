@@ -40,7 +40,13 @@
     "pm2:logs": "pm2 logs absen-guru",
     "pm2:monit": "pm2 monit",
     "pm2:status": "pm2 status",
-    "pm2:reset": "pm2 delete absen-guru || true"
+    "pm2:reset": "pm2 delete absen-guru || true",
+    "deploy": "./deploy-production.sh",
+    "deploy:win": ".\\deploy-production.bat",
+    "deploy:quick": "./quick-deploy.sh",
+    "deploy:manage": "./manage-deployment.sh",
+    "deploy:manage:win": ".\\manage-deployment.bat",
+    "deploy:tunnel": "./setup-cloudflare-tunnel.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
