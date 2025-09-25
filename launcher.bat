@@ -285,10 +285,21 @@ call pnpm db:push
 echo [4/4] Seeding fresh data...
 call pnpm db:seed
 
+REM Restart PM2 services jika ada yang berjalan
+where pm2 >nul 2>nul
+if %ERRORLEVEL%==0 (
+    pm2 list 2>nul | findstr "absen-guru-app" >nul 2>&1
+    if %ERRORLEVEL%==0 (
+        echo [5/5] Restarting PM2 services...
+        pm2 restart absen-guru-app >nul 2>&1
+        echo ✅ PM2 services restarted with fresh database
+    )
+)
+
 echo.
 echo ✅ Database reset completed!
 echo ✅ Fresh database with default admin user created
-echo 📝 Default login: admin / admin
+echo 📝 Default login: admin / admin123
 echo.
 pause
 goto :start
@@ -627,13 +638,20 @@ echo ✅ Konfigurasi dibuat
 
 REM Auto-create DNS record
 echo.
-echo ℹ️  🌐 Auto-setting DNS record...
-cloudflared tunnel route dns absen-guru %DOMAIN% >nul 2>&1
+echo ℹ️  🌐 Setting up DNS record...
+cloudflared tunnel route dns absen-guru %DOMAIN% 2>temp_dns.log
+findstr /C:"Added CNAME" temp_dns.log >nul 2>&1
 if %ERRORLEVEL%==0 (
-    echo ✅ DNS record created for %DOMAIN%
+    echo ✅ DNS record configured for %DOMAIN%
 ) else (
-    echo ⚠️  DNS record already exists or failed ^(continuing anyway^)
+    findstr /C:"already exists" temp_dns.log >nul 2>&1
+    if %ERRORLEVEL%==0 (
+        echo ✅ DNS record already exists for %DOMAIN%
+    ) else (
+        echo ⚠️  DNS setup may have failed, but continuing...
+    )
 )
+del temp_dns.log 2>nul
 
 echo.
 echo [1/3] Installing dependencies...
@@ -792,24 +810,32 @@ echo.
 
 REM DNS validation check
 echo ℹ️  🔍 Testing DNS resolution...
-timeout /t 2 /nobreak >nul
+timeout /t 5 /nobreak >nul
 
-nslookup %DOMAIN% 8.8.8.8 >nul 2>&1
+nslookup %DOMAIN% 8.8.8.8 > temp_dns_check.txt 2>&1
+findstr /C:"104.21" temp_dns_check.txt >nul 2>&1
 if %ERRORLEVEL%==0 (
-    echo ✅ DNS sudah aktif!
+    echo ✅ DNS sudah aktif dan mengarah ke Cloudflare!
     echo.
-    echo ℹ️  🚀 Coba akses: https://%DOMAIN%
+    echo ℹ️  🚀 Website siap: https://%DOMAIN%
+    echo.
+    echo ⚠️  Jika browser error 'ERR_FAILED':
+    echo   • Clear browser DNS cache: chrome://net-internals/#dns
+    echo   • Flush Windows DNS: ipconfig /flushdns
+    echo   • Coba incognito/private mode
+    echo   • Ganti DNS Windows ke 8.8.8.8
 ) else (
     echo ⚠️  DNS belum propagate ^(normal, butuh 5-15 menit^)
     echo.
-    echo ℹ️  💡 Tips sementara menunggu DNS:
-    echo   • Coba akses: https://%TUNNEL_ID%.cfargotunnel.com
-    echo   • Atau tunggu 5-15 menit lalu coba: https://%DOMAIN%
+    echo ℹ️  💡 Solusi sementara:
+    echo   • Test tunnel: cloudflared tunnel info absen-guru
+    echo   • Tunggu 5-15 menit untuk DNS propagation
     echo.
-    echo ℹ️  🔍 Check DNS status:
+    echo ℹ️  🔍 Monitor DNS:
     echo   • nslookup %DOMAIN% 8.8.8.8
-    echo   • Online: https://dnschecker.org/#CNAME/%DOMAIN%
+    echo   • Online check: https://dnschecker.org/#CNAME/%DOMAIN%
 )
+del temp_dns_check.txt 2>nul
 
 echo.
 echo ℹ️  📊 Services yang berjalan:

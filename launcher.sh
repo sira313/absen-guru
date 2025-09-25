@@ -92,7 +92,7 @@ get_local_ip() {
 }
 
 setup_db_if_needed() {
-    if [[ ! -f "absen.db" ]]; then
+    if [ ! -f "absen.db" ]; then
         print_info "Database not found, creating fresh database..."
         pnpm db:setup
     else
@@ -417,12 +417,14 @@ EOF
     
     # Auto-create DNS record
     echo ""
-    print_info "🌐 Auto-setting DNS record..."
-    "$CLOUDFLARED_PATH" tunnel route dns "$TUNNEL_NAME" "$DOMAIN" 2>/dev/null && {
-        print_success "✅ DNS record created for $DOMAIN"
-    } || {
-        print_warning "⚠️  DNS record already exists or failed (continuing anyway)"
-    }
+    print_info "🌐 Setting up DNS record..."
+    DNS_RESULT=$("$CLOUDFLARED_PATH" tunnel route dns "$TUNNEL_NAME" "$DOMAIN" 2>&1)
+    if echo "$DNS_RESULT" | grep -q "Added CNAME\|already exists"; then
+        print_success "✅ DNS record configured for $DOMAIN"
+    else
+        print_warning "⚠️  DNS setup may have failed, but continuing..."
+        echo "DNS Result: $DNS_RESULT"
+    fi
     
     # Start application and tunnel
     echo ""
@@ -763,22 +765,29 @@ EOF
     
     # DNS validation check
     print_info "🔍 Testing DNS resolution..."
-    sleep 2
+    sleep 5
     
-    if nslookup "$DOMAIN" 8.8.8.8 >/dev/null 2>&1; then
-        print_success "✅ DNS sudah aktif!"
+    DNS_CHECK=$(nslookup "$DOMAIN" 8.8.8.8 2>/dev/null)
+    if echo "$DNS_CHECK" | grep -q "104.21\|172.67\|cloudflare"; then
+        print_success "✅ DNS sudah aktif dan mengarah ke Cloudflare!"
         echo ""
-        print_info "🚀 Coba akses: https://$DOMAIN"
+        print_info "🚀 Website siap: https://$DOMAIN"
+        echo ""
+        print_warning "⚠️  Jika browser error 'ERR_FAILED':"
+        echo "  • Clear browser DNS cache: chrome://net-internals/#dns"
+        echo "  • Flush Windows DNS: ipconfig /flushdns"
+        echo "  • Coba incognito/private mode"
+        echo "  • Ganti DNS Windows ke 8.8.8.8"
     else
         print_warning "⚠️  DNS belum propagate (normal, butuh 5-15 menit)"
         echo ""
-        print_info "💡 Tips sementara menunggu DNS:"
-        echo "  • Coba akses: https://$TUNNEL_ID.cfargotunnel.com"
-        echo "  • Atau tunggu 5-15 menit lalu coba: https://$DOMAIN"
+        print_info "💡 Solusi sementara:"
+        echo "  • Test tunnel: cloudflared tunnel info $TUNNEL_NAME"
+        echo "  • Tunggu 5-15 menit untuk DNS propagation"
         echo ""
-        print_info "🔍 Check DNS status:"
+        print_info "🔍 Monitor DNS:"
         echo "  • nslookup $DOMAIN 8.8.8.8"
-        echo "  • Online: https://dnschecker.org/#CNAME/$DOMAIN"
+        echo "  • Online check: https://dnschecker.org/#CNAME/$DOMAIN"
     fi
     
     echo ""
@@ -843,6 +852,13 @@ reset_database() {
     
     print_info "[3/3] Setting up fresh database..."
     pnpm db:setup
+    
+    # Restart PM2 services jika ada yang berjalan
+    if command -v pm2 &> /dev/null && pm2 list 2>/dev/null | grep -q "absen-guru-app"; then
+        print_info "[4/4] Restarting PM2 services..."
+        pm2 restart absen-guru-app 2>/dev/null || echo "No app service to restart"
+        print_success "PM2 services restarted with fresh database"
+    fi
     
     echo ""
     print_success "🗑️  Database reset completed!"
