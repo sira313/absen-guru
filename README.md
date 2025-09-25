@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Mac-lightgrey)]()
 
-**🎯 Setup 5 Menit | 📱 Multi Device | 💾 Siap Pakai**
+**🎯 Setup 5 Menit | 📱 Multi Device | ☁️ Internet Access | 💾 Siap Pakai**
 
 </div>
 
@@ -85,24 +85,28 @@ launcher.bat
 ```
 
 **Menu yang tersedia:**
-- **[1] Development** - Untuk testing (localhost:5174)
-- **[2] Local Network** - Bisa diakses dari HP dalam WiFi yang sama 
-- **[3] PM2 Local** - Production mode lokal dengan monitoring
+- **[1] Local Development** - Testing (localhost:5174)
+- **[2] Local Network** - Akses dari HP/laptop dalam WiFi sama 
+- **[3] PM2 Local** - Production lokal dengan auto-restart
 - **[4] PM2 Network** - Production 24/7 dengan akses jaringan
-- **[5] Cloudflare Tunnel** - Akses dari internet (advanced)
-- **[6] Setup Database** - Install database saja
-- **[7] Reset Database** - Mulai dari nol
-- **[8] PM2 Management** - Kelola server
+- **[5] Cloudflare Tunnel** - Interactive mode (debugging)
+- **[6] PM2 + Cloudflare** - Background service untuk internet access
+- **[7] Setup Database** - Install database saja
+- **[8] Reset Database** - Mulai dari nol
+- **[9] PM2 Management** - Status, logs, restart services
 
 > 📖 **Detail lengkap:** [**LAUNCHER.md**](LAUNCHER.md)
 
-### **🌐 Akses dari HP/Laptop Lain**
+### **🌐 Akses dari Mana Saja**
 
-Pilih **opsi [2] atau [4]** di launcher, nanti akan dapat IP seperti: `http://192.168.1.100:3000`
+**Dalam WiFi yang sama (HP/Laptop):**
+- Pilih **opsi [2] atau [4]** → dapat IP: `http://192.168.1.100:3000`
 
-Buka IP tersebut di browser HP/laptop lain dalam WiFi yang sama.
+**Dari Internet (dimanapun):**
+- Pilih **opsi [5] atau [6]** → dapat URL: `https://xxx.trycloudflare.com`
+- Atau setup domain kustom: `https://absen.sekolah.sch.id`
 
-> 📖 **Panduan lengkap:** [**NETWORK_SETUP.md**](NETWORK_SETUP.md)
+> 📖 **Detail:** [**NETWORK_SETUP.md**](NETWORK_SETUP.md) | [**docs/CLOUDFLARE_TUNNEL.md**](docs/CLOUDFLARE_TUNNEL.md)
 
 ---
 
@@ -124,19 +128,15 @@ Setelah install, login dengan:
 ## 📚 Dokumentasi Lengkap
 
 ### **🚀 Panduan Setup**
-- [📖 **FIRST_INSTALL.md**](FIRST_INSTALL.md) - Panduan install step-by-step
+- [📖 **FIRST_INSTALL.md**](FIRST_INSTALL.md) - Install step-by-step
 - [🚀 **LAUNCHER.md**](LAUNCHER.md) - Cara menggunakan launcher
-- [🌐 **NETWORK_SETUP.md**](NETWORK_SETUP.md) - Setup akses dari jaringan
-- [🏭 **DEPLOYMENT_GUIDE.md**](DEPLOYMENT_GUIDE.md) - Deploy ke server/hosting
+- [🌐 **NETWORK_SETUP.md**](NETWORK_SETUP.md) - Akses dari jaringan
+- [✅ **PRODUCTION_READY.md**](PRODUCTION_READY.md) - Deploy untuk produksi
 
 ### **📋 Panduan Penggunaan**
 - [✅ **PRODUCTION_READY.md**](PRODUCTION_READY.md) - Siapkan untuk produksi
-- [📊 **docs/EXPORT_DATABASE_CHANGES.md**](docs/EXPORT_DATABASE_CHANGES.md) - Cara export/backup data
+- [☁️ **docs/CLOUDFLARE_TUNNEL.md**](docs/CLOUDFLARE_TUNNEL.md) - Setup akses internet
 - [🔐 **docs/ADMIN_PASSWORD_RECOVERY.md**](docs/ADMIN_PASSWORD_RECOVERY.md) - Reset password admin
-
-### **🔧 Info Teknis**  
-- [🧹 **docs/CLEANUP_SUMMARY.md**](docs/CLEANUP_SUMMARY.md) - Log perubahan sistem
-- [⚙️ **.github/copilot-instructions.md**](.github/copilot-instructions.md) - Panduan development
 
 ---
 
@@ -175,9 +175,17 @@ Download versi terbaru, backup data dulu, lalu install ulang. Data bisa di-impor
 <details>
 <summary><strong>⚠️ Server error/tidak bisa diakses?</strong></summary>
 
-1. Buka launcher → pilih [8] PM2 Management → [4] Restart
+1. Buka launcher → pilih [9] PM2 Management → [5] Restart All
 2. Atau jalankan ulang launcher → pilih mode yang sama
-3. Cek panduan: [NETWORK_SETUP.md](NETWORK_SETUP.md)
+3. Untuk tunnel: cek [docs/CLOUDFLARE_TUNNEL.md](docs/CLOUDFLARE_TUNNEL.md)
+</details>
+
+<details>
+<summary><strong>☁️ Cara akses dari internet?</strong></summary>
+
+**Quick (mudah):** Launcher → [6] PM2 + Cloudflare → [1] Quick Tunnel
+**Custom domain:** Setup sekali → [6] PM2 + Cloudflare → [2] Named Tunnel
+**Detail lengkap:** [docs/CLOUDFLARE_TUNNEL.md](docs/CLOUDFLARE_TUNNEL.md)
 </details>
 
 ---
@@ -190,28 +198,12 @@ Download versi terbaru, backup data dulu, lalu install ulang. Data bisa di-impor
 
 ---
 
-## 🛠️ Info Teknis (untuk Developer)
+## � System Requirements
 
-### **Tech Stack**
-- **Frontend:** SvelteKit + TailwindCSS + DaisyUI
-- **Backend:** Node.js + SvelteKit SSR
-- **Database:** SQLite + Drizzle ORM
-- **Process Manager:** PM2
-- **PWA:** Service Worker + Manifest
-
-### **Minimum Requirements**
 - **OS:** Windows 10+, Ubuntu 18+, macOS 10.15+
-- **RAM:** 512MB available
+- **RAM:** 512MB available  
 - **Storage:** 100MB free space
-- **Node.js:** v18+ (otomatis terinstall)
-
-### **Development**
-```bash
-git clone https://github.com/sira313/absen-guru.git
-cd absen-guru
-pnpm install
-pnpm dev
-```
+- **Node.js:** v18+ (auto-install via launcher)
 
 ---
 

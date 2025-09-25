@@ -13,13 +13,21 @@ echo [1] 🖥️  Local Development (localhost:5174)
 echo [2] 🌐 Local Network (IP Address + Production)  
 echo [3] 🔄 PM2 Local Production (Recommended)
 echo [4] 🔄 PM2 Network Production (Best for 24/7)
-echo [5] ☁️  Cloudflare Tunnel (Public Internet)
-echo [6] 🔧 Setup Database Only
-echo [7] �️  Reset Database (Fresh Start)
-echo [8] �📊 PM2 Management (Status/Logs/Stop)
+echo.
+echo 📡 CLOUDFLARE TUNNEL (Internet Access):
+echo [5] ☁️  Interactive Mode (Testing/Debug)
+echo [6] 🔄 Background Service (Production 24/7)
+echo.
+echo [7] 🔧 Setup Database Only
+echo [8] 🗑️  Reset Database (Fresh Start)
+echo [9] 📊 PM2 Management (Status/Logs/Stop)
 echo [0] ❌ Exit
 echo.
-set /p choice=Masukkan pilihan (0-7): 
+echo 💡 Tips:
+echo   • Opsi 5: Manual start/stop, real-time logs
+echo   • Opsi 6: Auto-restart, background service, production-ready
+echo.
+set /p choice=Masukkan pilihan (0-9): 
 
 if "%choice%"=="0" goto :exit
 if "%choice%"=="1" goto :local_dev
@@ -27,9 +35,10 @@ if "%choice%"=="2" goto :network_prod
 if "%choice%"=="3" goto :pm2_local
 if "%choice%"=="4" goto :pm2_network
 if "%choice%"=="5" goto :cloudflare
-if "%choice%"=="6" goto :setup_db
-if "%choice%"=="7" goto :reset_db
-if "%choice%"=="8" goto :pm2_management
+if "%choice%"=="6" goto :pm2_cloudflare
+if "%choice%"=="7" goto :setup_db
+if "%choice%"=="8" goto :reset_db
+if "%choice%"=="9" goto :pm2_management
 
 echo ❌ Pilihan tidak valid!
 pause
@@ -299,16 +308,18 @@ if %ERRORLEVEL% neq 0 (
 echo Pilih aksi PM2:
 echo.
 echo [1] 📊 Status (pm2 status)
-echo [2] 📝 Logs (pm2 logs)
-echo [3] 📈 Monitor (pm2 monit)
-echo [4] 🔄 Restart (pm2 restart)
-echo [5] ⏹️  Stop (pm2 stop)
-echo [6] 🗑️  Delete (pm2 delete)
-echo [7] 💾 Save Config (pm2 save)
-echo [8] 🚀 Startup Script (pm2 startup)
+echo [2] 📝 Logs App (pm2 logs absen-guru)
+echo [3] � Logs Tunnel (pm2 logs absen-guru-tunnel)
+echo [4] �📈 Monitor (pm2 monit)
+echo [5] 🔄 Restart All (pm2 restart all)
+echo [6] 🔄 Restart App Only (pm2 restart absen-guru)
+echo [7] ⏹️  Stop All (pm2 stop all)
+echo [8] 🗑️  Delete All (pm2 delete all)
+echo [9] 💾 Save Config (pm2 save)
+echo [10] 🚀 Startup Script (pm2 startup)
 echo [0] ← Back to main menu
 echo.
-set /p pm2_choice=Masukkan pilihan (0-8): 
+set /p pm2_choice=Masukkan pilihan (0-10): 
 
 if "%pm2_choice%"=="1" (
     echo.
@@ -319,46 +330,61 @@ if "%pm2_choice%"=="1" (
 )
 if "%pm2_choice%"=="2" (
     echo.
-    echo 📝 Showing logs (Ctrl+C to exit)...
-    call pm2 logs
+    echo ℹ️  Showing app logs...
+    call pm2 logs absen-guru-app --lines 50 2>nul || call pm2 logs absen-guru --lines 50 2>nul || echo No app logs found
+    pause
     goto :pm2_management
 )
 if "%pm2_choice%"=="3" (
+    echo.
+    echo ℹ️  Showing tunnel logs...
+    call pm2 logs absen-guru-tunnel --lines 50 2>nul || echo No tunnel logs found
+    pause
+    goto :pm2_management
+)
+if "%pm2_choice%"=="4" (
     echo.
     echo 📈 Opening monitor (q to quit)...
     call pm2 monit
     goto :pm2_management
 )
-if "%pm2_choice%"=="4" (
-    echo.
-    call pm2 restart absen-guru
-    echo ✅ Application restarted!
-    pause
-    goto :pm2_management
-)
 if "%pm2_choice%"=="5" (
     echo.
-    call pm2 stop absen-guru
-    echo ✅ Application stopped!
+    call pm2 restart all
+    echo ✅ All services restarted!
     pause
     goto :pm2_management
 )
 if "%pm2_choice%"=="6" (
     echo.
-    call pm2 stop absen-guru 2>nul
-    call pm2 delete absen-guru 2>nul
-    echo ✅ Application deleted from PM2!
+    call pm2 restart absen-guru-app 2>nul || call pm2 restart absen-guru 2>nul || echo No app to restart
+    echo ✅ Application restarted!
     pause
     goto :pm2_management
 )
 if "%pm2_choice%"=="7" (
+    echo.
+    call pm2 stop all
+    echo ✅ All services stopped!
+    pause
+    goto :pm2_management
+)
+if "%pm2_choice%"=="8" (
+    echo.
+    call pm2 stop absen-guru-app absen-guru-tunnel absen-guru 2>nul
+    call pm2 delete absen-guru-app absen-guru-tunnel absen-guru 2>nul
+    echo ✅ All services deleted from PM2!
+    pause
+    goto :pm2_management
+)
+if "%pm2_choice%"=="9" (
     echo.
     call pm2 save
     echo ✅ PM2 configuration saved!
     pause
     goto :pm2_management
 )
-if "%pm2_choice%"=="8" (
+if "%pm2_choice%"=="10" (
     echo.
     echo 🚀 Setting up PM2 startup script...
     call pm2 startup
@@ -380,33 +406,60 @@ echo ☁️  CLOUDFLARE TUNNEL SETUP
 echo ========================================
 echo.
 
-where cloudflared >nul 2>nul
+call :check_cloudflared
+if %ERRORLEVEL% neq 0 goto :start
+
+echo ✅ cloudflared found
+echo.
+echo Pilih jenis tunnel:
+echo [1] � Quick Tunnel (Random URL, tidak perlu setup)
+echo [2] 🏷️  Named Tunnel (Custom domain, perlu setup sekali)
+echo [3] 🔧 Setup Cloudflare dulu (untuk Named Tunnel)
+echo [0] ❌ Cancel
+echo.
+set /p tunnel_choice=Masukkan pilihan (0-3): 
+
+if "%tunnel_choice%"=="1" call :cloudflare_quick_tunnel
+if "%tunnel_choice%"=="2" call :cloudflare_named_tunnel
+if "%tunnel_choice%"=="3" call :setup_cloudflare_first_time
+if "%tunnel_choice%"=="0" goto :start
+goto :end
+
+:pm2_cloudflare
+echo.
+echo ========================================
+echo 🔄 PM2 + CLOUDFLARE TUNNEL SERVICE
+echo ========================================
+echo.
+
+where pm2 >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo ❌ cloudflared tidak ditemukan!
-    echo.
-    echo 📥 Download dari: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
-    echo.
+    echo ❌ PM2 tidak ditemukan!
+    echo 📦 Install PM2: npm install -g pm2
     pause
     goto :start
 )
 
-echo [1/3] Installing dependencies & Building...
-call pnpm install
-call pnpm build
-if %ERRORLEVEL% neq 0 goto :error
+call :check_cloudflared
+if %ERRORLEVEL% neq 0 goto :start
 
-echo [2/3] Starting production server in background...
-start /B pnpm start
-
-timeout /t 3 /nobreak >nul
-
-echo [3/3] Starting Cloudflare tunnel...
+echo ✅ PM2 found
+echo ✅ cloudflared found
 echo.
-echo ✅ Tunnel akan dimulai, ikuti instruksi cloudflare
-echo 🌐 Aplikasi akan dapat diakses dari internet
+echo Pilih jenis tunnel untuk PM2 service:
+echo [1] 🚀 Quick Tunnel Service (Random URL, tidak perlu setup)
+echo [2] 🏷️  Named Tunnel Service (Custom domain, perlu setup sekali)
+echo [3] 🔧 Setup Cloudflare dulu (untuk Named Tunnel)
+echo [0] ❌ Cancel
 echo.
-cloudflared tunnel --url localhost:3000
-goto :end
+set /p tunnel_choice=Masukkan pilihan (0-3): 
+
+if "%tunnel_choice%"=="1" call :pm2_quick_tunnel_service
+if "%tunnel_choice%"=="2" call :pm2_named_tunnel_service
+if "%tunnel_choice%"=="3" call :setup_cloudflare_first_time
+if "%tunnel_choice%"=="0" goto :start
+pause
+goto :start
 
 :setup_db
 echo.
@@ -445,3 +498,366 @@ exit /b 0
 echo.
 echo 🏁 Process completed.
 pause
+goto :start
+
+:check_cloudflared
+where cloudflared >nul 2>nul
+if %ERRORLEVEL% equ 0 exit /b 0
+
+if exist "%ProgramFiles%\cloudflared\cloudflared.exe" exit /b 0
+if exist "%ProgramFiles(x86)%\cloudflared\cloudflared.exe" exit /b 0
+
+echo ❌ cloudflared tidak ditemukan!
+echo.
+echo 📥 Install cloudflared terlebih dahulu:
+echo 🌐 https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+echo.
+pause
+exit /b 1
+
+:cloudflare_quick_tunnel
+echo.
+echo 🚀 Starting Quick Tunnel...
+
+echo [1/4] Installing dependencies...
+call pnpm install
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [2/4] Setting up database...
+call :setup_db_if_needed
+
+echo [3/4] Building application...
+call pnpm build
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [4/4] Starting tunnel...
+start /B pnpm start
+timeout /t 3 /nobreak >nul
+
+echo.
+echo ✅ 🌐 Quick tunnel akan dimulai dengan URL random
+echo ⚠️  URL akan berubah setiap restart
+echo.
+cloudflared tunnel --url localhost:3000
+exit /b 0
+
+:cloudflare_named_tunnel
+echo.
+echo 🏷️  Named Tunnel Setup
+echo.
+
+cloudflared tunnel list >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo ⚠️  Belum login ke Cloudflare!
+    echo.
+    echo ℹ️  Langkah-langkah setup:
+    echo 1. Login ke Cloudflare: cloudflared tunnel login
+    echo 2. Buat tunnel: cloudflared tunnel create absen-guru
+    echo 3. Set DNS record: cloudflared tunnel route dns absen-guru YOUR-DOMAIN.com
+    echo 4. Jalankan lagi launcher ini
+    echo.
+    
+    set /p login_choice=Mau login sekarang? (y/n): 
+    if /i not "%login_choice%"=="y" (
+        echo Setup dibatalkan - login diperlukan
+        exit /b 1
+    )
+    
+    echo.
+    echo ℹ️  Membuka browser untuk login...
+    cloudflared tunnel login
+    if %ERRORLEVEL% neq 0 (
+        echo ❌ Login gagal!
+        exit /b 1
+    )
+    
+    set /p login_done=Sudah login? (y/n): 
+    if /i not "%login_done%"=="y" (
+        echo ❌ Setup dibatalkan
+        exit /b 1
+    )
+)
+
+echo.
+echo ℹ️  Checking existing tunnels...
+cloudflared tunnel list | findstr "absen-guru" >nul
+if %ERRORLEVEL% neq 0 (
+    echo ⚠️  Tunnel 'absen-guru' belum ada
+    echo.
+    set /p create_choice=Buat tunnel baru 'absen-guru'? (y/n): 
+    
+    if /i "%create_choice%"=="y" (
+        echo ℹ️  Membuat tunnel 'absen-guru'...
+        cloudflared tunnel create absen-guru
+        if %ERRORLEVEL% neq 0 (
+            echo ❌ Gagal membuat tunnel
+            exit /b 1
+        )
+    ) else (
+        echo ❌ Setup dibatalkan
+        exit /b 1
+    )
+) else (
+    echo ✅ Tunnel 'absen-guru' sudah ada
+)
+
+set /p DOMAIN=Masukkan domain (contoh: absen.yourschool.sch.id): 
+if "%DOMAIN%"=="" (
+    echo ❌ Domain tidak boleh kosong!
+    exit /b 1
+)
+
+echo.
+echo ℹ️  Membuat konfigurasi tunnel...
+if not exist "%USERPROFILE%\.cloudflared" mkdir "%USERPROFILE%\.cloudflared"
+
+for /f "tokens=1" %%a in ('cloudflared tunnel list ^| findstr "absen-guru"') do set TUNNEL_ID=%%a
+
+echo tunnel: %TUNNEL_ID%> "%USERPROFILE%\.cloudflared\config.yml"
+echo credentials-file: %USERPROFILE%\.cloudflared\%TUNNEL_ID%.json>> "%USERPROFILE%\.cloudflared\config.yml"
+echo.>> "%USERPROFILE%\.cloudflared\config.yml"
+echo ingress:>> "%USERPROFILE%\.cloudflared\config.yml"
+echo   - hostname: %DOMAIN%>> "%USERPROFILE%\.cloudflared\config.yml"
+echo     service: http://localhost:3000>> "%USERPROFILE%\.cloudflared\config.yml"
+echo   - service: http_status:404>> "%USERPROFILE%\.cloudflared\config.yml"
+
+echo ✅ Konfigurasi dibuat
+
+echo.
+set /p dns_choice=Set DNS record untuk %DOMAIN%? (y/n): 
+if /i "%dns_choice%"=="y" (
+    cloudflared tunnel route dns absen-guru %DOMAIN%
+    if %ERRORLEVEL% equ 0 (
+        echo ✅ DNS record berhasil dibuat
+    ) else (
+        echo ⚠️  Gagal set DNS record - mungkin sudah ada atau perlu set manual
+    )
+)
+
+echo.
+echo [1/3] Installing dependencies...
+call pnpm install
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [2/3] Setting up database...
+call :setup_db_if_needed
+
+echo [3/3] Building application...
+call pnpm build
+if %ERRORLEVEL% neq 0 goto :error
+
+echo.
+echo ℹ️  Starting application and tunnel...
+start /B pnpm start
+timeout /t 3 /nobreak >nul
+
+echo.
+echo ✅ 🌐 Named tunnel dimulai!
+echo ✅ Domain: https://%DOMAIN%
+echo ℹ️  Tunnel: absen-guru
+echo.
+cloudflared tunnel run absen-guru
+exit /b 0
+
+:pm2_quick_tunnel_service
+echo.
+echo 🚀 Setting up PM2 Quick Tunnel Service...
+
+echo [1/4] Installing dependencies...
+call pnpm install
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [2/4] Setting up database...
+call :setup_db_if_needed
+
+echo [3/4] Building application...
+call pnpm build
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [4/4] Starting PM2 services...
+call pm2 stop absen-guru-app absen-guru-tunnel 2>nul
+call pm2 delete absen-guru-app absen-guru-tunnel 2>nul
+
+call pm2 start "node build/index.js" --name "absen-guru-app" --env production
+timeout /t 3 /nobreak >nul
+call pm2 start "cloudflared tunnel --url localhost:3000" --name "absen-guru-tunnel"
+call pm2 save
+
+echo.
+echo ✅ 🎉 PM2 + Quick Tunnel Service berhasil dimulai!
+echo.
+echo ℹ️  Services yang berjalan:
+echo   • absen-guru-app (Node.js application)
+echo   • absen-guru-tunnel (Cloudflare tunnel)
+echo.
+echo ℹ️  Perintah berguna:
+echo   • pm2 status              - Lihat status services
+echo   • pm2 logs absen-guru-app - Lihat logs aplikasi  
+echo   • pm2 logs absen-guru-tunnel - Lihat logs tunnel
+echo   • pm2 restart all         - Restart semua services
+echo   • pm2 stop all            - Stop semua services
+echo.
+echo 🔍 Mencari tunnel URL...
+timeout /t 5 /nobreak >nul
+echo URL akan muncul dalam beberapa saat di: pm2 logs absen-guru-tunnel
+exit /b 0
+
+:pm2_named_tunnel_service
+echo.
+echo 🏷️  Setting up PM2 Named Tunnel Service...
+
+cloudflared tunnel list >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo ⚠️  Belum login ke Cloudflare atau tunnel belum dibuat!
+    echo.
+    echo ℹ️  Setup manual diperlukan:
+    echo 1. cloudflared tunnel login
+    echo 2. cloudflared tunnel create absen-guru
+    echo 3. cloudflared tunnel route dns absen-guru YOUR-DOMAIN.com
+    echo 4. Jalankan lagi opsi ini
+    pause
+    exit /b 1
+)
+
+cloudflared tunnel list | findstr "absen-guru" >nul
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Tunnel 'absen-guru' tidak ditemukan!
+    echo.
+    echo ℹ️  Buat tunnel terlebih dahulu:
+    echo cloudflared tunnel create absen-guru
+    pause
+    exit /b 1
+)
+
+set /p DOMAIN=Masukkan domain yang sudah di-setup (contoh: absen.yourschool.sch.id): 
+if "%DOMAIN%"=="" (
+    echo ❌ Domain tidak boleh kosong!
+    exit /b 1
+)
+
+if not exist "%USERPROFILE%\.cloudflared\config.yml" (
+    echo ℹ️  Membuat konfigurasi tunnel...
+    if not exist "%USERPROFILE%\.cloudflared" mkdir "%USERPROFILE%\.cloudflared"
+    
+    for /f "tokens=1" %%a in ('cloudflared tunnel list ^| findstr "absen-guru"') do set TUNNEL_ID=%%a
+    
+    echo tunnel: !TUNNEL_ID!> "%USERPROFILE%\.cloudflared\config.yml"
+    echo credentials-file: %USERPROFILE%\.cloudflared\!TUNNEL_ID!.json>> "%USERPROFILE%\.cloudflared\config.yml"
+    echo.>> "%USERPROFILE%\.cloudflared\config.yml"
+    echo ingress:>> "%USERPROFILE%\.cloudflared\config.yml"
+    echo   - hostname: %DOMAIN%>> "%USERPROFILE%\.cloudflared\config.yml"
+    echo     service: http://localhost:3000>> "%USERPROFILE%\.cloudflared\config.yml"
+    echo   - service: http_status:404>> "%USERPROFILE%\.cloudflared\config.yml"
+    
+    echo ✅ Konfigurasi dibuat
+)
+
+echo [1/4] Installing dependencies...
+call pnpm install
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [2/4] Setting up database...
+call :setup_db_if_needed
+
+echo [3/4] Building application...
+call pnpm build
+if %ERRORLEVEL% neq 0 goto :error
+
+echo [4/4] Starting PM2 services...
+call pm2 stop absen-guru-app absen-guru-tunnel 2>nul
+call pm2 delete absen-guru-app absen-guru-tunnel 2>nul
+
+call pm2 start "node build/index.js" --name "absen-guru-app" --env production
+timeout /t 3 /nobreak >nul
+call pm2 start "cloudflared tunnel run absen-guru" --name "absen-guru-tunnel"
+call pm2 save
+
+echo.
+echo ✅ 🎉 PM2 + Named Tunnel Service berhasil dimulai!
+echo.
+echo ✅ 🌐 Domain: https://%DOMAIN%
+echo.
+echo ℹ️  Services yang berjalan:
+echo   • absen-guru-app (Node.js application)
+echo   • absen-guru-tunnel (Cloudflare named tunnel)
+echo.
+echo ℹ️  Perintah berguna:
+echo   • pm2 status              - Lihat status services
+echo   • pm2 logs absen-guru-app - Lihat logs aplikasi
+echo   • pm2 logs absen-guru-tunnel - Lihat logs tunnel
+echo   • pm2 restart all         - Restart semua services
+echo   • pm2 stop all            - Stop semua services
+echo.
+exit /b 0
+
+:setup_cloudflare_first_time
+echo.
+echo ℹ️  🔧 SETUP CLOUDFLARE (One-time setup)
+echo.
+
+cloudflared tunnel list >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    cloudflared tunnel list | findstr "absen-guru" >nul
+    if %ERRORLEVEL% equ 0 (
+        echo ✅ Cloudflare sudah ter-setup!
+        pause
+        exit /b 0
+    )
+)
+
+echo ⚠️  Setup Cloudflare diperlukan (hanya sekali)
+echo.
+echo ℹ️  Langkah yang akan dilakukan:
+echo 1. Login ke akun Cloudflare gratis
+echo 2. Buat tunnel 'absen-guru'
+echo 3. Setup DNS untuk domain kustom (opsional)
+echo.
+
+set /p setup_choice=Lanjutkan setup? (y/n): 
+if /i not "%setup_choice%"=="y" (
+    echo ℹ️  Setup dibatalkan - gunakan Quick Tunnel tanpa setup
+    pause
+    exit /b 1
+)
+
+echo.
+echo ℹ️  💻 Membuka browser untuk login Cloudflare...
+cloudflared tunnel login
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Login gagal!
+    pause
+    exit /b 1
+)
+
+echo.
+set /p login_ok=Sudah login berhasil? (y/n): 
+if /i not "%login_ok%"=="y" (
+    echo ❌ Setup dibatalkan
+    pause
+    exit /b 1
+)
+
+echo.
+echo ℹ️  🚇 Membuat tunnel 'absen-guru'...
+cloudflared tunnel create absen-guru
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Gagal membuat tunnel!
+    pause
+    exit /b 1
+)
+
+echo.
+echo ✅ Setup Cloudflare berhasil!
+echo ℹ️  Tunnel 'absen-guru' sudah dibuat dan siap digunakan
+echo.
+pause
+exit /b 0
+
+:setup_db_if_needed
+if not exist "absen.db" (
+    echo ℹ️  Database not found, creating fresh database...
+    call pnpm db:setup
+) else (
+    echo ✅ Database exists, skipping setup
+)
+exit /b 0
