@@ -12,42 +12,42 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 print_header() {
-    echo -e "${BLUE}"
+    printf "${BLUE}\n"
     echo "╔══════════════════════════════════════════════════════════╗"
     echo "║                  🏠 ABSEN-GURU LAUNCHER                 ║"
     echo "╚══════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
+    printf "${NC}\n"
 }
 
 print_menu() {
     echo "Pilih mode deployment:"
     echo ""
-    echo -e "${GREEN}[1]${NC} 🖥️  Local Development (localhost:5174)"
-    echo -e "${BLUE}[2]${NC} 🌐 Local Network (IP Address + Production)"
-    echo -e "${PURPLE}[3]${NC} 🔄 PM2 Local Production (Recommended)"
-    echo -e "${PURPLE}[4]${NC} 🔄 PM2 Network Production (Best for 24/7)"
-    echo -e "${CYAN}[5]${NC} ☁️  Cloudflare Tunnel (Public Internet)"
-    echo -e "${YELLOW}[6]${NC} 🔧 Setup Database Only"
-    echo -e "${YELLOW}[7]${NC} 🗑️  Reset Database (Fresh Start)"
-    echo -e "${YELLOW}[8]${NC} 📊 PM2 Management (Status/Logs/Stop)"
-    echo -e "${RED}[0]${NC} ❌ Exit"
+    printf "${GREEN}[1]${NC} 🖥️  Local Development (localhost:5174)\n"
+    printf "${BLUE}[2]${NC} 🌐 Local Network (IP Address + Production)\n"
+    printf "${PURPLE}[3]${NC} 🔄 PM2 Local Production (Recommended)\n"
+    printf "${PURPLE}[4]${NC} 🔄 PM2 Network Production (Best for 24/7)\n"
+    printf "${CYAN}[5]${NC} ☁️  Cloudflare Tunnel (Public Internet)\n"
+    printf "${YELLOW}[6]${NC} 🔧 Setup Database Only\n"
+    printf "${YELLOW}[7]${NC} 🗑️  Reset Database (Fresh Start)\n"
+    printf "${YELLOW}[8]${NC} 📊 PM2 Management (Status/Logs/Stop)\n"
+    printf "${RED}[0]${NC} ❌ Exit\n"
     echo ""
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    printf "${BLUE}ℹ️  $1${NC}\n"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    printf "${GREEN}✅ $1${NC}\n"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    printf "${RED}❌ $1${NC}\n"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    printf "${YELLOW}⚠️  $1${NC}\n"
 }
 
 get_local_ip() {
@@ -182,7 +182,7 @@ pm2_local() {
     print_info "📋 Gunakan opsi [8] untuk PM2 management"
     echo ""
     
-    read -p "Press Enter to continue..."
+    printf "Press Enter to continue..."; read dummy
 }
 
 pm2_network() {
@@ -230,7 +230,7 @@ pm2_network() {
     print_info "📋 Gunakan opsi [8] untuk PM2 management"
     echo ""
     
-    read -p "Press Enter to continue..."
+    printf "Press Enter to continue..."; read dummy
 }
 
 cloudflare_tunnel() {
@@ -240,15 +240,28 @@ cloudflare_tunnel() {
     echo "========================================"
     echo ""
     
-    if ! command -v cloudflared &> /dev/null; then
+    # Check cloudflared dengan multiple path
+    CLOUDFLARED_PATH=""
+    if command -v cloudflared >/dev/null 2>&1; then
+        CLOUDFLARED_PATH=$(command -v cloudflared)
+    elif [ -f "/usr/local/bin/cloudflared" ]; then
+        CLOUDFLARED_PATH="/usr/local/bin/cloudflared"
+    elif [ -f "/usr/bin/cloudflared" ]; then
+        CLOUDFLARED_PATH="/usr/bin/cloudflared"
+    fi
+    
+    if [ -z "$CLOUDFLARED_PATH" ]; then
         print_error "cloudflared tidak ditemukan!"
         echo ""
         print_info "Install cloudflared terlebih dahulu:"
         echo "🌐 https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
         echo ""
-        read -p "Press Enter to continue..."
+        printf "Press Enter to continue..."
+        read dummy
         return
     fi
+    
+    print_success "cloudflared found at: $CLOUDFLARED_PATH"
     
     print_info "[1/4] Installing dependencies..."
     pnpm install || { print_error "Failed to install dependencies"; exit 1; }
@@ -290,7 +303,7 @@ setup_database() {
     echo ""
     print_success "Database setup completed!"
     print_info "Default login: admin / admin123"
-    read -p "Press Enter to continue..."
+    printf "Press Enter to continue..."; read dummy
 }
 
 reset_database() {
@@ -304,11 +317,11 @@ reset_database() {
     print_info "All users, attendance records, and settings will be lost."
     echo ""
     
-    read -p "Are you sure? Type 'yes' to continue: " confirm
+    printf "Are you sure? Type 'yes' to continue: "; read confirm
     
     if [[ "$confirm" != "yes" ]]; then
         print_info "Reset cancelled."
-        read -p "Press Enter to continue..."
+        printf "Press Enter to continue..."; read dummy
         return
     fi
     
@@ -328,7 +341,7 @@ reset_database() {
     print_info "Default login: admin / admin123"
     echo ""
     
-    read -p "Press Enter to continue..."
+    printf "Press Enter to continue..."; read dummy
 }
 
 pm2_management() {
@@ -356,14 +369,14 @@ pm2_management() {
     echo -e "${YELLOW}[0]${NC} ← Back to main menu"
     echo ""
     
-    read -p "Masukkan pilihan (0-8): " pm2_choice
+    printf "Masukkan pilihan (0-8): "; read pm2_choice
     
     case $pm2_choice in
         1)
             echo ""
             pm2 status
             echo ""
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         2)
             echo ""
@@ -379,26 +392,26 @@ pm2_management() {
             echo ""
             pm2 restart absen-guru
             print_success "Application restarted!"
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         5)
             echo ""
             pm2 stop absen-guru
             print_success "Application stopped!"
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         6)
             echo ""
             pm2 stop absen-guru 2>/dev/null || true
             pm2 delete absen-guru 2>/dev/null || true
             print_success "Application deleted from PM2!"
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         7)
             echo ""
             pm2 save
             print_success "PM2 configuration saved!"
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         8)
             echo ""
@@ -406,7 +419,7 @@ pm2_management() {
             pm2 startup
             echo ""
             print_warning "Jalankan command yang ditampilkan di atas dengan sudo (jika diminta)"
-            read -p "Press Enter to continue..."
+            printf "Press Enter to continue..."; read dummy
             ;;
         0)
             return
@@ -425,7 +438,7 @@ main() {
         print_header
         print_menu
         
-        read -p "Masukkan pilihan (0-8): " choice
+        printf "Masukkan pilihan (0-8): "; read choice
         
         case $choice in
             1)
