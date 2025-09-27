@@ -2,16 +2,15 @@
 const CACHE_VERSION = "1.0.0";
 const CACHE = `cache-${CACHE_VERSION}`;
 
-// Assets to cache (app shell)
+// Assets to cache (app shell) - only static files that actually exist
 const ASSETS = [
   "/",
   "/favicon.png",
   "/favicon.svg",  
   "/icon-192.png",
   "/icon-512.png",
-  "/manifest.json",
-  "/guru", // Cache guru page for offline
-  "/api/pouchdb", // Cache PouchDB API endpoint
+  "/manifest.json"
+  // Removed dynamic routes to prevent cache errors
 ];
 
 // Install service worker

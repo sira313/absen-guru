@@ -1,14 +1,14 @@
-import { fail, redirect } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import { dbHelpers } from "$lib/server/db.js";
 
 // Helper function to check if date is weekend
-function isWeekend(date) {
+function _isWeekend(date) {
   const day = date.getDay();
   return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
 }
 
 // Helper function to get weekend day name
-function getWeekendDayName(date) {
+function _getWeekendDayName(date) {
   const day = date.getDay();
   if (day === 0) return "Minggu";
   if (day === 6) return "Sabtu";
@@ -78,14 +78,17 @@ async function createTodayAttendance(userId, checkInTime, status, notes) {
   }
 }
 
-export async function load({ locals }) {
+export async function load({ locals, depends }) {
+  // Add dependency tracking for cache invalidation
+  depends('guru:attendance');
+  
   const user = locals.user;
   const today = new Date();
   const todayString = today.toISOString().split("T")[0];
 
   // Check if today is weekend
-  const isWeekendToday = isWeekend(today);
-  const weekendDayName = isWeekendToday ? getWeekendDayName(today) : "";
+  const isWeekendToday = _isWeekend(today);
+  const weekendDayName = isWeekendToday ? _getWeekendDayName(today) : "";
 
   try {
     // Ambil absensi hari ini menggunakan fungsi yang ada
@@ -162,8 +165,8 @@ export const actions = {
     const now = new Date();
 
     // Check if today is weekend
-    if (isWeekend(now)) {
-      const dayName = getWeekendDayName(now);
+    if (_isWeekend(now)) {
+      const dayName = _getWeekendDayName(now);
       return fail(400, {
         message: `Tidak bisa melakukan absensi pada hari ${dayName}. Sistem absensi hanya tersedia pada hari kerja (Senin-Jumat).`,
       });
@@ -195,6 +198,11 @@ export const actions = {
       });
     }
 
-    throw redirect(303, "/guru");
+    // Return success data without redirect for instant UI update
+    return {
+      success: true,
+      message: "✅ Absensi berhasil disimpan!",
+      attendanceData: result.data
+    };
   },
 };

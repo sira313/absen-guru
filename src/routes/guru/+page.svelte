@@ -55,8 +55,9 @@
 			default: return status;
 		}
 	}
+	
 	let user = $derived(data.user);
-	let todayAttendance = $derived(data.todayAttendance);
+	let todayAttendance = $state(data.todayAttendance); // Initialize with server data
 	let stats = $derived(data.stats);
 	let today = $derived(data.today);
 	let useOfflineMode = $state(true); // Default ke offline-first mode
@@ -64,6 +65,8 @@
 	let weekendDayName = $derived(data.weekendDayName);
 	let currentTimeString = $derived(format(currentTime, 'HH:mm:ss'));
 	let todayFormatted = $derived(format(new Date(today), 'dd MMMM yyyy', { locale: localeId }));
+	
+	// NO EFFECT - Let form submission handle the update manually
 </script>
 
 <svelte:head>
@@ -95,7 +98,8 @@
 		</div>
 	{/if}
 
-	<!-- Status Absen Hari Ini -->
+	<!-- Status Absen Hari Ini - Hanya tampil di hari kerja -->
+	{#if !isWeekend}
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
 			<h2 class="card-title justify-center mb-6">Status Absensi Hari Ini</h2>
@@ -134,69 +138,32 @@
 				</div>
 			</div>
 		{:else}
-			<!-- Weekend Notice -->
-			{#if isWeekend}
-				<div class="bg-gradient-to-r from-info/10 to-info/5 rounded-lg p-6 border border-info/20 mb-6">
-					<div class="flex items-center justify-center mb-4">
-						<div class="relative">
-							<div class="w-16 h-16 bg-info rounded-full flex items-center justify-center shadow-lg">
-								<Coffee class="w-8 h-8 text-info-content" />
-							</div>
-							<div class="absolute -top-1 -right-1 w-6 h-6 bg-info-content rounded-full border-2 border-info flex items-center justify-center">
-								<span class="text-info text-xs font-bold">☕</span>
-							</div>
+			<!-- Status Belum Absen -->
+			<div class="bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg p-6 border border-warning/20 mb-6">
+				<div class="flex items-center justify-center mb-4">
+					<div class="relative">
+						<div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center shadow-lg animate-pulse">
+							<AlertTriangle class="w-8 h-8 text-warning-content" />
 						</div>
-					</div>
-					
-					<div class="text-center space-y-2">
-						<h3 class="text-xl font-bold text-info">Selamat Hari {weekendDayName}!</h3>
-						<p class="text-base-content/70">Nikmati hari libur Anda. Sistem absensi akan tersedia kembali pada hari Senin.</p>
-						<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
-							<Calendar class="w-4 h-4" />
-							<span>Hari kerja: Senin - Jumat</span>
+						<div class="absolute -top-1 -right-1 w-6 h-6 bg-warning-content rounded-full border-2 border-warning flex items-center justify-center">
+							<span class="text-warning text-xs font-bold">!</span>
 						</div>
 					</div>
 				</div>
-			{:else}
-				<!-- Status Belum Absen -->
-				<div class="bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg p-6 border border-warning/20 mb-6">
-					<div class="flex items-center justify-center mb-4">
-						<div class="relative">
-							<div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center shadow-lg animate-pulse">
-								<AlertTriangle class="w-8 h-8 text-warning-content" />
-							</div>
-							<div class="absolute -top-1 -right-1 w-6 h-6 bg-warning-content rounded-full border-2 border-warning flex items-center justify-center">
-								<span class="text-warning text-xs font-bold">!</span>
-							</div>
-						</div>
-					</div>
-					
-					<div class="text-center space-y-2">
-						<h3 class="text-xl font-bold text-warning">Belum Absen Hari Ini</h3>
-						<p class="text-base-content/70">Silakan lakukan absensi untuk memulai hari kerja Anda</p>
-						<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
-							<Calendar class="w-4 h-4" />
-							<span>Batas waktu: 08:00 WIB</span>
-						</div>
+				
+				<div class="text-center space-y-2">
+					<h3 class="text-xl font-bold text-warning">Belum Absen Hari Ini</h3>
+					<p class="text-base-content/70">Silakan lakukan absensi untuk memulai hari kerja Anda</p>
+					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+						<Calendar class="w-4 h-4" />
+						<span>Batas waktu: 08:00 WIB</span>
 					</div>
 				</div>
-			{/if}
-			<!-- Form Absensi dengan Mode Toggle -->
-				<!-- Mode Toggle -->
+			</div>
+			<!-- Form Absensi - Online Mode Only for debugging -->
 				<div class="mb-4">
-					<div class="tabs tabs-boxed bg-base-200">
-						<button 
-							class="tab {useOfflineMode ? 'tab-active' : ''}"
-							onclick={() => useOfflineMode = true}
-						>
-							📱 Mode Offline-First
-						</button>
-						<button 
-							class="tab {!useOfflineMode ? 'tab-active' : ''}"
-							onclick={() => useOfflineMode = false}
-						>
-							🌐 Mode Online Tradisional
-						</button>
+					<div class="alert alert-info">
+						<span>� Debug Mode: Hanya menggunakan mode online tradisional</span>
 					</div>
 				</div>
 
@@ -209,10 +176,51 @@
 					<div class="card-body">
 						<h4 class="card-title text-center text-primary mb-4">
 							<Clock class="w-5 h-5" />
-							Form Absensi
+							Form Absensi Online
 						</h4>
+						
+						{#if isWeekend}
+							<!-- Weekend Notice untuk Online Mode -->
+							<div class="bg-gradient-to-r from-info/10 to-info/5 rounded-lg p-6 border border-info/20">
+								<div class="flex items-center justify-center mb-4">
+									<div class="relative">
+										<div class="w-16 h-16 bg-info rounded-full flex items-center justify-center shadow-lg">
+											<Coffee class="w-8 h-8 text-info-content" />
+										</div>
+										<div class="absolute -top-1 -right-1 w-6 h-6 bg-info-content rounded-full border-2 border-info flex items-center justify-center">
+											<span class="text-info text-xs font-bold">☕</span>
+										</div>
+									</div>
+								</div>
+								
+								<div class="text-center space-y-2">
+									<h3 class="text-xl font-bold text-info">Selamat Hari {weekendDayName}!</h3>
+									<p class="text-base-content/70">Nikmati hari libur Anda. Sistem absensi akan tersedia kembali pada hari Senin.</p>
+									<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+										<Calendar class="w-4 h-4" />
+										<span>Hari kerja: Senin - Jumat</span>
+									</div>
+								</div>
+							</div>
+						{:else}
 					
-					<form method="POST" action="?/absen" use:enhance class="space-y-4">
+					<form method="POST" action="?/absen" use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success' && result.data?.success) {
+								// Update UI immediately with the attendance data
+								todayAttendance = result.data.attendanceData;
+								form = { 
+									message: result.data.message, 
+									success: true 
+								};
+								// Don't call update() to avoid page reload
+								return;
+							} else {
+								// Let SvelteKit handle other cases normally
+								await update();
+							}
+						};
+					}} class="space-y-4">
 						<!-- Pilihan Status Kehadiran -->
 						<fieldset class="fieldset">
 							<legend class="fieldset-legend">Status Kehadiran</legend>
@@ -278,12 +286,41 @@
 							</div>
 						</button>
 					</form>
+					{/if}
 				</div>
 			</div>
 				{/if}
 		{/if}
 		</div>
 	</div>
+	{:else}
+	<!-- Weekend Notice - Menggantikan Status Absensi -->
+	<div class="card bg-base-100 shadow-xl">
+		<div class="card-body">
+			<div class="bg-gradient-to-r from-info/10 to-info/5 rounded-lg p-6 border border-info/20">
+				<div class="flex items-center justify-center mb-4">
+					<div class="relative">
+						<div class="w-16 h-16 bg-info rounded-full flex items-center justify-center shadow-lg">
+							<Coffee class="w-8 h-8 text-info-content" />
+						</div>
+						<div class="absolute -top-1 -right-1 w-6 h-6 bg-info-content rounded-full border-2 border-info flex items-center justify-center">
+							<span class="text-info text-xs font-bold">☕</span>
+						</div>
+					</div>
+				</div>
+				
+				<div class="text-center space-y-2">
+					<h3 class="text-xl font-bold text-info">Selamat Hari {weekendDayName}!</h3>
+					<p class="text-base-content/70">Nikmati hari libur Anda. Sistem absensi akan tersedia kembali pada hari Senin.</p>
+					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+						<Calendar class="w-4 h-4" />
+						<span>Hari kerja: Senin - Jumat</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{/if}
 
 	<!-- Statistik Bulan Ini -->
 	<div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -331,8 +368,7 @@
 				<AlertTriangle class="w-8 h-8" />
 			</div>
 			<div class="stat-value text-error">{stats.absentDays}</div>
-			<div class="stat-title sm:hidden">TK</div>
-			<div class="stat-title hidden sm:block">Tanpa Keterangan</div>
+			<div class="stat-title text-wrap">Tanpa Keterangan</div>
 		</div>
 		
 		<!-- Total Hari -->
@@ -342,8 +378,7 @@
 			</div>
 			<div class="stat-value text-base-content">{stats.totalDays}</div>
 			<div class="stat-title">Total Hari</div>
-			<div class="stat-desc text-xs opacity-60 sm:hidden">/ 30 hari</div>
-			<div class="stat-desc text-xs opacity-60 hidden sm:block">30 hari terakhir</div>
+			<div class="stat-desc text-xs opacity-60 text-wrap">30 hari terakhir</div>
 		</div>
 	</div>
 

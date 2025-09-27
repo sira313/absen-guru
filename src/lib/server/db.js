@@ -120,6 +120,10 @@ export const dbHelpers = {
     };
 
     await db.insert(attendance).values(record);
+    
+    // Ensure data is committed by reading it back
+    await this.getAttendanceByUserAndDate(attendanceData.userId, attendanceData.date);
+    
     return record;
   },
 

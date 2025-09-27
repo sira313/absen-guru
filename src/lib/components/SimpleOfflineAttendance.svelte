@@ -1,7 +1,7 @@
 <script>
 	import { format } from 'date-fns';
 	import { id as localeId } from 'date-fns/locale';
-	import { CheckCircle, Clock, AlertTriangle, Wifi, WifiOff, CloudUpload } from 'lucide-svelte';
+	import { CheckCircle, Clock, AlertTriangle, Wifi, WifiOff, CloudUpload, Coffee } from 'lucide-svelte';
 	import { isOnline, offlineData, syncStatus, saveOfflineAttendance, syncOfflineData } from '$lib/stores/offline.js';
 	import { onMount } from 'svelte';
 	
@@ -13,6 +13,23 @@
 	let location = $state('');
 	let isSubmitting = $state(false);
 	let message = $state('');
+	
+	// Helper functions untuk weekend check
+	function isWeekend(date) {
+		const day = date.getDay();
+		return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
+	}
+	
+	function getWeekendDayName(date) {
+		const day = date.getDay();
+		if (day === 0) return "Minggu";
+		if (day === 6) return "Sabtu";
+		return "";
+	}
+	
+	// Check apakah hari ini weekend
+	let isWeekendToday = $derived(isWeekend(currentTime));
+	let weekendDayName = $derived(isWeekendToday ? getWeekendDayName(currentTime) : "");
 	
 	// Get current location
 	onMount(() => {
@@ -40,23 +57,31 @@
 		event.preventDefault();
 		if (isSubmitting) return;
 		
+		// Check if today is weekend
+		if (isWeekend(currentTime)) {
+			const dayName = getWeekendDayName(currentTime);
+			message = `❌ Tidak bisa melakukan absensi pada hari ${dayName}. Sistem absensi hanya tersedia pada hari kerja (Senin-Jumat).`;
+			return;
+		}
+		
 		isSubmitting = true;
 		message = '';
 		
+		// Define attendanceData outside try block so it's available in catch block
+		const attendanceData = {
+			userId: user.id,
+			date: format(new Date(), 'yyyy-MM-dd'),
+			checkIn: format(currentTime, 'HH:mm:ss'),
+			status: selectedStatus,
+			notes: notes.trim(),
+			location: location,
+			ipAddress: 'offline_mode'
+		};
+		
 		try {
-			const attendanceData = {
-				userId: user.id,
-				date: format(new Date(), 'yyyy-MM-dd'),
-				checkIn: format(currentTime, 'HH:mm:ss'),
-				status: selectedStatus,
-				notes: notes.trim(),
-				location: location,
-				ipAddress: 'offline_mode'
-			};
-			
 			if ($isOnline) {
-				// Online mode - kirim langsung ke server
-				const response = await fetch('/guru', {
+				// Online mode - kirim langsung ke server menggunakan SvelteKit form action
+				const response = await fetch('/guru?/absen', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
@@ -175,8 +200,33 @@
 			</div>
 		{/if}
 		
-		<!-- Form Absensi -->
-		<form onsubmit={handleOfflineSubmit} class="space-y-4">
+		<!-- Weekend Notice atau Form Absensi -->
+		{#if isWeekendToday}
+			<!-- Weekend Notice -->
+			<div class="bg-gradient-to-r from-info/10 to-info/5 rounded-lg p-6 border border-info/20">
+				<div class="flex items-center justify-center mb-4">
+					<div class="relative">
+						<div class="w-16 h-16 bg-info rounded-full flex items-center justify-center shadow-lg">
+							<Coffee class="w-8 h-8 text-info-content" />
+						</div>
+						<div class="absolute -top-1 -right-1 w-6 h-6 bg-info-content rounded-full border-2 border-info flex items-center justify-center">
+							<span class="text-info text-xs font-bold">☕</span>
+						</div>
+					</div>
+				</div>
+				
+				<div class="text-center space-y-2">
+					<h3 class="text-xl font-bold text-info">Selamat Hari {weekendDayName}!</h3>
+					<p class="text-base-content/70">Nikmati hari libur Anda. Sistem absensi akan tersedia kembali pada hari Senin.</p>
+					<div class="flex items-center justify-center gap-2 text-sm text-base-content/60">
+						<Clock class="w-4 h-4" />
+						<span>Hari kerja: Senin - Jumat</span>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<!-- Form Absensi -->
+			<form onsubmit={handleOfflineSubmit} class="space-y-4">
 			<!-- Waktu Saat Ini -->
 			<div class="bg-base-200 p-3 rounded-lg text-center">
 				<div class="text-sm text-base-content/70">Waktu Absen</div>
@@ -237,19 +287,20 @@
 					Processing...
 				{:else}
 					<Clock class="w-6 h-6 mr-2" />
-					{$isOnline ? 'Kirim Absensi' : 'Simpan Offline'}
+					{$isOnline ? 'Kirim' : 'Simpan'}
 					<div class="badge badge-outline ml-2">
 						{currentTimeString.slice(0, 5)}
 					</div>
 				{/if}
 			</button>
-		</form>
 		
-		<!-- Location Info -->
-		{#if location}
-			<div class="text-xs text-base-content/60 text-center mt-2">
-				📍 Location: {location}
-			</div>
+			<!-- Location Info -->
+			{#if location}
+				<div class="text-xs text-base-content/60 text-center mt-2">
+					📍 Location: {location}
+				</div>
+			{/if}
+		</form>
 		{/if}
 	</div>
 </div>
