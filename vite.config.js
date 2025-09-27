@@ -22,12 +22,15 @@ export default defineConfig({
           "icon-192.png",
           "icon-192.svg",
           "icon-512.png",
-          "icon-512.svg"
+          "icon-512.svg",
+          "offline.html"
         ],
         workbox: {
           // Define modifyURLPrefix to keep custom glob patterns untouched (avoids auto-added prerender glob)
           modifyURLPrefix: {},
-          navigateFallback: "/offline.html",
+          navigateFallback: undefined,
+          navigateFallbackAllowlist: [],
+          navigateFallbackDenylist: [/./],
           globPatterns: [
             "client/**/*.{js,css,ico,png,svg,webp,webmanifest}"
           ],
@@ -42,7 +45,16 @@ export default defineConfig({
                 expiration: {
                   maxEntries: 50,
                   maxAgeSeconds: 60 * 60 * 24
-                }
+                },
+                plugins: [
+                  {
+                    handlerDidError: async () =>
+                      (await caches.match("/offline.html")) ?? new Response("<h1>Offline</h1>", {
+                        status: 503,
+                        headers: { "Content-Type": "text/html" }
+                      })
+                  }
+                ]
               }
             },
             {
