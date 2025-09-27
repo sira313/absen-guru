@@ -180,7 +180,7 @@ self.addEventListener('fetch', (event) => {
       return cachedMain;
     }
 
-    // 5. If nothing in cache, try network and cache the response
+    // 5. If nothing in cache, try network and cache the response (auto-cache dynamic pages)
     if (event.request.method === 'GET') {
       try {
         console.log(`🌐 Fetching from network: ${url.pathname}`);
@@ -188,16 +188,25 @@ self.addEventListener('fetch', (event) => {
 
         if (networkResponse.ok) {
           const responseClone = networkResponse.clone();
-          
-          // Cache everything we fetch successfully
-          if (event.request.destination === 'document' || event.request.headers.get('accept')?.includes('text/html')) {
-            pagesCache.put(event.request, responseClone.clone());
-            console.log(`💾 Cached new page: ${url.pathname}`);
+          // Auto-cache all HTML/documents (dynamic or static)
+          if (
+            event.request.destination === 'document' ||
+            event.request.headers.get('accept')?.includes('text/html')
+          ) {
+            // Jangan double-cache halaman yang sudah ada di ALL_PAGES
+            const isStaticPage = ALL_PAGES.includes(url.pathname);
+            if (!isStaticPage) {
+              await pagesCache.put(event.request, responseClone.clone());
+              console.log(`💾 Auto-cached dynamic page: ${url.pathname}`);
+            } else {
+              // Tetap update cache untuk static page
+              await pagesCache.put(event.request, responseClone.clone());
+              console.log(`💾 Updated cached static page: ${url.pathname}`);
+            }
           } else {
-            runtimeCache.put(event.request, responseClone);
+            await runtimeCache.put(event.request, responseClone);
             console.log(`💾 Cached new resource: ${url.pathname}`);
           }
-          
           return networkResponse;
         }
       } catch (error) {
