@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline - Absen Guru</title>
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      main {
+        width: min(420px, 90vw);
+        text-align: center;
+        display: grid;
+        gap: 1.5rem;
+        padding: 2.5rem 2rem;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(20px);
+      }
+      .icon {
+        font-size: 4.5rem;
+        animation: bounce 2.5s infinite;
+      }
+      h1 {
+        font-size: 2.1rem;
+        line-height: 1.2;
+        margin: 0;
+      }
+      p {
+        margin: 0;
+        opacity: 0.88;
+        line-height: 1.6;
+        font-size: 1.05rem;
+      }
+      .actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      button {
+        padding: 0.75rem 1.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 2px solid rgba(255, 255, 255, 0.32);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(12px);
+      }
+      button:hover {
+        background: rgba(255, 255, 255, 0.28);
+        transform: translateY(-2px);
+      }
+      .status {
+        padding: 1.25rem;
+        border-radius: 18px;
+        background: rgba(0, 0, 0, 0.25);
+        line-height: 1.5;
+        font-size: 0.95rem;
+      }
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-12px);
+        }
+        60% {
+          transform: translateY(-6px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="icon">📱</div>
+      <h1>Mode Offline</h1>
+      <p>Aplikasi sedang berjalan tanpa koneksi internet. Beberapa fitur mungkin terbatas.</p>
+
+      <div class="actions">
+        <button type="button" onclick="window.location.reload()">↻ Coba Lagi</button>
+        <button type="button" onclick="window.history.back()">← Kembali</button>
+        <button type="button" onclick="window.location.assign('/')">🏠 Beranda</button>
+      </div>
+
+      <section class="status">
+        <div><strong>Status:</strong> <span id="status">Offline</span></div>
+        <div><strong>Halaman:</strong> <span id="path"></span></div>
+        <div style="margin-top: 0.75rem; opacity: 0.85;">
+          💾 Data tersimpan aman di perangkat Anda<br />
+          📶 Hubungkan kembali ke internet untuk sinkronisasi
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const updateStatus = () => {
+        document.getElementById('status').textContent = navigator.onLine ? 'Online' : 'Offline';
+        document.getElementById('path').textContent = window.location.pathname;
+      };
+
+      window.addEventListener('online', () => {
+        updateStatus();
+        setTimeout(() => window.location.reload(), 1000);
+      });
+
+      window.addEventListener('offline', updateStatus);
+      updateStatus();
+    </script>
+  </body>
+</html>
