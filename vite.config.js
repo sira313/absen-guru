@@ -40,13 +40,21 @@ export default defineConfig({
               urlPattern: ({ request }) => request.mode === "navigate",
               handler: "NetworkFirst",
               options: {
-                cacheName: "pages",
+                cacheName: "pages-v2",
                 networkTimeoutSeconds: 5,
                 expiration: {
                   maxEntries: 50,
                   maxAgeSeconds: 60 * 60 * 24
                 },
                 plugins: [
+                  {
+                    cacheWillUpdate: async ({ response }) => {
+                      if (!response || response.type === "opaqueredirect") {
+                        return null;
+                      }
+                      return response;
+                    }
+                  },
                   {
                     handlerDidError: async () =>
                       (await caches.match("/offline.html")) ?? new Response("<h1>Offline</h1>", {
