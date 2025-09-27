@@ -25,6 +25,8 @@ export default defineConfig({
           "icon-512.svg"
         ],
         workbox: {
+          // Define modifyURLPrefix to keep custom glob patterns untouched (avoids auto-added prerender glob)
+          modifyURLPrefix: {},
           navigateFallback: "/offline.html",
           globPatterns: [
             "client/**/*.{js,css,ico,png,svg,webp,webmanifest}"
@@ -68,7 +70,19 @@ export default defineConfig({
                 expiration: {
                   maxEntries: 60,
                   maxAgeSeconds: 60 * 5
-                }
+                },
+                plugins: [
+                  {
+                    handlerDidError: async () =>
+                      new Response(
+                        JSON.stringify({ error: "offline", message: "Data tidak bisa dimuat saat offline" }),
+                        {
+                          status: 503,
+                          headers: { "Content-Type": "application/json" }
+                        }
+                      )
+                  }
+                ]
               }
             }
           ],

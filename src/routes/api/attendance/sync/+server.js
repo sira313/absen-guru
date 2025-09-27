@@ -12,7 +12,25 @@ export async function POST({ request, locals }) {
             return json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const data = await request.json();
+        const rawBody = await request.text();
+
+        if (!rawBody) {
+            return json({ error: 'invalid_payload', message: 'Body is required' }, { status: 400 });
+        }
+
+        let data;
+        try {
+            data = JSON.parse(rawBody);
+        } catch (parseError) {
+            console.error('Sync attendance invalid JSON payload:', parseError, rawBody.slice(0, 120));
+            return json(
+                {
+                    error: 'invalid_json',
+                    message: 'Payload must be valid JSON',
+                },
+                { status: 400 },
+            );
+        }
         
         // Validate data
         if (!data.date || !data.status || !data.userId) {

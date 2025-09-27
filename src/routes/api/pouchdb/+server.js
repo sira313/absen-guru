@@ -9,6 +9,21 @@ import { eq, gte } from 'drizzle-orm';
  * Handles CRUD operations with conflict resolution
  */
 
+async function parseJsonBody(request) {
+    const rawBody = await request.text();
+
+    if (!rawBody) {
+        throw new SyntaxError('Empty body');
+    }
+
+    try {
+        return JSON.parse(rawBody);
+    } catch (error) {
+        error.rawBody = rawBody;
+        throw error;
+    }
+}
+
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {
     try {
@@ -43,7 +58,7 @@ export async function GET({ url }) {
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, url }) {
     try {
-        const body = await request.json();
+        const body = await parseJsonBody(request);
         const method = url.searchParams.get('method');
         
         switch (method) {
@@ -58,6 +73,14 @@ export async function POST({ request, url }) {
                 return await handleDocumentWrite(body);
         }
     } catch (error) {
+        if (error instanceof SyntaxError) {
+            console.error('PouchDB POST invalid JSON:', error.rawBody?.slice(0, 120) ?? '');
+            return json({
+                error: 'invalid_json',
+                reason: 'Payload must be valid JSON',
+            }, { status: 400 });
+        }
+
         console.error('PouchDB POST Error:', error);
         return json({ 
             error: 'internal_server_error',
@@ -69,11 +92,19 @@ export async function POST({ request, url }) {
 /** @type {import('./$types').RequestHandler} */
 export async function PUT({ request, url }) {
     try {
-        const body = await request.json();
+        const body = await parseJsonBody(request);
         const docId = url.pathname.split('/').pop();
         
         return await handleDocumentWrite({ ...body, _id: docId });
     } catch (error) {
+        if (error instanceof SyntaxError) {
+            console.error('PouchDB PUT invalid JSON:', error.rawBody?.slice(0, 120) ?? '');
+            return json({
+                error: 'invalid_json',
+                reason: 'Payload must be valid JSON',
+            }, { status: 400 });
+        }
+
         console.error('PouchDB PUT Error:', error);
         return json({ 
             error: 'internal_server_error',
