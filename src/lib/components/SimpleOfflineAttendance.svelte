@@ -3,6 +3,7 @@
 	import { id as localeId } from 'date-fns/locale';
 	import { CheckCircle, Clock, AlertTriangle, Wifi, WifiOff, CloudUpload, Coffee } from 'lucide-svelte';
 	import { isOnline, offlineData, syncStatus, saveOfflineAttendance, syncOfflineData } from '$lib/stores/offline.js';
+	import { showSuccess, showError, showInfo } from '$lib/stores/toast.js';
 	import { onMount } from 'svelte';
 	
 	let { user } = $props();
@@ -60,7 +61,7 @@
 		// Check if today is weekend
 		if (isWeekend(currentTime)) {
 			const dayName = getWeekendDayName(currentTime);
-			message = `❌ Tidak bisa melakukan absensi pada hari ${dayName}. Sistem absensi hanya tersedia pada hari kerja (Senin-Jumat).`;
+			showError(`Tidak bisa melakukan absensi pada hari ${dayName}. Sistem absensi hanya tersedia pada hari kerja (Senin-Jumat).`);
 			return;
 		}
 		
@@ -91,7 +92,7 @@
 				});
 				
 				if (response.ok) {
-					message = '✅ Absensi berhasil dikirim!';
+					showSuccess('Absensi berhasil dikirim!');
 					resetForm();
 				} else {
 					throw new Error('Server error');
@@ -112,10 +113,10 @@
 					message = '⚠️ Server tidak dapat dijangkau. Disimpan offline untuk sync nanti.';
 					resetForm();
 				} catch (offlineError) {
-					message = '❌ Error: ' + offlineError.message;
+					showError('Error: ' + offlineError.message);
 				}
 			} else {
-				message = '❌ Error: ' + error.message;
+				showError('Error: ' + error.message);
 			}
 		} finally {
 			isSubmitting = false;

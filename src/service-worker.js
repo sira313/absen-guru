@@ -1,83 +1,152 @@
-// Service Worker untuk PWA
-const CACHE_VERSION = "1.0.0";
-const CACHE = `cache-${CACHE_VERSION}`;
+// Service Worker untuk PWA Offline-First
+const CACHE_VERSION = "2.0.0";
+const CACHE_NAME = `absen-guru-cache-${CACHE_VERSION}`;
+const OFFLINE_URL = '/';
 
-// Assets to cache (app shell) - only static files that actually exist
-const ASSETS = [
+// Critical assets that must be cached for offline functionality
+const STATIC_ASSETS = [
   "/",
   "/favicon.png",
   "/favicon.svg",  
   "/icon-192.png",
   "/icon-512.png",
   "/manifest.json"
-  // Removed dynamic routes to prevent cache errors
+];
+
+// Important routes to cache for offline access
+const ROUTES_TO_CACHE = [
+  "/",
+  "/login",
+  "/guru",
+  "/profile",
+  "/about"
+];
+
+// Files that should be cached when accessed - for future use
+const _CACHE_ON_ACCESS = [
+  // CSS and JS files will be cached when loaded
+  // API responses will be cached selectively
 ];
 
 // Install service worker
 self.addEventListener("install", (event) => {
-  // Create a new cache and add all files to it
-  async function addFilesToCache() {
-    const cache = await caches.open(CACHE);
-    await cache.addAll(ASSETS);
+  console.log('Service Worker installing...');
+  
+  async function installCache() {
+    const cache = await caches.open(CACHE_NAME);
+    
+    // Cache static assets first
+    try {
+      await cache.addAll(STATIC_ASSETS);
+      console.log('Static assets cached successfully');
+    } catch (error) {
+      console.warn('Some static assets failed to cache:', error);
+    }
+    
+    // Cache important routes
+    for (const route of ROUTES_TO_CACHE) {
+      try {
+        const response = await fetch(route);
+        if (response.ok) {
+          await cache.put(route, response);
+        }
+      } catch (error) {
+        console.warn(`Failed to cache route ${route}:`, error);
+      }
+    }
   }
 
-  event.waitUntil(addFilesToCache());
+  event.waitUntil(installCache());
+  // Force activation of new service worker
+  self.skipWaiting();
 });
 
 // Activate service worker
 self.addEventListener("activate", (event) => {
-  // Remove previous cached data from disk
-  async function deleteOldCaches() {
-    for (const key of await caches.keys()) {
-      if (key !== CACHE) await caches.delete(key);
-    }
+  console.log('Service Worker activating...');
+  
+  async function cleanupAndActivate() {
+    // Remove old caches
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map(cacheName => {
+        if (cacheName !== CACHE_NAME) {
+          console.log('Deleting old cache:', cacheName);
+          return caches.delete(cacheName);
+        }
+      })
+    );
+    
+    // Take control of all clients immediately
+    await self.clients.claim();
+    console.log('Service Worker activated and claimed clients');
   }
 
-  event.waitUntil(deleteOldCaches());
+  event.waitUntil(cleanupAndActivate());
 });
 
-// Handle fetch events
+// Handle fetch events with offline-first strategy
 self.addEventListener("fetch", (event) => {
-  // Ignore non-http requests
+  // Only handle GET requests
   if (event.request.method !== "GET") return;
+  
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) return;
 
-  async function respond() {
-    const url = new URL(event.request.url);
-    const cache = await caches.open(CACHE);
+  event.respondWith(handleFetch(event.request));
+});
 
-    // Serve build files from cache
-    if (ASSETS.includes(url.pathname)) {
-      const response = await cache.match(url.pathname);
-      if (response) {
-        return response;
-      }
-    }
+async function handleFetch(request) {
+  const url = new URL(request.url);
+  const cache = await caches.open(CACHE_NAME);
 
-    // Try the network first, fall back to cache
-    try {
-      const response = await fetch(event.request);
-
-      // Cache successful responses
-      if (!(response instanceof Response)) {
-        throw new Error("invalid response from fetch");
-      }
-
-      if (response.status === 200) {
-        cache.put(event.request, response.clone());
-      }
-
-      return response;
-    } catch (err) {
-      // Network failed, try cache
-      const response = await cache.match(event.request);
-      if (response) {
-        return response;
-      }
-
-      // If we don't have it cached, return a fallback
-      throw err;
+  // Strategy 1: Cache First for static assets and important routes
+  if (STATIC_ASSETS.includes(url.pathname) || ROUTES_TO_CACHE.includes(url.pathname)) {
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
     }
   }
 
-  event.respondWith(respond());
-});
+  // Strategy 2: Network First with Cache Fallback for dynamic content
+  try {
+    const networkResponse = await fetch(request);
+    
+    // Cache successful responses for future offline access
+    if (networkResponse.ok) {
+      // Clone the response before caching
+      const responseToCache = networkResponse.clone();
+      
+      // Cache HTML pages, CSS, JS files
+      if (
+        request.destination === 'document' ||
+        request.destination === 'style' ||
+        request.destination === 'script' ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.startsWith('/_app/')
+      ) {
+        await cache.put(request, responseToCache);
+      }
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // Network failed - try cache fallback
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // If requesting a page and we have no cache, return offline page
+    if (request.destination === 'document') {
+      const offlineResponse = await cache.match(OFFLINE_URL);
+      if (offlineResponse) {
+        return offlineResponse;
+      }
+    }
+    
+    // Return error for other requests
+    throw error;
+  }
+}
