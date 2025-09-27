@@ -2,7 +2,7 @@
 https://svelte.dev/e/legacy_reactive_statement_invalid -->
 <script>
 	import '../app.css';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import { onMount } from 'svelte';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 	import OnlineDetector from '$lib/components/OnlineDetector.svelte';
@@ -13,30 +13,33 @@ https://svelte.dev/e/legacy_reactive_statement_invalid -->
 	let user = $derived(data.user);
 	
 	// Register service worker for offline functionality
-	onMount(() => {
+	onMount(async () => {
 		if (browser && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/service-worker.js')
-				.then(registration => {
-					console.log('Service Worker registered successfully:', registration);
-					
-					// Listen for updates
-					registration.addEventListener('updatefound', () => {
-						const newWorker = registration.installing;
-						console.log('Service Worker update found');
-						
-						if (newWorker) {
-							newWorker.addEventListener('statechange', () => {
-								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-									console.log('New Service Worker available, please refresh');
-									// You could show a notification here to refresh
-								}
-							});
-						}
-					});
-				})
-				.catch(error => {
-					console.error('Service Worker registration failed:', error);
+			try {
+				// Register service worker with proper options for development
+				const registration = await navigator.serviceWorker.register('/service-worker.js', {
+					type: dev ? 'module' : 'classic'
 				});
+				
+				console.log('Service Worker registered successfully:', registration);
+				
+				// Listen for updates
+				registration.addEventListener('updatefound', () => {
+					const newWorker = registration.installing;
+					console.log('Service Worker update found');
+					
+					if (newWorker) {
+						newWorker.addEventListener('statechange', () => {
+							if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+								console.log('New Service Worker available, please refresh');
+								// You could show a notification here to refresh
+							}
+						});
+					}
+				});
+			} catch (error) {
+				console.error('Service Worker registration failed:', error);
+			}
 		}
 	});
 </script>
