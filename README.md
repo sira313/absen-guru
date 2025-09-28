@@ -40,7 +40,7 @@
 ### 📊 **Laporan Otomatis**
 - 📈 Rekap absensi harian, mingguan, bulanan
 - 📋 Export ke Excel untuk keperluan administrasi
-- 💰 Laporan TPP (Tunjangan Profesi Pendidik)
+- 💰 Laporan TPP (Tunjangan Penambahan Penghasilan)
 - 📤 Download backup database
 
 ### 📱 **PWA & Mode Offline**
