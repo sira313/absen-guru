@@ -43,6 +43,12 @@
 - 💰 Laporan TPP (Tunjangan Profesi Pendidik)
 - 📤 Download backup database
 
+### 📱 **PWA & Mode Offline**
+- 📲 Bisa di-install di HP/laptop seperti aplikasi native
+- 🔄 Auto-update service worker setiap rilis baru
+- 📦 Aset utama (CSS/JS/icon) tersimpan aman untuk akses tanpa internet
+- 📰 Halaman penting tetap bisa dibuka meskipun koneksi terputus (menampilkan offline fallback)
+
 ---
 
 ## 🚀 Cara Install (Super Mudah!)
@@ -108,6 +114,15 @@ launcher.bat
 
 > 📖 **Detail:** [**NETWORK_SETUP.md**](NETWORK_SETUP.md) | [**docs/CLOUDFLARE_TUNNEL.md**](docs/CLOUDFLARE_TUNNEL.md)
 
+### 📲 Instal Sebagai Aplikasi (PWA)
+
+1. Buka aplikasi lewat Chrome/Edge/Firefox (Android) atau Safari (iOS)
+2. Saat banner “Install App” muncul → pilih **Add to Home Screen / Install**
+3. Jika banner tidak muncul, buka menu browser → pilih **Install / Add to Home Screen**
+4. Setelah terpasang, aplikasi bisa dibuka full-screen tanpa address bar
+
+> ℹ️ Saat internet terputus, aplikasi tetap bisa dibuka dan menampilkan halaman offline khusus dengan instruksi untuk sinkronisasi ulang.
+
 ---
 
 ## 👤 Login Pertama Kali
@@ -161,6 +176,12 @@ Setelah install, login dengan:
 </details>
 
 <details>
+<summary><strong>📴 Apa yang terjadi kalau koneksi internet mati?</strong></summary>
+
+Aplikasi punya service worker yang menyimpan aset utama untuk mode offline. Saat jaringan putus, halaman offline khusus akan muncul dengan instruksi refresh. Begitu koneksi kembali, data otomatis tersinkronisasi ulang.
+</details>
+
+<details>
 <summary><strong>💾 Bagaimana backup data?</strong></summary>
 
 Login sebagai admin → Pengaturan → Export Database. File backup akan terdownload ke komputer.
@@ -198,12 +219,13 @@ Download versi terbaru, backup data dulu, lalu install ulang. Data bisa di-impor
 
 ---
 
-## � System Requirements
+## ⚙️ System Requirements
 
 - **OS:** Windows 10+, Ubuntu 18+, macOS 10.15+
 - **RAM:** 512MB available  
 - **Storage:** 100MB free space
-- **Node.js:** v18+ (auto-install via launcher)
+- **Node.js:** v22+ (auto-install via launcher)
+- **Package Manager:** pnpm (sudah termasuk di setup)
 
 ---
 

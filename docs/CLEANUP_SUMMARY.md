@@ -9,15 +9,13 @@
 - `DEPLOYMENT_SIMPLE.md` - Dokumentasi duplikat
 
 ### Backup Files
-- Membersihkan folder `backups/` dari 50+ files menjadi hanya 3 files terbaru:
-  - `auto-backup-before-import-2025-09-25T11-49-40-882Z.db`
-  - `backup-absen-2025-09-25T11-49-09-996Z.db`
-  - `backup-absen-2025-09-25T11-49-21-517Z.db`
+- Folder `backups/` dibersihkan dan dikeluarkan dari repository (backup disimpan terpisah)
+- Gunakan menu admin → Export Database untuk membuat backup baru saat dibutuhkan
 
-### Cache Files
-- `node_modules/.cache/` - Cache Node.js
-- `node_modules/.vite/` - Cache Vite
-- `.svelte-kit/output/.vite/` - Cache SvelteKit
+### Cache & Build Files
+- `build/` dihapus dari repo (digenerate ulang setiap `pnpm build`)
+- `logs/` dihapus, gunakan launcher/PM2 untuk melihat log terbaru
+- Cache Vite (`node_modules/.vite/`, `.svelte-kit/output/.vite/`) dibersihkan sehingga build fresh
 
 ## Struktur Project Sekarang
 
@@ -25,41 +23,39 @@
 absen-guru/
 ├── 📁 Core Application
 │   ├── src/                    # Source code
-│   ├── static/                 # Static assets
-│   ├── build/                  # Production build
-│   └── absen.db               # Database
+│   ├── static/                 # Static assets + manifest/icon PWA
+│   └── absen.db                # Database lokal (tidak dibawa ke production)
 │
 ├── 📁 Configuration
 │   ├── package.json
+│   ├── pnpm-lock.yaml
 │   ├── svelte.config.js
 │   ├── vite.config.js
 │   └── drizzle.config.js
 │
 ├── 📁 Deployment
-│   ├── deploy-production.*     # Deployment scripts
-│   ├── manage-deployment.*     # Management scripts
-│   ├── quick-deploy.sh         # Quick deployment
-│   ├── setup-*.sh/.bat        # Setup scripts
-│   └── ecosystem.config.cjs    # PM2 config
+│   ├── launcher.*              # Launcher Windows/Linux
+│   ├── setup-*.sh/.bat         # Setup otomatis
+│   └── ecosystem.config.cjs    # Konfigurasi PM2
 │
-├── 📁 Documentation
+├── 📁 Dokumentasi
 │   ├── README.md
 │   ├── FIRST_INSTALL.md
 │   ├── DEPLOYMENT_GUIDE.md
 │   ├── PRODUCTION_READY.md
 │   └── docs/
 │
-└── 📁 Data & Logs
-    ├── backups/               # Database backups (3 files)
-    ├── logs/                  # PM2 logs
-    └── scripts/               # Utility scripts
+└── 📁 Utility
+    ├── scripts/                # Script maintenance (seed/reset)
+    ├── .github/                # Automation & Copilot instructions
+    └── node_modules/           # Dependencies (tidak di-commit)
 ```
 
 ## Tips untuk menjaga kebersihan
 
-1. **Backup otomatis** sudah dibatasi ke 3 file terbaru
-2. **Cache files** akan ter-regenerate otomatis saat build
-3. **Log files** kecil dan tidak perlu dibersihkan rutin
-4. **Build directory** bisa dihapus dan di-rebuild kapan saja
+1. **Simpan backup** di luar repo (Google Drive, NAS, dsb.) agar repository tetap ringan
+2. **Build & log** jangan di-commit; gunakan `pnpm build` untuk regenerate dan PM2/launcher untuk log
+3. **Cache Vite** aman dihapus kapan saja jika build bermasalah
+4. **Cek dependencies** secara berkala: jalankan `pnpm install` setelah perubahan `package.json`
 
 ## Status: ✅ Clean dan siap production!
