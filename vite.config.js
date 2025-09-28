@@ -38,23 +38,9 @@ export default defineConfig({
           runtimeCaching: [
             {
               urlPattern: ({ request }) => request.mode === "navigate",
-              handler: "NetworkFirst",
+              handler: "NetworkOnly",
               options: {
-                cacheName: "pages-v2",
-                networkTimeoutSeconds: 5,
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24
-                },
                 plugins: [
-                  {
-                    cacheWillUpdate: async ({ response }) => {
-                      if (!response || response.type === "opaqueredirect") {
-                        return null;
-                      }
-                      return response;
-                    }
-                  },
                   {
                     handlerDidError: async () =>
                       (await caches.match("/offline.html")) ?? new Response("<h1>Offline</h1>", {
@@ -105,20 +91,7 @@ export default defineConfig({
                 ]
               }
             }
-          ],
-          additionalManifestEntries: [
-            "/",
-            "/login",
-            "/logout",
-            "/guru",
-            "/guru/riwayat",
-            "/admin",
-            "/admin/users",
-            "/admin/laporan",
-            "/admin/pengaturan",
-            "/profile",
-            "/about"
-          ].map((url) => ({ url, revision: null }))
+          ]
         },
         devOptions: {
           enabled: true,
